@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import Studio from './Studio'
 import MyCreations from './MyCreations'
+import Cart from './Cart'
+import Catalog from './Catalog'
+import Checkout from './Checkout'
+import { API_BASE_URL } from './config'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -14,8 +18,6 @@ function App() {
   const [successMsg, setSuccessMsg] = useState(null)
 
   const [view, setView] = useState('catalog')
-  const [products, setProducts] = useState([])
-  const [loadingProducts, setLoadingProducts] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [initialCustomization, setInitialCustomization] = useState(null)
 
@@ -23,9 +25,11 @@ function App() {
   const [loadingCreations, setLoadingCreations] = useState(false)
   const [creationsError, setCreationsError] = useState(null)
 
+  const [cartCount, setCartCount] = useState(0)
+
   const fetchCurrentUser = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/me', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
         credentials: 'include',
       })
       if (res.ok) {
@@ -41,18 +45,23 @@ function App() {
     }
   }
 
-  const fetchProducts = async () => {
-    setLoadingProducts(true)
+  const fetchCartCount = async () => {
+    if (!user) {
+      setCartCount(0)
+      return
+    }
     try {
-      const res = await fetch('http://localhost:5000/api/v1/products')
+      const res = await fetch(`${API_BASE_URL}/api/v1/cart`, {
+        credentials: 'include',
+      })
       if (res.ok) {
         const data = await res.json()
-        setProducts(data.data.products || [])
+        const items = data.data.cart ? data.data.cart.items || [] : []
+        const total = items.reduce((acc, item) => acc + item.quantity, 0)
+        setCartCount(total)
       }
     } catch (err) {
-      console.error('Failed to fetch products', err)
-    } finally {
-      setLoadingProducts(false)
+      console.error('Failed to fetch cart count', err)
     }
   }
 
@@ -61,7 +70,7 @@ function App() {
     setLoadingCreations(true)
     setCreationsError(null)
     try {
-      const res = await fetch('http://localhost:5000/api/v1/customizations', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/customizations`, {
         credentials: 'include',
       })
       if (res.ok) {
@@ -80,8 +89,11 @@ function App() {
 
   useEffect(() => {
     fetchCurrentUser()
-    fetchProducts()
   }, [])
+
+  useEffect(() => {
+    fetchCartCount()
+  }, [user])
 
   const handleRegister = async (e) => {
     e.preventDefault()
@@ -89,7 +101,7 @@ function App() {
     setSuccessMsg(null)
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -98,15 +110,14 @@ function App() {
 
       const data = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Registration failed')
+      if (res.ok) {
+        setUser(data.data.user)
+        setSuccessMsg('Registration successful!')
+      } else {
+        setError(data.message || 'Registration failed')
       }
-
-      setSuccessMsg('Registration successful! Please log in.')
-      setMode('login')
-      setPassword('')
     } catch (err) {
-      setError(err.message)
+      setError('Network error during registration')
     }
   }
 
@@ -116,7 +127,7 @@ function App() {
     setSuccessMsg(null)
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -125,29 +136,28 @@ function App() {
 
       const data = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Login failed')
+      if (res.ok) {
+        setUser(data.data.user)
+        setSuccessMsg('Login successful!')
+      } else {
+        setError(data.message || 'Login failed')
       }
-
-      setName('')
-      setEmail('')
-      setPassword('')
-      await fetchCurrentUser()
     } catch (err) {
-      setError(err.message)
+      setError('Network error during login')
     }
   }
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/api/v1/auth/logout', {
+      await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
-    } catch (err) {
-    } finally {
       setUser(null)
       setView('catalog')
+      setCartCount(0)
+    } catch (err) {
+      console.error('Logout error', err)
     }
   }
 
@@ -163,34 +173,23 @@ function App() {
   }
 
   const handleEditCreation = (customization) => {
-    const targetProduct = customization.product && typeof customization.product === 'object'
-      ? customization.product
-      : products.find((p) => p._id === customization.product) || { _id: customization.product, name: 'Custom Product', basePrice: 0 }
-
-    setSelectedProduct(targetProduct)
+    setSelectedProduct(customization.product)
     setInitialCustomization(customization)
     setView('studio')
   }
 
   const handleDeleteCreation = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this customization?')) {
-      return
-    }
-
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/customizations/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/customizations/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       })
-
-      const data = await res.json()
-
-      if (!res.ok) {
+      if (res.ok) {
+        setCreations((prev) => prev.filter((item) => item._id !== id))
+      } else {
+        const data = await res.json()
         alert(data.message || 'Failed to delete customization.')
-        return
       }
-
-      setCreations((prev) => prev.filter((item) => item._id !== id))
     } catch (err) {
       alert('Error connecting to backend to delete customization.')
     }
@@ -203,38 +202,48 @@ function App() {
         user={user}
         initialCustomization={initialCustomization}
         onBack={() => setView('catalog')}
-      />
-    )
-  }
-
-  if (view === 'creations') {
-    return (
-      <MyCreations
-        customizations={creations}
-        loading={loadingCreations}
-        error={creationsError}
-        onEdit={handleEditCreation}
-        onDelete={handleDeleteCreation}
-        onBackToCatalog={() => setView('catalog')}
+        onNavigateToCart={() => {
+          fetchCartCount()
+          setView('cart')
+        }}
       />
     )
   }
 
   return (
-    <div style={{ maxWidth: '900px', margin: '20px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
-        <h2 style={{ margin: 0 }}>ANIVOM Portal</h2>
-        <div>
+    <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#FFFDF8', fontFamily: 'sans-serif' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', backgroundColor: '#111111', color: '#FFFDF8' }}>
+        <h2 style={{ margin: 0, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase' }} onClick={() => setView('catalog')}>
+          ANIVOM
+        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={() => setView('catalog')}
+            style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: view === 'catalog' ? '#7A1F3D' : 'transparent', color: '#FFFDF8', border: 'none', borderRadius: '4px', fontWeight: '600' }}
+          >
+            Catalog
+          </button>
+
+          <button
+            onClick={() => setView('cart')}
+            style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: view === 'cart' ? '#7A1F3D' : 'transparent', color: '#FFFDF8', border: 'none', borderRadius: '4px', fontWeight: '600' }}
+          >
+            Bag ({cartCount})
+          </button>
+
+          {user && (
+            <button
+              onClick={openMyCreations}
+              style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: view === 'creations' ? '#C6A15B' : '#C6A15B', color: '#111111', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}
+            >
+              My Creations
+            </button>
+          )}
+
           {authLoading ? (
             <span>Checking auth...</span>
           ) : user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <button
-                onClick={openMyCreations}
-                style={{ padding: '6px 12px', cursor: 'pointer', backgroundColor: '#805ad5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}
-              >
-                My Creations
-              </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '8px' }}>
               <span>Hi, <strong>{user.name}</strong></span>
               <button
                 onClick={handleLogout}
@@ -244,13 +253,20 @@ function App() {
               </button>
             </div>
           ) : (
-            <span style={{ fontSize: '14px', color: '#666' }}>Not logged in</span>
+            <div style={{ display: 'flex', gap: '8px', marginLeft: '8px' }}>
+              <button
+                onClick={() => { setView('catalog'); setMode('login'); }}
+                style={{ padding: '6px 12px', cursor: 'pointer', backgroundColor: '#FFFDF8', color: '#111111', border: 'none', borderRadius: '4px', fontWeight: '600' }}
+              >
+                Sign In
+              </button>
+            </div>
           )}
         </div>
       </header>
 
-      {!user && !authLoading && (
-        <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '30px' }}>
+      {!user && !authLoading && view === 'catalog' && (
+        <div style={{ maxWidth: '480px', margin: '20px auto', padding: '24px', background: '#F7F2E8', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
           <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
             <button
               onClick={() => { setMode('login'); setError(null); setSuccessMsg(null); }}
@@ -272,92 +288,87 @@ function App() {
           <form onSubmit={mode === 'login' ? handleLogin : handleRegister}>
             {mode === 'register' && (
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '4px' }}>Name:</label>
+                <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: '600' }}>Name:</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
               </div>
             )}
 
             <div style={{ marginBottom: '10px' }}>
-              <label style={{ display: 'block', marginBottom: '4px' }}>Email:</label>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: '600' }}>Email:</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
               />
             </div>
 
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '4px' }}>Password:</label>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: '600' }}>Password:</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
               />
             </div>
 
             <button
               type="submit"
-              style={{ width: '100%', padding: '10px', backgroundColor: '#3182ce', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              style={{ width: '100%', padding: '10px', backgroundColor: '#111111', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '700' }}
             >
-              {mode === 'login' ? 'Log In' : 'Register'}
+              {mode === 'login' ? 'Log In' : 'Register Account'}
             </button>
           </form>
         </div>
       )}
 
-      <section>
-        <h3>Product Catalog</h3>
-        {loadingProducts ? (
-          <p>Loading products...</p>
-        ) : products.length === 0 ? (
-          <p>No products found in catalog.</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px', marginTop: '15px' }}>
-            {products.map((product) => (
-              <div
-                key={product._id}
-                style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-              >
-                <div>
-                  {product.images && product.images.length > 0 ? (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }}
-                    />
-                  ) : (
-                    <div style={{ width: '100%', height: '180px', backgroundColor: '#f0f0f0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', marginBottom: '10px' }}>
-                      No Image
-                    </div>
-                  )}
-                  <h4 style={{ margin: '0 0 5px 0' }}>{product.name}</h4>
-                  <p style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>₹{product.basePrice}</p>
-                </div>
-                <button
-                  onClick={() => openStudio(product)}
-                  style={{ width: '100%', padding: '8px', backgroundColor: '#805ad5', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                  Customize in Studio &rarr;
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {view === 'creations' && (
+        <MyCreations
+          customizations={creations}
+          loading={loadingCreations}
+          error={creationsError}
+          onEdit={handleEditCreation}
+          onDelete={handleDeleteCreation}
+          onBackToCatalog={() => setView('catalog')}
+        />
+      )}
+
+      {view === 'cart' && (
+        <Cart
+          user={user}
+          onContinueShopping={() => setView('catalog')}
+          onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
+          onProceedToCheckout={() => setView('checkout')}
+        />
+      )}
+
+      {view === 'checkout' && (
+        <Checkout
+          user={user}
+          onContinueShopping={() => setView('catalog')}
+          onReturnToCart={() => setView('cart')}
+          onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
+        />
+      )}
+
+      {view === 'catalog' && (
+        <Catalog
+          user={user}
+          openStudio={openStudio}
+          onCartUpdated={fetchCartCount}
+        />
+      )}
     </div>
   )
 }
 
 export default App
-
-

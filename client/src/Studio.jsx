@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Studio.css';
+import { API_BASE_URL } from './config';
 import { PREDEFINED_DESIGNS } from './designsData';
 
 const Studio = ({ product, user, initialCustomization, onBack }) => {
@@ -326,83 +327,84 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
     setLayers(reordered);
   };
 
+  const saveCustomizationInternal = async () => {
+    if (!user) {
+      throw new Error('You must be logged in to save a customization.');
+    }
+
+    if (!product || !product._id) {
+      throw new Error('No product selected.');
+    }
+
+    if (!selectedSize) {
+      throw new Error('Please select a size.');
+    }
+
+    if (!selectedColour) {
+      throw new Error('Please select a colour.');
+    }
+
+    const sanitizedLayers = layers.map((layer) => {
+      if (layer.type === 'uploaded_image') {
+        return {
+          ...layer,
+          image: {
+            ...layer.image,
+            url: layer.image.url && layer.image.url.startsWith('blob:')
+              ? '/uploads/temp-placeholder.png'
+              : layer.image.url,
+          },
+        };
+      }
+      return layer;
+    });
+
+    const payload = {
+      product: product._id,
+      size: selectedSize,
+      colour: selectedColour,
+      layers: sanitizedLayers,
+      status: 'saved',
+    };
+
+    const url = customizationId
+      ? `${API_BASE_URL}/api/v1/customizations/${customizationId}`
+      : `${API_BASE_URL}/api/v1/customizations`;
+
+    const method = customizationId ? 'PATCH' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to save customization.');
+    }
+
+    const savedId = customizationId || (data.data && data.data.customization ? data.data.customization._id : null);
+    if (!customizationId && savedId) {
+      setCustomizationId(savedId);
+    }
+
+    return data.data ? data.data.customization : { _id: savedId };
+  };
+
   const handleSaveCustomization = async () => {
     setSaveMessage(null);
     setSaveError(null);
 
-    if (!user) {
-      setSaveError('You must be logged in to save a customization.');
-      return;
-    }
-
-    if (!product || !product._id) {
-      setSaveError('No product selected.');
-      return;
-    }
-
-    if (!selectedSize) {
-      setSaveError('Please select a size.');
-      return;
-    }
-
-    if (!selectedColour) {
-      setSaveError('Please select a colour.');
-      return;
-    }
-
     if (isSaving) return;
-
     setIsSaving(true);
 
     try {
-      const sanitizedLayers = layers.map((layer) => {
-        if (layer.type === 'uploaded_image') {
-          return {
-            ...layer,
-            image: {
-              ...layer.image,
-              url: layer.image.url && layer.image.url.startsWith('blob:')
-                ? '/uploads/temp-placeholder.png'
-                : layer.image.url,
-            },
-          };
-        }
-        return layer;
-      });
-
-      const payload = {
-        product: product._id,
-        size: selectedSize,
-        colour: selectedColour,
-        layers: sanitizedLayers,
-        status: 'saved',
-      };
-
-      const url = customizationId
-        ? `http://localhost:5000/api/v1/customizations/${customizationId}`
-        : 'http://localhost:5000/api/v1/customizations';
-
-      const method = customizationId ? 'PATCH' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to save customization.');
-      }
-
-      if (!customizationId && data.data && data.data.customization) {
-        setCustomizationId(data.data.customization._id);
-      }
-
+      await saveCustomizationInternal();
       setSaveMessage(
         customizationId
           ? 'Customization updated successfully!'
@@ -412,6 +414,56 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
       setSaveError(err.message || 'Error communicating with customization API.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAddToCartCustomized = async () => {
+    if (!user) {
+      setSaveError('Please log in to add customized products to your cart.');
+      return;
+    }
+
+    if (isAddingToCart || isSaving) return;
+    setIsAddingToCart(true);
+    setSaveError(null);
+    setSaveMessage(null);
+
+    try {
+      let activeCustomizationId = customizationId;
+      if (!activeCustomizationId) {
+        const savedDoc = await saveCustomizationInternal();
+        activeCustomizationId = savedDoc._id;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/v1/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          product: product._id,
+          size: selectedSize,
+          colour: selectedColour,
+          quantity: 1,
+          customized: true,
+          customization: activeCustomizationId,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to add customized design to cart.');
+      }
+
+      setSaveMessage('Customized design added to shopping cart!');
+      if (onNavigateToCart) {
+        setTimeout(() => {
+          onNavigateToCart();
+        }, 1200);
+      }
+    } catch (err) {
+      setSaveError(err.message || 'Error adding customized design to cart.');
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -490,9 +542,26 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
           <button
             className="save-customization-btn"
             onClick={handleSaveCustomization}
-            disabled={isSaving}
+            disabled={isSaving || isAddingToCart}
           >
             {isSaving ? 'Saving...' : customizationId ? 'Save Changes' : 'Save Customization'}
+          </button>
+          <button
+            className="add-to-cart-btn"
+            onClick={handleAddToCartCustomized}
+            disabled={isSaving || isAddingToCart}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#10b981',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              marginLeft: '10px',
+            }}
+          >
+            {isAddingToCart ? 'Adding...' : 'Add Design to Bag 🛍️'}
           </button>
         </div>
       </header>
