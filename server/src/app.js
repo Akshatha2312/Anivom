@@ -1,20 +1,21 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const errorMiddleware = require('./middleware/errorMiddleware');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-// Enable CORS middleware for allowed frontend origins
 app.use(
   cors({
     origin: ['http://localhost:5173', 'http://localhost:5174'],
+    credentials: true,
   })
 );
 
-// Middleware to parse JSON request bodies
 app.use(express.json());
+app.use(cookieParser());
 
-// Health-check endpoint
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -22,10 +23,8 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
-// Centralized Error Handling Middleware
+app.use('/api/v1/auth', authRoutes);
+
 app.use(errorMiddleware);
 
-
-
 module.exports = app;
-
