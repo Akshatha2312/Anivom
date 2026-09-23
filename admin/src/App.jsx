@@ -1,47 +1,161 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import { API_BASE_URL } from './config';
+import Login from './Login';
+import Dashboard from './Dashboard';
+import Products from './Products';
+import Orders from './Orders';
+import Customers from './Customers';
 
 function App() {
-  const [backendStatus, setBackendStatus] = useState({
-    loading: true,
-    data: null,
-    error: null,
-  })
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const checkAuth = async () => {
+    setAuthLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (res.ok && data.data?.user && data.data.user.role === 'admin') {
+        setUser(data.data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/v1/health')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`)
-        }
-        return res.json()
-      })
-      .then((data) => {
-        setBackendStatus({ loading: false, data: data, error: null })
-      })
-      .catch((err) => {
-        setBackendStatus({ loading: false, data: null, error: err.message })
-      })
-  }, [])
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (err) {
+      // silent catch
+    } finally {
+      setUser(null);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="admin-app-loading">
+        <div className="admin-spinner"></div>
+        <span className="admin-loading-text">VERIFYING ANIVOM ATELIER CREDENTIALS...</span>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return <Login onLoginSuccess={(u) => setUser(u)} />;
+  }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>ANIVOM Admin Panel</h1>
-      <p>Phase 1 — Admin Frontend to Backend Communication</p>
+    <div className="admin-workspace-shell">
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="admin-sidebar-brand">
+          <span className="sidebar-brand-title">ANIVOM</span>
+          <span className="sidebar-brand-badge">ATELIER ✦ ADMIN</span>
+        </div>
 
-      <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', textAlign: 'center' }}>
-        <h3>Backend Connection Status</h3>
-        {backendStatus.loading && <p>Connecting to backend...</p>}
-        {backendStatus.error && <p style={{ color: '#e53e3e' }}>Error: {backendStatus.error}</p>}
-        {backendStatus.data && (
-          <div>
-            <p style={{ color: '#38a169', fontWeight: 'bold' }}>Status: {backendStatus.data.status}</p>
-            <p>Message: {backendStatus.data.message}</p>
+        <nav className="admin-sidebar-nav">
+          <button
+            className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('dashboard');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Dashboard</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'products' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('products');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Products</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('orders');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Orders</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'customers' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('customers');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Customers</span>
+          </button>
+        </nav>
+
+        <div className="admin-sidebar-footer">
+          <div className="user-profile-summary">
+            <span className="user-name">{user.name}</span>
+            <span className="user-email">{user.email}</span>
           </div>
-        )}
+          <button className="admin-logout-btn" onClick={handleLogout}>
+            Sign Out ↵
+          </button>
+        </div>
+      </aside>
+
+      <div className="admin-main-stage">
+        <header className="admin-top-bar">
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            ☰ Menu
+          </button>
+
+          <div className="top-bar-breadcrumbs">
+            <span className="breadcrumb-brand">ANIVOM ATELIER</span>
+            <span className="breadcrumb-sep">/</span>
+            <span className="breadcrumb-current">{activeTab.toUpperCase()}</span>
+          </div>
+
+          <div className="top-bar-user-group">
+            <span className="admin-role-tag">ADMINISTRATOR</span>
+            <span className="admin-user-display">{user.name}</span>
+            <button className="top-logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </header>
+
+        <main className="admin-page-body">
+          {activeTab === 'dashboard' && <Dashboard onNavigate={(tab) => setActiveTab(tab)} />}
+          {activeTab === 'products' && <Products />}
+          {activeTab === 'orders' && <Orders />}
+          {activeTab === 'customers' && <Customers />}
+        </main>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

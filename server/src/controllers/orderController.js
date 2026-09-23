@@ -1,10 +1,12 @@
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Address = require('../models/Address');
 const Product = require('../models/Product');
 const Customization = require('../models/Customization');
+const User = require('../models/User');
 
 const getRazorpayInstance = () => {
   const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_mockkeyid';
@@ -276,9 +278,266 @@ const getOrderById = async (req, res) => {
   }
 };
 
+const getAdminOrders = async (req, res, next) => {
+  try {
+    const { page, limit, orderStatus, paymentStatus, search, sort } = req.query;
+
+    const query = {};
+
+    if (orderStatus && typeof orderStatus === 'string' && orderStatus.trim() !== '') {
+      query.orderStatus = orderStatus.trim();
+    }
+
+    if (paymentStatus && typeof paymentStatus === 'string' && paymentStatus.trim() !== '') {
+      query.paymentStatus = paymentStatus.trim();
+    }
+
+    if (search && typeof search === 'string' && search.trim() !== '') {
+      const searchStr = search.trim();
+      if (mongoose.Types.ObjectId.isValid(searchStr)) {
+        query._id = searchStr;
+      } else {
+        const matchingUsers = await User.find({
+          $or: [
+            { name: { $regex: searchStr, $options: 'i' } },
+            { email: { $regex: searchStr, $options: 'i' } },
+          ],
+        }).select('_id');
+        const userIds = matchingUsers.map((u) => u._id);
+        query.user = { $in: userIds };
+      }
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'oldest') {
+      sortOption = { createdAt: 1 };
+    } else if (sort === 'amount-desc') {
+      sortOption = { totalAmount: -1 };
+    } else if (sort === 'amount-asc') {
+      sortOption = { totalAmount: 1 };
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [orders, totalOrders] = await Promise.all([
+      Order.find(query)
+        .populate('user', 'name email role')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limitNum),
+      Order.countDocuments(query),
+    ]);
+
+    const totalPages = Math.ceil(totalOrders / limitNum) || (totalOrders === 0 ? 0 : 1);
+
+    res.status(200).json({
+      success: true,
+      results: orders.length,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalOrders,
+        limit: limitNum,
+      },
+      data: {
+        orders,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminOrderById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    const order = await Order.findById(id).populate('user', 'name email role createdAt');
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        order,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateAdminOrderStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { orderStatus } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    const validStatuses = ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'FAILED'];
+
+    if (!orderStatus || !validStatuses.includes(orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid orderStatus. Must be one of: ${validStatuses.join(', ')}`,
+      });
+    }
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    const currentStatus = order.orderStatus;
+
+    if (['DELIVERED', 'CANCELLED', 'FAILED'].includes(currentStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot update status for an order that is already ${currentStatus}`,
+      });
+    }
+
+    const allowedTransitions = {
+      PLACED: ['CONFIRMED', 'CANCELLED', 'FAILED'],
+      CONFIRMED: ['PROCESSING', 'SHIPPED', 'CANCELLED'],
+      PROCESSING: ['SHIPPED', 'CANCELLED'],
+      SHIPPED: ['DELIVERED', 'CANCELLED'],
+    };
+
+    const allowedNext = allowedTransitions[currentStatus] || [];
+    if (!allowedNext.includes(orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status transition from ${currentStatus} to ${orderStatus}`,
+      });
+    }
+
+    order.orderStatus = orderStatus;
+    await order.save();
+
+    const updatedOrder = await Order.findById(id).populate('user', 'name email role');
+
+    res.status(200).json({
+      success: true,
+      message: `Order status updated to ${orderStatus} successfully`,
+      data: {
+        order: updatedOrder,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminStats = async (req, res, next) => {
+  try {
+    const totalOrders = await Order.countDocuments();
+
+    const revenueResult = await Order.aggregate([
+      { $match: { paymentStatus: 'PAID' } },
+      { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' } } },
+    ]);
+
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    const statusCounts = await Order.aggregate([
+      { $group: { _id: '$orderStatus', count: { $sum: 1 } } },
+    ]);
+
+    const ordersByStatus = {
+      PLACED: 0,
+      CONFIRMED: 0,
+      PROCESSING: 0,
+      SHIPPED: 0,
+      DELIVERED: 0,
+      CANCELLED: 0,
+      FAILED: 0,
+    };
+
+    statusCounts.forEach((item) => {
+      if (ordersByStatus[item._id] !== undefined) {
+        ordersByStatus[item._id] = item.count;
+      }
+    });
+
+    const totalProducts = await Product.countDocuments();
+    const activeProducts = await Product.countDocuments({ isActive: true });
+
+    const allProducts = await Product.find({ isActive: true });
+    const lowStockVariants = [];
+
+    allProducts.forEach((prod) => {
+      if (prod.variants && prod.variants.length > 0) {
+        prod.variants.forEach((v) => {
+          if (v.stock <= 5) {
+            lowStockVariants.push({
+              productId: prod._id,
+              productName: prod.name,
+              variantId: v._id,
+              size: v.size,
+              colour: v.colour,
+              stock: v.stock,
+            });
+          }
+        });
+      }
+    });
+
+    const recentOrders = await Order.find()
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalOrders,
+        totalRevenue,
+        ordersByStatus,
+        totalProducts,
+        activeProducts,
+        lowStockCount: lowStockVariants.length,
+        lowStockVariants,
+        recentOrders,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
   getMyOrders,
   getOrderById,
+  getAdminOrders,
+  getAdminOrderById,
+  updateAdminOrderStatus,
+  getAdminStats,
 };
+
+

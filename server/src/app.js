@@ -8,6 +8,7 @@ const customizationRoutes = require('./routes/customizationRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const addressRoutes = require('./routes/addressRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/v1/customizations', customizationRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/addresses', addressRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/uploads', uploadRoutes);
 
 app.use(errorMiddleware);
 

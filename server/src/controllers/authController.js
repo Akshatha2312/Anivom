@@ -153,9 +153,63 @@ const getCurrentUser = async (req, res, next) => {
   }
 };
 
+const getAdminUsers = async (req, res, next) => {
+  try {
+    const { page, limit, role, search } = req.query;
+
+    const query = {};
+
+    if (role && typeof role === 'string' && role.trim() !== '') {
+      query.role = role.trim();
+    }
+
+    if (search && typeof search === 'string' && search.trim() !== '') {
+      const searchStr = search.trim();
+      const escapedSearch = searchStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { name: { $regex: escapedSearch, $options: 'i' } },
+        { email: { $regex: escapedSearch, $options: 'i' } },
+      ];
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [users, totalUsers] = await Promise.all([
+      User.find(query)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      User.countDocuments(query),
+    ]);
+
+    const totalPages = Math.ceil(totalUsers / limitNum) || (totalUsers === 0 ? 0 : 1);
+
+    res.status(200).json({
+      status: 'success',
+      results: users.length,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalUsers,
+        limit: limitNum,
+      },
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerCustomer,
   loginCustomer,
   logoutCustomer,
   getCurrentUser,
+  getAdminUsers,
 };
+
