@@ -219,6 +219,8 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
     }
   }
 
+  const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>"
+
   const images = product.images && product.images.length > 0 ? product.images : []
 
   return (
@@ -238,6 +240,10 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                   src={images[selectedImgIndex] || images[0]}
                   alt={product.name}
                   className="anivom-pdp-main-img"
+                  onError={(e) => {
+                    e.target.onerror = null
+                    e.target.src = DEFAULT_PLACEHOLDER
+                  }}
                 />
               ) : (
                 <div className="anivom-pdp-no-img">ANIVOM Couture</div>
@@ -262,6 +268,10 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                     alt={`${product.name} thumbnail ${idx + 1}`}
                     className={`anivom-pdp-thumb ${selectedImgIndex === idx ? 'selected' : ''}`}
                     onClick={() => setSelectedImgIndex(idx)}
+                    onError={(e) => {
+                      e.target.onerror = null
+                      e.target.src = DEFAULT_PLACEHOLDER
+                    }}
                   />
                 ))}
               </div>
@@ -395,7 +405,15 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                     onClick={() => onSelectProduct(rec)}
                   >
                     {recImg ? (
-                      <img src={recImg} alt={rec.name} className="anivom-pdp-rec-img" />
+                      <img
+                        src={recImg}
+                        alt={rec.name}
+                        className="anivom-pdp-rec-img"
+                        onError={(e) => {
+                          e.target.onerror = null
+                          e.target.src = DEFAULT_PLACEHOLDER
+                        }}
+                      />
                     ) : (
                       <div className="anivom-pdp-rec-no-img">ANIVOM</div>
                     )}
