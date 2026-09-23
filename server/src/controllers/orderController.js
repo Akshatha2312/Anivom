@@ -147,7 +147,6 @@ const createOrder = async (req, res) => {
         return res.status(500).json({
           success: false,
           message: 'Failed to create payment order with gateway.',
-          error: err.message,
         });
       }
     }
@@ -169,7 +168,7 @@ const createOrder = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -253,7 +252,7 @@ const verifyPayment = async (req, res) => {
       data: { order },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -262,7 +261,7 @@ const getMyOrders = async (req, res) => {
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: orders.length, data: { orders } });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -274,7 +273,7 @@ const getOrderById = async (req, res) => {
     }
     res.status(200).json({ success: true, data: { order } });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
