@@ -101,6 +101,46 @@
   gap: 20px;
 }
 
+.admin-test-credentials-box {
+  margin-top: 28px;
+  padding: 16px;
+  background-color: rgba(198, 161, 91, 0.06);
+  border: 1px dashed rgba(198, 161, 91, 0.3);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-test-credentials-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #C6A15B;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.admin-test-credentials-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.admin-test-credentials-label {
+  color: #888888;
+}
+
+.admin-test-credentials-value {
+  font-family: monospace;
+  color: #FFFDF8;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 0.8rem;
+}
+
 .admin-input-group {
   display: flex;
   flex-direction: column;

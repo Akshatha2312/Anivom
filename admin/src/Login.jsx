@@ -91,6 +91,18 @@ const Login = ({ onLoginSuccess }) => {
             {loading ? 'AUTHENTICATING...' : 'ENTER WORKSPACE ✦'}
           </button>
         </form>
+
+        <div className="admin-test-credentials-box">
+          <div className="admin-test-credentials-title">ADMIN TEST CREDENTIALS</div>
+          <div className="admin-test-credentials-row">
+            <span className="admin-test-credentials-label">Email:</span>
+            <code className="admin-test-credentials-value">admin@anivom.com</code>
+          </div>
+          <div className="admin-test-credentials-row">
+            <span className="admin-test-credentials-label">Password:</span>
+            <code className="admin-test-credentials-value">admin123</code>
+          </div>
+        </div>
       </div>
     </div>
   );
