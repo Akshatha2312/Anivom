@@ -13,6 +13,13 @@ const registerCustomer = async (req, res, next) => {
       });
     }
 
+    if (typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Password must be at least 8 characters long',
+      });
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -31,6 +38,22 @@ const registerCustomer = async (req, res, next) => {
       email: normalizedEmail,
       password: hashedPassword,
       role: 'customer',
+    });
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.status(201).json({
