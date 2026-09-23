@@ -55,11 +55,25 @@ const Products = () => {
     }
   };
 
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/v1/categories/admin`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.categories) {
+          setDbCategories(data.data.categories.map((c) => c.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const predefinedCategories = ['All', 'Oversized', 'Minimal', 'Graphic', 'Regular Fit', 'Custom'];
+  const baseCategorySet = dbCategories.length > 0 ? ['All', ...dbCategories] : predefinedCategories;
   const categories = [
-    ...predefinedCategories,
+    ...baseCategorySet,
     ...Array.from(new Set(products.map((p) => p.category))).filter(
-      (cat) => cat && !predefinedCategories.includes(cat)
+      (cat) => cat && !baseCategorySet.includes(cat)
     ),
   ];
 

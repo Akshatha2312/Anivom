@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Catalog.css'
 import { API_BASE_URL } from './config'
 
-function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct }) {
+function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle }) {
   const availableSizes = product && product.variants && product.variants.length > 0
     ? Array.from(new Set(product.variants.map((v) => v.size)))
     : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -13,10 +13,11 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
   const [selectedSize, setSelectedSize] = useState(availableSizes[0] || 'M')
   const [selectedColour, setSelectedColour] = useState(availableColours[0] || 'Black')
-  const [isWishlisted, setIsWishlisted] = useState(false)
   const [adding, setAdding] = useState(false)
   const [cardMsg, setCardMsg] = useState(null)
   const [cardErr, setCardErr] = useState(null)
+
+  const isWishlisted = wishlistIds.includes(product._id)
 
   const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
   const secondaryImage = product.images && product.images.length > 1 ? product.images[1] : primaryImage
@@ -26,6 +27,17 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
       onSelectProduct(product)
     } else {
       openStudio(product)
+    }
+  }
+
+  const handleWishlistClick = (e) => {
+    e.stopPropagation()
+    if (!user) {
+      setCardErr('Please log in to add items to your wishlist.')
+      return
+    }
+    if (onWishlistToggle) {
+      onWishlistToggle(product._id)
     }
   }
 
@@ -86,10 +98,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
         <button
           className="anivom-wishlist-btn"
           aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-          onClick={(e) => {
-            e.stopPropagation()
-            setIsWishlisted(!isWishlisted)
-          }}
+          onClick={handleWishlistClick}
           title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
           {isWishlisted ? '❤️' : '🤍'}
@@ -170,8 +179,57 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
 function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCategory = 'All' }) {
   const [products, setProducts] = useState([])
+  const [wishlistIds, setWishlistIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const fetchWishlist = async () => {
+    if (!user) {
+      setWishlistIds([])
+      return
+    }
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
+        credentials: 'include',
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const prods = data.data.wishlist?.products || []
+        setWishlistIds(prods.map((p) => p._id || p))
+      }
+    } catch (err) {
+      // silent catch for wishlist fetch error
+    }
+  }
+
+  useEffect(() => {
+    fetchWishlist()
+  }, [user])
+
+  const handleWishlistToggle = async (productId) => {
+    if (!user) return
+    const isWishlisted = wishlistIds.includes(productId)
+    try {
+      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}` : ''}`
+      const method = isWishlisted ? 'DELETE' : 'POST'
+      const body = isWishlisted ? null : JSON.stringify({ productId })
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const prods = data.data.wishlist?.products || []
+        setWishlistIds(prods.map((p) => p._id || p))
+      }
+    } catch (err) {
+      console.error('Wishlist error', err)
+    }
+  }
 
   const [search, setSearch] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -186,9 +244,46 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCate
   const [totalPages, setTotalPages] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
 
-  const categories = ['All', 'Oversized', 'Regular Fit', 'Graphic', 'Minimal', 'Custom']
-  const sizes = ['All', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
-  const colours = ['All', 'Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
+  const [dbCategories, setDbCategories] = useState([])
+  const [dbSizes, setDbSizes] = useState([])
+  const [dbColours, setDbColours] = useState([])
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/v1/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.categories && data.data.categories.length > 0) {
+          setDbCategories(data.data.categories.map((c) => c.name))
+        }
+      })
+      .catch(() => {})
+
+    fetch(`${API_BASE_URL}/api/v1/sizes`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.sizes && data.data.sizes.length > 0) {
+          setDbSizes(data.data.sizes.map((s) => s.name))
+        }
+      })
+      .catch(() => {})
+
+    fetch(`${API_BASE_URL}/api/v1/colours`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.colours && data.data.colours.length > 0) {
+          setDbColours(data.data.colours.map((c) => c.name))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const defaultCategories = ['Oversized', 'Regular Fit', 'Graphic', 'Minimal', 'Custom']
+  const defaultSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+  const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
+
+  const categories = ['All', ...Array.from(new Set([...(dbCategories.length > 0 ? dbCategories : defaultCategories), initialCategory]))].filter(Boolean)
+  const sizes = ['All', ...(dbSizes.length > 0 ? dbSizes : defaultSizes)]
+  const colours = ['All', ...(dbColours.length > 0 ? dbColours : defaultColours)]
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -418,6 +513,8 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCate
                   openStudio={openStudio}
                   onCartUpdated={onCartUpdated}
                   onSelectProduct={onSelectProduct}
+                  wishlistIds={wishlistIds}
+                  onWishlistToggle={handleWishlistToggle}
                 />
               ))}
             </div>

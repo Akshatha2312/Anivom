@@ -6,6 +6,12 @@ import Dashboard from './Dashboard';
 import Products from './Products';
 import Orders from './Orders';
 import Customers from './Customers';
+import Designs from './Designs';
+import Categories from './Categories';
+import Sizes from './Sizes';
+import Colours from './Colours';
+import Coupons from './Coupons';
+import Banners from './Banners';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -110,6 +116,66 @@ function App() {
           >
             <span>Customers</span>
           </button>
+
+          <button
+            className={`nav-item ${activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('categories');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Categories</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'sizes' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('sizes');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Sizes</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'colours' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('colours');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Colours</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'designs' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('designs');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Designs</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'coupons' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('coupons');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Coupons</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'banners' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('banners');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Banners</span>
+          </button>
         </nav>
 
         <div className="admin-sidebar-footer">
@@ -152,6 +218,12 @@ function App() {
           {activeTab === 'products' && <Products />}
           {activeTab === 'orders' && <Orders />}
           {activeTab === 'customers' && <Customers />}
+          {activeTab === 'categories' && <Categories />}
+          {activeTab === 'sizes' && <Sizes />}
+          {activeTab === 'colours' && <Colours />}
+          {activeTab === 'designs' && <Designs />}
+          {activeTab === 'coupons' && <Coupons />}
+          {activeTab === 'banners' && <Banners />}
         </main>
       </div>
     </div>

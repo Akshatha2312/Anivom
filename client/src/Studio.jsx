@@ -37,9 +37,37 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
   const [saveError, setSaveError] = useState(null);
+  const [libraryDesigns, setLibraryDesigns] = useState(PREDEFINED_DESIGNS);
 
   const printAreaRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch(`${API_BASE_URL}/api/v1/designs`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch designs');
+        return res.json();
+      })
+      .then((data) => {
+        if (isMounted && data.data?.designs && data.data.designs.length > 0) {
+          const formatted = data.data.designs.map((d) => ({
+            id: d._id || d.id,
+            name: d.name,
+            category: d.category,
+            svg: d.svg,
+            url: d.url,
+          }));
+          setLibraryDesigns(formatted);
+        }
+      })
+      .catch(() => {
+        // keep fallback PREDEFINED_DESIGNS if API offline
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (activeProduct && activeProduct.variants && activeProduct.variants.length > 0) {
@@ -93,8 +121,8 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           const layerId = l._id ? l._id.toString() : l.id || `layer_${Date.now()}_${index}`;
 
           if (l.type === 'predefined_design' && l.design) {
-            const matchedDesign = PREDEFINED_DESIGNS.find(
-              (d) => d.id === l.design.designId
+            const matchedDesign = libraryDesigns.find(
+              (d) => d.id === l.design.designId || d._id === l.design.designId
             );
             return {
               ...l,
@@ -1259,40 +1287,46 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             </div>
           )}
 
-          {activeToolTab === 'artwork' && (
-            <div className="drawer-content">
-              <div className="panel-section-header">
-                <h3>ANIVOM Artwork Collections</h3>
-              </div>
+          {activeToolTab === 'artwork' && (() => {
+            const categories = ['All', ...Array.from(new Set(libraryDesigns.map((d) => d.category)))];
+            const filteredDesigns = libraryDesigns.filter(
+              (d) => selectedCategory === 'All' || d.category === selectedCategory
+            );
 
-              <div className="category-filter-bar">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(cat)}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
+            return (
+              <div className="drawer-content">
+                <div className="panel-section-header">
+                  <h3>ANIVOM Artwork Collections</h3>
+                </div>
 
-              <div className="designs-grid">
-                {filteredDesigns.map((d) => (
-                  <div
-                    key={d.id}
-                    className="design-card"
-                    onClick={() => handleAddDesignLayer(d)}
-                    title={`Add ${d.name}`}
-                  >
+                <div className="category-filter-bar">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
+                      onClick={() => setSelectedCategory(cat)}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="designs-grid">
+                  {filteredDesigns.map((d) => (
                     <div
-                      className="design-card-preview"
-                      dangerouslySetInnerHTML={{ __html: d.svg }}
-                    />
-                    <span className="design-card-name">{d.name}</span>
-                  </div>
-                ))}
-              </div>
+                      key={d.id}
+                      className="design-card"
+                      onClick={() => handleAddDesignLayer(d)}
+                      title={`Add ${d.name}`}
+                    >
+                      <div
+                        className="design-card-preview"
+                        dangerouslySetInnerHTML={{ __html: d.svg }}
+                      />
+                      <span className="design-card-name">{d.name}</span>
+                    </div>
+                  ))}
+                </div>
 
               {selectedLayer && selectedLayer.type === 'predefined_design' && (
                 <div className="design-editor-controls">
@@ -1351,7 +1385,8 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {activeToolTab === 'layers' && (
             <div className="drawer-content">

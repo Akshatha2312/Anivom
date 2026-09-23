@@ -31,6 +31,60 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
   const [name, setName] = useState(product ? product.name || '' : '');
   const [description, setDescription] = useState(product ? product.description || '' : '');
   const [category, setCategory] = useState(product ? product.category || 'Oversized' : 'Oversized');
+  const [dbCategories, setDbCategories] = useState([]);
+  const [dbSizes, setDbSizes] = useState([]);
+  const [dbColours, setDbColours] = useState([]);
+
+  React.useEffect(() => {
+    fetch(`${API_BASE_URL}/api/v1/categories`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.categories) {
+          setDbCategories(data.data.categories.map((c) => c.name));
+        }
+      })
+      .catch(() => {});
+
+    fetch(`${API_BASE_URL}/api/v1/sizes`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.sizes) {
+          setDbSizes(data.data.sizes.map((s) => s.name));
+        }
+      })
+      .catch(() => {});
+
+    fetch(`${API_BASE_URL}/api/v1/colours`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.colours) {
+          setDbColours(data.data.colours.map((c) => c.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const defaultCategories = ['Oversized', 'Minimal', 'Graphic', 'Regular Fit', 'Custom'];
+  const categoriesList = Array.from(
+    new Set([
+      ...(dbCategories.length > 0 ? dbCategories : defaultCategories),
+      ...(product && product.category ? [product.category] : []),
+    ])
+  );
+
+  const sizesList = Array.from(
+    new Set([
+      ...(dbSizes.length > 0 ? dbSizes : AVAILABLE_SIZES),
+      ...(product && product.variants ? product.variants.map((v) => v.size) : []),
+    ])
+  );
+
+  const coloursList = Array.from(
+    new Set([
+      ...(dbColours.length > 0 ? dbColours : AVAILABLE_COLOURS),
+      ...(product && product.variants ? product.variants.map((v) => v.colour) : []),
+    ])
+  );
   const [basePrice, setBasePrice] = useState(product ? product.basePrice || 1499 : 1499);
   const [imagesText, setImagesText] = useState(product && product.images ? product.images.join('\n') : '');
   const [isActive, setIsActive] = useState(product ? product.isActive !== false : true);
@@ -165,11 +219,11 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
             <div className="admin-input-group flex-1">
               <label>Category</label>
               <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                <option value="Oversized">Oversized</option>
-                <option value="Minimal">Minimal</option>
-                <option value="Graphic">Graphic</option>
-                <option value="Regular Fit">Regular Fit</option>
-                <option value="Custom">Custom</option>
+                {categoriesList.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="admin-input-group flex-1">
@@ -212,7 +266,7 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
               <div className="admin-input-group flex-1">
                 <label>Size</label>
                 <select value={newSize} onChange={(e) => setNewSize(e.target.value)}>
-                  {AVAILABLE_SIZES.map((s) => (
+                  {sizesList.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
@@ -223,7 +277,7 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
               <div className="admin-input-group flex-1">
                 <label>Colour</label>
                 <select value={newColour} onChange={(e) => setNewColour(e.target.value)}>
-                  {AVAILABLE_COLOURS.map((c) => (
+                  {coloursList.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>

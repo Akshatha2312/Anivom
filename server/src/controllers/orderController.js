@@ -7,6 +7,8 @@ const Address = require('../models/Address');
 const Product = require('../models/Product');
 const Customization = require('../models/Customization');
 const User = require('../models/User');
+const Coupon = require('../models/Coupon');
+const { validateCouponForSubtotal } = require('./couponController');
 
 const getRazorpayInstance = () => {
   const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_mockkeyid';
@@ -14,9 +16,9 @@ const getRazorpayInstance = () => {
   return new Razorpay({ key_id, key_secret });
 };
 
-const createOrder = async (req, res) => {
+const createOrder = async (req, res, next) => {
   try {
-    const { addressId } = req.body;
+    const { addressId, couponCode } = req.body;
     if (!addressId) {
       return res.status(400).json({ success: false, message: 'Shipping address ID is required.' });
     }
@@ -97,7 +99,30 @@ const createOrder = async (req, res) => {
       });
     }
 
-    const totalAmount = subtotal;
+    let discountAmount = 0;
+    let couponSnapshot = null;
+
+    if (couponCode && typeof couponCode === 'string' && couponCode.trim() !== '') {
+      const codeNormalized = couponCode.trim().toUpperCase();
+      const coupon = await Coupon.findOne({ code: codeNormalized });
+      if (!coupon) {
+        return res.status(400).json({ success: false, message: 'Invalid or expired coupon code.' });
+      }
+      const couponValidation = validateCouponForSubtotal(coupon, subtotal);
+      if (!couponValidation.valid) {
+        return res.status(400).json({ success: false, message: couponValidation.message });
+      }
+      discountAmount = couponValidation.discountAmount;
+      couponSnapshot = {
+        couponId: coupon._id,
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        discountAmount: discountAmount,
+      };
+    }
+
+    const totalAmount = Math.max(0, subtotal - discountAmount);
 
     const shippingSnapshot = {
       fullName: address.fullName,
@@ -116,7 +141,9 @@ const createOrder = async (req, res) => {
       items: validatedItems,
       shippingAddress: shippingSnapshot,
       subtotal,
+      discountAmount,
       totalAmount,
+      couponSnapshot,
       paymentStatus: 'PENDING',
       orderStatus: 'PLACED',
     });
@@ -243,6 +270,19 @@ const verifyPayment = async (req, res) => {
     order.razorpayPaymentId = razorpay_payment_id;
     order.razorpaySignature = razorpay_signature;
     await order.save();
+
+    if (order.couponSnapshot && order.couponSnapshot.couponId) {
+      await Coupon.updateOne(
+        {
+          _id: order.couponSnapshot.couponId,
+          $or: [
+            { usageLimit: 0 },
+            { $expr: { $lt: ['$usedCount', '$usageLimit'] } },
+          ],
+        },
+        { $inc: { usedCount: 1 } }
+      );
+    }
 
     await Cart.findOneAndUpdate({ user: req.user._id }, { $set: { items: [] } });
 

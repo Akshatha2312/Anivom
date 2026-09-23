@@ -76,6 +76,58 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
     fetchRecs()
   }, [product])
 
+  useEffect(() => {
+    const fetchWishlistStatus = async () => {
+      if (!user || !product) return
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
+          credentials: 'include',
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const prods = data.data.wishlist?.products || []
+          const found = prods.some((p) => (p._id || p) === product._id)
+          setIsWishlisted(found)
+        }
+      } catch (e) {
+        // silent catch
+      }
+    }
+    fetchWishlistStatus()
+  }, [user, product])
+
+  const handleWishlistToggle = async () => {
+    if (!user) {
+      setErr('Please sign in to add products to your wishlist.')
+      return
+    }
+
+    try {
+      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${product._id}` : ''}`
+      const method = isWishlisted ? 'DELETE' : 'POST'
+      const body = isWishlisted ? null : JSON.stringify({ productId: product._id })
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const prods = data.data.wishlist?.products || []
+        const found = prods.some((p) => (p._id || p) === product._id)
+        setIsWishlisted(found)
+      } else {
+        const data = await res.json()
+        setErr(data.message || 'Failed to update wishlist.')
+      }
+    } catch (e) {
+      setErr('Network error updating wishlist.')
+    }
+  }
+
   if (loadingProduct) {
     return (
       <div className="anivom-pdp-container">
@@ -194,7 +246,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
               <button
                 className="anivom-pdp-wishlist-btn"
                 aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={handleWishlistToggle}
                 title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
               >
                 {isWishlisted ? '❤️' : '🤍'}

@@ -5,21 +5,33 @@ import { API_BASE_URL } from './config'
 function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated }) {
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [recommendations, setRecommendations] = useState([])
+  const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchHomeProducts = async () => {
+    const fetchHomeData = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/products?limit=8`)
-        const data = await res.json()
-        if (res.ok) {
-          const list = data.data.products || []
+        const [prodRes, bannerRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/v1/products?limit=8`),
+          fetch(`${API_BASE_URL}/api/v1/banners`),
+        ])
+
+        const prodData = await prodRes.json()
+        if (prodRes.ok) {
+          const list = prodData.data?.products || []
           setFeaturedProducts(list.slice(0, 4))
           setRecommendations(list.slice(4, 8).length > 0 ? list.slice(4, 8) : list.slice(0, 4))
         } else {
-          setError(data.message || 'Failed to load featured products.')
+          setError(prodData.message || 'Failed to load featured products.')
+        }
+
+        if (bannerRes.ok) {
+          const bannerData = await bannerRes.json()
+          if (bannerData.data?.banners) {
+            setBanners(bannerData.data.banners)
+          }
         }
       } catch (err) {
         setError('Network error loading homepage items.')
@@ -27,8 +39,27 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated }) 
         setLoading(false)
       }
     }
-    fetchHomeProducts()
+    fetchHomeData()
   }, [])
+
+  const handleBannerAction = (link) => {
+    if (!link) {
+      onNavigateToCatalog()
+      return
+    }
+    const cleanLink = link.trim()
+    if (cleanLink.startsWith('/studio')) {
+      onNavigateToStudio(null)
+    } else if (cleanLink.startsWith('/product/')) {
+      onNavigateToCatalog()
+    } else if (cleanLink.startsWith('/catalog') || cleanLink === '/') {
+      onNavigateToCatalog()
+    } else if (cleanLink.startsWith('http://') || cleanLink.startsWith('https://')) {
+      window.location.href = cleanLink
+    } else {
+      onNavigateToCatalog()
+    }
+  }
 
   const handleQuickAdd = async (product, e) => {
     e.stopPropagation()
@@ -75,32 +106,57 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated }) 
 
   const trendingTags = ['Oversized', 'Graphic', 'Minimal', 'Custom', 'Black Tees', 'New Drops']
 
+  const activeHeroBanner = banners.length > 0 ? banners[0] : null
+
   return (
     <div className="anivom-home-root">
       <section className="anivom-hero-editorial">
         <div className="anivom-hero-grid">
           <div className="anivom-hero-text-col">
-            <span className="anivom-hero-kicker">AUTUMN / WINTER COUTURE</span>
+            <span className="anivom-hero-kicker">
+              {activeHeroBanner?.title || 'AUTUMN / WINTER COUTURE'}
+            </span>
             <h1 className="anivom-hero-heading">ANIVOM</h1>
-            <div className="anivom-hero-subtag">Wear It Your Way.</div>
+            <div className="anivom-hero-subtag">
+              {activeHeroBanner?.subtitle || 'Wear It Your Way.'}
+            </div>
             <p className="anivom-hero-desc">
               Your T-shirt. Your design. Your rules. High fashion ready-to-wear collections meets interactive custom apparel tailoring.
             </p>
             <div className="anivom-hero-cta-group">
-              <button className="anivom-btn-primary" onClick={onNavigateToCatalog}>
-                Shop T-Shirts
-              </button>
-              <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
-                Customize Yours ✦
-              </button>
+              {activeHeroBanner ? (
+                <>
+                  <button
+                    className="anivom-btn-primary"
+                    onClick={() => handleBannerAction(activeHeroBanner.buttonLink)}
+                  >
+                    {activeHeroBanner.buttonText || 'Explore Collection'}
+                  </button>
+                  <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
+                    Customize Yours ✦
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="anivom-btn-primary" onClick={onNavigateToCatalog}>
+                    Shop T-Shirts
+                  </button>
+                  <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
+                    Customize Yours ✦
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           <div className="anivom-hero-visual-col">
             <div className="anivom-hero-img-frame">
               <img
-                src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"
-                alt="ANIVOM Fashion Hero"
+                src={
+                  activeHeroBanner?.image ||
+                  'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80'
+                }
+                alt={activeHeroBanner?.title || 'ANIVOM Fashion Hero'}
                 className="anivom-hero-img"
               />
               <div className="anivom-hero-img-badge">NEW COLLECTION</div>

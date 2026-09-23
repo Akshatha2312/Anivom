@@ -13,6 +13,43 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
   const [addressMsg, setAddressMsg] = useState(null)
   const [completedOrder, setCompletedOrder] = useState(null)
 
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponError, setCouponError] = useState(null)
+  const [validatingCoupon, setValidatingCoupon] = useState(false)
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) {
+      setCouponError('Please enter a coupon code.')
+      return
+    }
+    setValidatingCoupon(true)
+    setCouponError(null)
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/coupons/validate?code=${encodeURIComponent(couponInput.trim())}`, {
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setAppliedCoupon(data.data)
+        setCouponError(null)
+      } else {
+        setAppliedCoupon(null)
+        setCouponError(data.message || 'Invalid coupon code.')
+      }
+    } catch (err) {
+      setCouponError('Error validating coupon.')
+    } finally {
+      setValidatingCoupon(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponInput('')
+    setCouponError(null)
+  }
+
   const [fullName, setFullName] = useState(user ? user.name || '' : '')
   const [phone, setPhone] = useState('')
   const [addressLine1, setAddressLine1] = useState('')
@@ -176,7 +213,10 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ addressId: selectedAddressId }),
+        body: JSON.stringify({
+          addressId: selectedAddressId,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+        }),
       })
 
       const orderData = await orderRes.json()
@@ -535,6 +575,85 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
             <span>&#8377;{summary.subtotal}</span>
           </div>
 
+          <div className="anivom-coupon-box" style={{ margin: '14px 0', padding: '12px', background: '#F7F2E8', border: '1px solid #E0D8CC' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', color: '#111' }}>
+              Promotional Coupon
+            </div>
+            {!appliedCoupon ? (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  placeholder="Enter code"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                  disabled={isProcessing || validatingCoupon}
+                  style={{
+                    flex: 1,
+                    padding: '8px 10px',
+                    fontSize: '0.85rem',
+                    border: '1px solid #CCC',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={isProcessing || validatingCoupon || !couponInput.trim()}
+                  style={{
+                    padding: '8px 14px',
+                    background: '#111',
+                    color: '#FFFDF8',
+                    border: 'none',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {validatingCoupon ? 'Applying...' : 'Apply'}
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FFFDF8', padding: '8px 12px', border: '1px solid #7A1F3D' }}>
+                <div>
+                  <span style={{ fontWeight: '700', color: '#7A1F3D', fontSize: '0.9rem', letterSpacing: '0.05em' }}>
+                    {appliedCoupon.code}
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: '#2e7d32', marginLeft: '8px', fontWeight: '600' }}>
+                    (-₹{appliedCoupon.discountAmount})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  disabled={isProcessing}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#C65D3B',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+            {couponError && (
+              <div style={{ color: '#d32f2f', fontSize: '0.78rem', marginTop: '6px' }}>
+                {couponError}
+              </div>
+            )}
+          </div>
+
+          {appliedCoupon && (
+            <div className="anivom-summary-line" style={{ color: '#2e7d32', fontWeight: '600' }}>
+              <span>Coupon Discount ({appliedCoupon.code})</span>
+              <span>-&#8377;{appliedCoupon.discountAmount}</span>
+            </div>
+          )}
+
           <div className="anivom-summary-line">
             <span>Standard Shipping</span>
             <span style={{ color: '#2e7d32', fontWeight: '600', fontSize: '0.85rem' }}>COMPLIMENTARY</span>
@@ -542,14 +661,15 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
 
           <div className="anivom-summary-line total">
             <span>Total Payable</span>
-            <span>&#8377;{summary.totalAmount}</span>
+            <span>&#8377;{Math.max(0, summary.subtotal - (appliedCoupon ? appliedCoupon.discountAmount : 0))}</span>
           </div>
 
           <button className="anivom-btn-pay" disabled={isProcessing} onClick={handleProceedToPayment}>
             {paymentStatus === 'PREPARING' && 'Preparing Order...'}
             {paymentStatus === 'OPENING_GATEWAY' && 'Opening Gateway...'}
             {paymentStatus === 'VERIFYING' && 'Verifying Payment...'}
-            {(paymentStatus === 'IDLE' || paymentStatus === 'FAILED') && `Pay ₹${summary.totalAmount} Securely 🔒`}
+            {(paymentStatus === 'IDLE' || paymentStatus === 'FAILED') &&
+              `Pay ₹${Math.max(0, summary.subtotal - (appliedCoupon ? appliedCoupon.discountAmount : 0))} Securely 🔒`}
           </button>
 
           <button className="anivom-btn-return-bag" disabled={isProcessing} onClick={onReturnToCart}>
