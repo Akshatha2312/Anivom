@@ -1,0 +1,292 @@
+.anivom-welcome-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 17, 17, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: welcomeFadeIn 0.25s ease-out;
+}
+
+@keyframes welcomeFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.anivom-welcome-modal-card {
+  background-color: #FFFDF8;
+  border: 1px solid #111111;
+  width: 100%;
+  max-width: 860px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.anivom-welcome-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  background: #FFFDF8;
+  border: 1px solid #111111;
+  color: #111111;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-welcome-close-btn:hover {
+  background: #7A1F3D;
+  color: #FFFDF8;
+  border-color: #7A1F3D;
+}
+
+.anivom-welcome-split {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+}
+
+.anivom-welcome-visual-col {
+  background-color: #111111;
+  color: #FFFDF8;
+  padding: 48px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid #111111;
+}
+
+.anivom-welcome-visual-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.anivom-welcome-brand-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #C6A15B;
+  text-transform: uppercase;
+}
+
+.anivom-welcome-visual-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #FFFDF8;
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.anivom-welcome-gold-line {
+  width: 40px;
+  height: 2px;
+  background-color: #C6A15B;
+  margin: 4px 0;
+}
+
+.anivom-welcome-visual-desc {
+  font-size: 0.88rem;
+  color: #b3b3b3;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.anivom-welcome-tamil-accent {
+  font-size: 1.1rem;
+  color: #C6A15B;
+  margin-top: 12px;
+  letter-spacing: 0.05em;
+}
+
+.anivom-welcome-content-col {
+  padding: 44px 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.anivom-welcome-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.anivom-welcome-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #7A1F3D;
+  text-transform: uppercase;
+}
+
+.anivom-welcome-head {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.anivom-welcome-sub {
+  font-size: 0.88rem;
+  color: #666666;
+  margin: 4px 0 0 0;
+  line-height: 1.5;
+}
+
+.anivom-welcome-offer-box {
+  background-color: #F7F2E8;
+  border-left: 3px solid #7A1F3D;
+  padding: 14px 16px;
+}
+
+.anivom-offer-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #7A1F3D;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.anivom-offer-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.anivom-offer-desc {
+  font-size: 0.8rem;
+  color: #555555;
+  line-height: 1.4;
+}
+
+.anivom-welcome-user-info {
+  font-size: 0.85rem;
+  color: #292929;
+  background: #FFFDF8;
+  border: 1px solid #e5e0d8;
+  padding: 8px 12px;
+}
+
+.anivom-welcome-email-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.anivom-welcome-email-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #555555;
+}
+
+.anivom-welcome-email-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  border: 1px solid #111111;
+  background-color: #FFFDF8;
+  color: #111111;
+  box-sizing: border-box;
+}
+
+.anivom-welcome-email-input:focus {
+  outline: none;
+  border-color: #7A1F3D;
+}
+
+.anivom-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.anivom-btn-welcome-primary {
+  background-color: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  padding: 13px 20px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.anivom-btn-welcome-primary:hover {
+  background-color: #7A1F3D;
+  border-color: #7A1F3D;
+}
+
+.anivom-btn-welcome-secondary {
+  background-color: transparent;
+  color: #111111;
+  border: 1px solid #111111;
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.anivom-btn-welcome-secondary:hover {
+  background-color: #F7F2E8;
+}
+
+.anivom-welcome-legal {
+  font-size: 0.72rem;
+  color: #777777;
+  margin: 0;
+  line-height: 1.4;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .anivom-welcome-split {
+    grid-template-columns: 1fr;
+  }
+
+  .anivom-welcome-visual-col {
+    display: none;
+  }
+
+  .anivom-welcome-content-col {
+    padding: 32px 24px;
+  }
+
+  .anivom-welcome-head {
+    font-size: 1.4rem;
+  }
+}

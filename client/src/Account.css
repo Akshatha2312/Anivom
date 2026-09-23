@@ -1,0 +1,563 @@
+.anivom-account-container {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 36px 80px 36px;
+  font-family: inherit;
+  color: #111111;
+  box-sizing: border-box;
+}
+
+.anivom-account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e0d8;
+}
+
+.anivom-account-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px 0;
+  color: #111111;
+}
+
+.anivom-account-subtitle {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: #666666;
+  margin: 0;
+}
+
+.anivom-account-nav-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.anivom-btn-acc-nav {
+  background: transparent;
+  border: 1px solid #111111;
+  color: #111111;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-acc-nav:hover {
+  background: #111111;
+  color: #FFFDF8;
+}
+
+.anivom-btn-acc-logout {
+  background: transparent;
+  border: 1px solid #7A1F3D;
+  color: #7A1F3D;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-acc-logout:hover {
+  background: #7A1F3D;
+  color: #FFFDF8;
+}
+
+.anivom-account-empty-box {
+  min-height: 45vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+}
+
+.anivom-account-empty-head {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  color: #111111;
+  margin: 0 0 12px 0;
+}
+
+.anivom-account-empty-sub {
+  color: #666666;
+  max-width: 460px;
+  margin: 0 0 28px 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.anivom-account-empty-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.anivom-btn-account-primary {
+  padding: 14px 32px;
+  background: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.anivom-btn-account-primary:hover {
+  background: #7A1F3D;
+  border-color: #7A1F3D;
+}
+
+.anivom-btn-account-secondary {
+  padding: 14px 32px;
+  background: transparent;
+  color: #111111;
+  border: 1px solid #111111;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-account-secondary:hover {
+  background: #111111;
+  color: #FFFDF8;
+}
+
+.anivom-account-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.anivom-account-profile-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.anivom-profile-card {
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.anivom-profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #111111;
+  color: #C6A15B;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.anivom-profile-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #111111;
+}
+
+.anivom-profile-email {
+  font-size: 0.85rem;
+  color: #666666;
+  margin: 0 0 16px 0;
+}
+
+.anivom-profile-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #111111;
+  color: #FFFDF8;
+  padding: 4px 10px;
+}
+
+.anivom-account-tabs-nav {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e0d8;
+  background: #FFFDF8;
+}
+
+.anivom-acc-tab-btn {
+  padding: 14px 18px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666666;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-acc-tab-btn:hover {
+  color: #111111;
+  background: #F7F2E8;
+}
+
+.anivom-acc-tab-btn.active {
+  color: #7A1F3D;
+  border-left-color: #7A1F3D;
+  background: #F7F2E8;
+}
+
+.anivom-account-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.anivom-acc-notice {
+  padding: 12px 18px;
+  font-size: 0.88rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.anivom-acc-notice.success {
+  background: rgba(46, 125, 50, 0.1);
+  border: 1px solid rgba(46, 125, 50, 0.3);
+  color: #2e7d32;
+}
+
+.anivom-acc-notice.error {
+  background: rgba(211, 47, 47, 0.1);
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  color: #d32f2f;
+}
+
+.anivom-acc-retry-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.anivom-acc-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e0d8;
+}
+
+.anivom-acc-section-head h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+  color: #111111;
+}
+
+.anivom-btn-add-acc-address {
+  padding: 8px 16px;
+  background: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.anivom-acc-address-form {
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.anivom-form-subhead {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 16px 0;
+  color: #111111;
+}
+
+.anivom-acc-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.anivom-acc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.anivom-acc-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #111111;
+}
+
+.anivom-acc-input {
+  background: #FFFDF8;
+  border: 1px solid #d5d0c8;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: #111111;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.anivom-acc-input:focus {
+  outline: none;
+  border-color: #7A1F3D;
+}
+
+.anivom-acc-checkbox-label {
+  font-size: 0.85rem;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.anivom-acc-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.anivom-btn-acc-save {
+  padding: 12px 24px;
+  background: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.anivom-btn-acc-cancel {
+  padding: 12px 24px;
+  background: transparent;
+  color: #111111;
+  border: 1px solid #111111;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.anivom-acc-state-box {
+  padding: 40px 24px;
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  text-align: center;
+}
+
+.anivom-acc-state-head {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  margin: 0 0 8px 0;
+}
+
+.anivom-acc-state-sub {
+  color: #666666;
+  font-size: 0.9rem;
+  margin: 0 0 20px 0;
+}
+
+.anivom-acc-state-text {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666666;
+  margin: 0;
+}
+
+.anivom-acc-address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.anivom-acc-addr-card {
+  border: 1px solid #e5e0d8;
+  background: #FFFDF8;
+  padding: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.anivom-acc-addr-card.default {
+  border: 2px solid #7A1F3D;
+  background: #F7F2E8;
+}
+
+.anivom-acc-addr-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.anivom-acc-addr-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111111;
+}
+
+.anivom-acc-addr-tag {
+  background: #111111;
+  color: #FFFDF8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.anivom-acc-addr-body {
+  font-size: 0.88rem;
+  color: #555555;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.anivom-acc-addr-actions {
+  display: flex;
+  gap: 12px;
+  font-size: 0.78rem;
+  align-items: center;
+  border-top: 1px solid #e5e0d8;
+  padding-top: 12px;
+}
+
+.anivom-acc-default-badge {
+  color: #2e7d32;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.anivom-acc-action-link {
+  background: transparent;
+  border: none;
+  color: #666666;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+}
+
+.anivom-acc-action-link.danger {
+  color: #C65D3B;
+}
+
+.anivom-acc-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.anivom-acc-order-card {
+  background: #FFFDF8;
+  border: 1px solid #e5e0d8;
+  padding: 20px;
+}
+
+.anivom-acc-order-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.anivom-acc-order-id {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.anivom-acc-order-date {
+  font-size: 0.82rem;
+  color: #666666;
+}
+
+.anivom-acc-order-total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #7A1F3D;
+}
+
+.anivom-acc-order-status {
+  font-size: 0.85rem;
+  color: #555555;
+}
+
+@media (max-width: 992px) {
+  .anivom-account-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .anivom-account-container {
+    padding: 20px 16px 60px 16px;
+  }
+
+  .anivom-acc-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .anivom-account-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

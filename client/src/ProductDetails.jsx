@@ -1,0 +1,365 @@
+import { useState, useEffect } from 'react'
+import './ProductDetails.css'
+import { API_BASE_URL } from './config'
+
+function ProductDetails({ product: propProduct, productId, initialProduct, user, onBackToCatalog, onNavigateToStudio, openStudio, onCartUpdated, onSelectProduct }) {
+  const [product, setProduct] = useState(propProduct || initialProduct || null)
+  const [loadingProduct, setLoadingProduct] = useState(!propProduct && !initialProduct && !!productId)
+  const [productFetchErr, setProductFetchErr] = useState(null)
+
+  const [recommendations, setRecommendations] = useState([])
+  const [selectedImgIndex, setSelectedImgIndex] = useState(0)
+  const [selectedSize, setSelectedSize] = useState('M')
+  const [selectedColour, setSelectedColour] = useState('Black')
+  const [quantity, setQuantity] = useState(1)
+  const [isWishlisted, setIsWishlisted] = useState(false)
+
+  const [adding, setAdding] = useState(false)
+  const [msg, setMsg] = useState(null)
+  const [err, setErr] = useState(null)
+
+  const handleStudioNavigation = openStudio || onNavigateToStudio || (() => {})
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    const activeObj = propProduct || initialProduct
+    if (activeObj) {
+      setProduct(activeObj)
+      setSelectedImgIndex(0)
+      if (activeObj.variants && activeObj.variants.length > 0) {
+        const firstVar = activeObj.variants[0]
+        setSelectedSize(firstVar.size)
+        setSelectedColour(firstVar.colour)
+      }
+    } else if (productId) {
+      const fetchProductById = async () => {
+        setLoadingProduct(true)
+        setProductFetchErr(null)
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/v1/products/${productId}`)
+          const data = await res.json()
+          if (res.ok && data.data && data.data.product) {
+            const fetchedProduct = data.data.product
+            setProduct(fetchedProduct)
+            setSelectedImgIndex(0)
+            if (fetchedProduct.variants && fetchedProduct.variants.length > 0) {
+              const firstVar = fetchedProduct.variants[0]
+              setSelectedSize(firstVar.size)
+              setSelectedColour(firstVar.colour)
+            }
+          } else {
+            setProductFetchErr('Garment details could not be retrieved.')
+          }
+        } catch (e) {
+          setProductFetchErr('Network error loading product details.')
+        } finally {
+          setLoadingProduct(false)
+        }
+      }
+      fetchProductById()
+    }
+  }, [propProduct, initialProduct, productId])
+
+  useEffect(() => {
+    const fetchRecs = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/products?limit=4`)
+        const data = await res.json()
+        if (res.ok) {
+          const list = data.data.products || []
+          setRecommendations(list.filter((p) => p._id !== (product ? product._id : '')))
+        }
+      } catch (e) {
+        console.error('Failed loading recommendations', e)
+      }
+    }
+    fetchRecs()
+  }, [product])
+
+  if (loadingProduct) {
+    return (
+      <div className="anivom-pdp-container">
+        <div className="pdp-loading">
+          <div className="pdp-loading-spinner"></div>
+          <p style={{ letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '0.85rem' }}>Loading ANIVOM Garment...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className="anivom-pdp-container">
+        <div className="anivom-pdp-error-box">
+          <h2>Product Not Found</h2>
+          <p>{productFetchErr || 'The requested garment could not be loaded.'}</p>
+          <button className="anivom-btn-primary" onClick={onBackToCatalog}>
+            &larr; Return to Catalog
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const variants = product.variants || []
+  const availableColours = Array.from(new Set(variants.map((v) => v.colour)))
+  const availableSizesForColour = Array.from(
+    new Set(variants.filter((v) => v.colour === selectedColour).map((v) => v.size))
+  )
+
+  const activeVariant = variants.find(
+    (v) => v.colour === selectedColour && v.size === selectedSize
+  )
+
+  const stockAvailable = activeVariant ? activeVariant.stock : 0
+  const isOutOfStock = !activeVariant || stockAvailable <= 0
+
+  const handleColourChange = (colour) => {
+    setSelectedColour(colour)
+    const validSizes = Array.from(
+      new Set(variants.filter((v) => v.colour === colour).map((v) => v.size))
+    )
+    if (!validSizes.includes(selectedSize)) {
+      setSelectedSize(validSizes[0] || 'M')
+    }
+  }
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      setErr('Please sign in to add products to your bag.')
+      return
+    }
+
+    if (isOutOfStock) {
+      setErr('Selected variant is currently out of stock.')
+      return
+    }
+
+    setAdding(true)
+    setMsg(null)
+    setErr(null)
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          product: product._id,
+          size: selectedSize,
+          colour: selectedColour,
+          quantity: Number(quantity),
+          customized: false,
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        setMsg(`Added ${quantity} ${product.name} (${selectedSize} / ${selectedColour}) to bag!`)
+        if (onCartUpdated) onCartUpdated()
+      } else {
+        setErr(data.message || 'Failed to add product to cart.')
+      }
+    } catch (e) {
+      setErr('Network error adding product to bag.')
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const images = product.images && product.images.length > 0 ? product.images : []
+
+  return (
+    <div className="anivom-pdp-root">
+      <div className="anivom-pdp-container">
+        <nav className="anivom-breadcrumb">
+          <span onClick={onBackToCatalog}>Home</span> /{' '}
+          <span onClick={onBackToCatalog}>Catalog</span> /{' '}
+          <span className="active">{product.name}</span>
+        </nav>
+
+        <div className="anivom-pdp-grid">
+          <div className="anivom-pdp-gallery-col">
+            <div className="anivom-pdp-main-frame">
+              {images.length > 0 ? (
+                <img
+                  src={images[selectedImgIndex] || images[0]}
+                  alt={product.name}
+                  className="anivom-pdp-main-img"
+                />
+              ) : (
+                <div className="anivom-pdp-no-img">ANIVOM Couture</div>
+              )}
+
+              <button
+                className="anivom-pdp-wishlist-btn"
+                aria-label={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              >
+                {isWishlisted ? '❤️' : '🤍'}
+              </button>
+            </div>
+
+            {images.length > 1 && (
+              <div className="anivom-pdp-thumbnails">
+                {images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`${product.name} thumbnail ${idx + 1}`}
+                    className={`anivom-pdp-thumb ${selectedImgIndex === idx ? 'selected' : ''}`}
+                    onClick={() => setSelectedImgIndex(idx)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="anivom-pdp-details-col">
+            <span className="anivom-pdp-cat-badge">{product.category || 'Collection'}</span>
+            <h1 className="anivom-pdp-title">{product.name}</h1>
+            <div className="anivom-pdp-price">&#8377;{product.basePrice}</div>
+
+            <div className="anivom-pdp-stock-status">
+              {isOutOfStock ? (
+                <span className="out-of-stock">✕ Currently Out of Stock</span>
+              ) : stockAvailable <= 5 ? (
+                <span className="low-stock">⚡ Low Stock: Only {stockAvailable} items remaining</span>
+              ) : (
+                <span className="in-stock">✓ In Stock & Ready to Ship</span>
+              )}
+            </div>
+
+            <p className="anivom-pdp-desc">
+              {product.description ||
+                'Crafted from heavy 240 GSM combed ring-spun cotton with reinforced shoulder stitching. Perfect classic streetwear drape.'}
+            </p>
+
+            <div className="anivom-pdp-option-section">
+              <label className="anivom-option-label">
+                Select Colour: <strong>{selectedColour}</strong>
+              </label>
+              <div className="anivom-color-chips">
+                {availableColours.map((c) => (
+                  <button
+                    key={c}
+                    className={`anivom-color-chip ${selectedColour === c ? 'active' : ''}`}
+                    onClick={() => handleColourChange(c)}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="anivom-pdp-option-section">
+              <label className="anivom-option-label">
+                Select Size: <strong>{selectedSize}</strong>
+              </label>
+              <div className="anivom-size-chips">
+                {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map((s) => {
+                  const isSupported = availableSizesForColour.includes(s)
+                  return (
+                    <button
+                      key={s}
+                      disabled={!isSupported}
+                      className={`anivom-size-chip ${selectedSize === s ? 'active' : ''} ${!isSupported ? 'disabled' : ''}`}
+                      onClick={() => setSelectedSize(s)}
+                    >
+                      {s}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="anivom-pdp-option-section">
+              <label className="anivom-option-label">Quantity</label>
+              <div className="anivom-qty-picker">
+                <button
+                  disabled={quantity <= 1}
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  className="anivom-qty-btn"
+                >
+                  -
+                </button>
+                <span className="anivom-qty-val">{quantity}</span>
+                <button
+                  disabled={quantity >= stockAvailable}
+                  onClick={() => setQuantity((prev) => Math.min(stockAvailable, prev + 1))}
+                  className="anivom-qty-btn"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {msg && <div className="anivom-pdp-notice success">{msg}</div>}
+            {err && <div className="anivom-pdp-notice error">{err}</div>}
+
+            <div className="anivom-pdp-cta-block">
+              <button
+                disabled={adding || isOutOfStock}
+                onClick={handleAddToCart}
+                className="anivom-btn-add-pdp"
+              >
+                {adding ? 'Adding to Bag...' : isOutOfStock ? 'Out of Stock' : 'Add to Bag 🛍️'}
+              </button>
+
+              <button
+                onClick={() => handleStudioNavigation(product)}
+                className="anivom-btn-studio-pdp"
+              >
+                Customize in Studio 🎨
+              </button>
+            </div>
+
+            <div className="anivom-custom-note-box">
+              <div className="anivom-note-title">✦ WANT TO MAKE IT YOURS?</div>
+              <p className="anivom-note-body">
+                Add your own text, custom artwork, or an ANIVOM vector design on this T-shirt using our interactive Studio engine.
+              </p>
+              <button
+                className="anivom-note-btn"
+                onClick={() => handleStudioNavigation(product)}
+              >
+                Customize Product in Studio &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {recommendations.length > 0 && (
+          <section className="anivom-pdp-rec-section">
+            <h3 className="anivom-pdp-rec-title">USERS ALSO BUY</h3>
+            <div className="anivom-pdp-rec-grid">
+              {recommendations.map((rec) => {
+                const recImg = rec.images && rec.images.length > 0 ? rec.images[0] : null
+                return (
+                  <div
+                    key={rec._id}
+                    className="anivom-pdp-rec-card"
+                    onClick={() => onSelectProduct(rec)}
+                  >
+                    {recImg ? (
+                      <img src={recImg} alt={rec.name} className="anivom-pdp-rec-img" />
+                    ) : (
+                      <div className="anivom-pdp-rec-no-img">ANIVOM</div>
+                    )}
+                    <div className="anivom-pdp-rec-info">
+                      <h4 className="anivom-pdp-rec-name">{rec.name}</h4>
+                      <span className="anivom-pdp-rec-price">&#8377;{rec.basePrice}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default ProductDetails

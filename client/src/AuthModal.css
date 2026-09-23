@@ -1,0 +1,286 @@
+.anivom-auth-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background-color: #FFFDF8;
+}
+
+.anivom-auth-split-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  width: 100%;
+  max-width: 1000px;
+  border: 1px solid #e5e0d8;
+  background-color: #FFFDF8;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(17, 17, 17, 0.04);
+}
+
+.anivom-auth-visual-side {
+  background: #111111;
+  color: #FFFDF8;
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.anivom-auth-brand-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.anivom-auth-brand-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #FFFDF8;
+}
+
+.anivom-auth-tagline {
+  font-size: 0.85rem;
+  color: #C6A15B;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.anivom-auth-manifesto {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #a0a0a0;
+  margin-top: 20px;
+}
+
+.anivom-auth-tamil-accent {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #C6A15B;
+  letter-spacing: 0.05em;
+  font-family: inherit;
+}
+
+.anivom-auth-back-link {
+  background: none;
+  border: none;
+  color: #F7F2E8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.anivom-auth-back-link:hover {
+  color: #C6A15B;
+}
+
+.anivom-auth-form-side {
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+}
+
+.anivom-auth-header-toggle {
+  display: flex;
+  border-bottom: 1px solid #e5e0d8;
+  margin-bottom: 32px;
+}
+
+.anivom-auth-tab {
+  flex: 1;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888888;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-auth-tab:hover {
+  color: #111111;
+}
+
+.anivom-auth-tab.active {
+  color: #7A1F3D;
+  border-bottom-color: #7A1F3D;
+}
+
+.anivom-auth-notice {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  border-radius: 2px;
+}
+
+.anivom-auth-notice.error {
+  background: rgba(211, 47, 47, 0.1);
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  color: #d32f2f;
+}
+
+.anivom-auth-notice.success {
+  background: rgba(46, 125, 50, 0.1);
+  border: 1px solid rgba(46, 125, 50, 0.3);
+  color: #2e7d32;
+}
+
+.anivom-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.anivom-auth-form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0;
+  color: #111111;
+}
+
+.anivom-auth-form-sub {
+  font-size: 0.88rem;
+  color: #666666;
+  margin: 0 0 12px 0;
+}
+
+.anivom-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.anivom-auth-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #111111;
+}
+
+.anivom-password-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.anivom-auth-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #FFFDF8;
+  border: 1px solid #d5d0c8;
+  font-size: 0.92rem;
+  color: #111111;
+  box-sizing: border-box;
+}
+
+.anivom-auth-input:focus {
+  outline: none;
+  border-color: #7A1F3D;
+}
+
+.anivom-pwd-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666666;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+.anivom-auth-submit {
+  width: 100%;
+  padding: 16px 24px;
+  background: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 10px;
+}
+
+.anivom-auth-submit:hover:not(:disabled) {
+  background: #7A1F3D;
+  border-color: #7A1F3D;
+}
+
+.anivom-auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.anivom-auth-switch-text {
+  font-size: 0.85rem;
+  color: #666666;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.anivom-auth-switch-btn {
+  background: none;
+  border: none;
+  color: #7A1F3D;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.anivom-auth-card-logged {
+  max-width: 440px;
+  padding: 40px;
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  text-align: center;
+}
+
+.anivom-auth-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin: 0 0 12px 0;
+}
+
+.anivom-auth-desc {
+  color: #555555;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 840px) {
+  .anivom-auth-split-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .anivom-auth-visual-side {
+    padding: 40px 28px;
+    gap: 20px;
+  }
+
+  .anivom-auth-form-side {
+    padding: 40px 28px;
+  }
+}

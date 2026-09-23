@@ -1,0 +1,703 @@
+.anivom-orders-container {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 36px 80px 36px;
+  color: #111111;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-sizing: border-box;
+}
+
+.anivom-orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #111111;
+  padding-bottom: 24px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.anivom-orders-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #111111;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+}
+
+.anivom-orders-subtitle {
+  font-size: 0.95rem;
+  color: #666666;
+  margin: 0;
+  font-style: italic;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.anivom-orders-back-link {
+  background: transparent;
+  border: none;
+  color: #7A1F3D;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.anivom-orders-back-link:hover {
+  color: #111111;
+}
+
+.anivom-orders-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.anivom-orders-header-badges {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.anivom-btn-orders-primary {
+  background-color: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  padding: 12px 24px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-orders-primary:hover {
+  background-color: #7A1F3D;
+  border-color: #7A1F3D;
+}
+
+.anivom-btn-orders-secondary {
+  background-color: transparent;
+  color: #111111;
+  border: 1px solid #111111;
+  padding: 12px 24px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-orders-secondary:hover {
+  background-color: #F7F2E8;
+}
+
+.anivom-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.anivom-order-card {
+  background: #FFFDF8;
+  border: 1px solid #e5e0d8;
+  padding: 24px;
+  transition: border-color 0.2s ease;
+}
+
+.anivom-order-card:hover {
+  border-color: #111111;
+}
+
+.anivom-order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F7F2E8;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.anivom-order-ref {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111111;
+  letter-spacing: 0.05em;
+}
+
+.anivom-order-date {
+  font-size: 0.8rem;
+  color: #777777;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.anivom-order-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.anivom-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid #111111;
+}
+
+.anivom-status-badge.status-placed,
+.anivom-status-badge.status-confirmed {
+  background-color: #F7F2E8;
+  color: #111111;
+  border-color: #C6A15B;
+}
+
+.anivom-status-badge.status-processing,
+.anivom-status-badge.status-shipped {
+  background-color: #111111;
+  color: #FFFDF8;
+  border-color: #111111;
+}
+
+.anivom-status-badge.status-delivered {
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  border-color: #7A1F3D;
+}
+
+.anivom-status-badge.status-cancelled,
+.anivom-status-badge.status-failed,
+.anivom-status-badge.payment-failed {
+  background-color: #FFFDF8;
+  color: #C65D3B;
+  border-color: #C65D3B;
+}
+
+.anivom-status-badge.payment-paid {
+  background-color: #F7F2E8;
+  color: #292929;
+  border-color: #C6A15B;
+}
+
+.anivom-order-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.anivom-order-items-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.anivom-order-preview-chip {
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.anivom-preview-name {
+  font-weight: 600;
+  color: #111111;
+}
+
+.anivom-preview-spec {
+  color: #666666;
+  font-size: 0.75rem;
+}
+
+.anivom-chip-custom-badge {
+  color: #7A1F3D;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+.anivom-order-card-summary {
+  text-align: right;
+}
+
+.anivom-card-item-count {
+  font-size: 0.8rem;
+  color: #666666;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.anivom-card-custom-indicator {
+  font-size: 0.75rem;
+  color: #7A1F3D;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.anivom-card-total {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111111;
+  margin-top: 4px;
+}
+
+.anivom-order-card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.anivom-btn-track-order {
+  background: transparent;
+  border: none;
+  color: #7A1F3D;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 0.2s ease;
+}
+
+.anivom-btn-track-order:hover {
+  color: #111111;
+}
+
+.anivom-orders-section {
+  background: #FFFDF8;
+  border: 1px solid #e5e0d8;
+  padding: 28px;
+  margin-bottom: 28px;
+}
+
+.anivom-orders-section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111111;
+  letter-spacing: 0.05em;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #111111;
+}
+
+.anivom-timeline-container {
+  padding: 20px 10px;
+}
+
+.anivom-timeline-track {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.anivom-timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: #e5e0d8;
+  z-index: 1;
+}
+
+.anivom-timeline-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.anivom-timeline-node {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #FFFDF8;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #999;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.anivom-timeline-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.anivom-timeline-step.completed .anivom-timeline-node {
+  background-color: #111111;
+  border-color: #111111;
+  color: #FFFDF8;
+}
+
+.anivom-timeline-step.completed .anivom-timeline-label {
+  color: #111111;
+}
+
+.anivom-timeline-step.current .anivom-timeline-node {
+  background-color: #7A1F3D;
+  border-color: #7A1F3D;
+  color: #FFFDF8;
+  box-shadow: 0 0 0 4px rgba(122, 31, 61, 0.2);
+}
+
+.anivom-timeline-step.current .anivom-timeline-label {
+  color: #7A1F3D;
+  font-weight: 800;
+}
+
+.anivom-orders-cancelled-banner {
+  background: #FFFDF8;
+  border: 1px solid #C65D3B;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.anivom-cancelled-icon {
+  font-size: 1.5rem;
+}
+
+.anivom-cancelled-head {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #C65D3B;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.05em;
+}
+
+.anivom-cancelled-desc {
+  font-size: 0.85rem;
+  color: #555555;
+  margin: 0;
+}
+
+.anivom-orders-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+}
+
+.anivom-orders-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.anivom-orders-item-card {
+  border-bottom: 1px solid #e5e0d8;
+  padding-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.anivom-orders-item-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.anivom-orders-item-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.anivom-orders-item-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+.anivom-customized-tag {
+  background: #7A1F3D;
+  color: #FFFDF8;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+}
+
+.anivom-orders-item-meta {
+  font-size: 0.8rem;
+  color: #555555;
+  margin-bottom: 8px;
+}
+
+.anivom-meta-divider {
+  margin: 0 8px;
+  color: #ccc;
+}
+
+.anivom-customization-summary-box {
+  background: #F7F2E8;
+  border-left: 3px solid #7A1F3D;
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+
+.anivom-custom-summary-head {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #7A1F3D;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+}
+
+.anivom-custom-layer-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.8rem;
+  color: #292929;
+}
+
+.anivom-custom-layer-item {
+  margin-bottom: 4px;
+}
+
+.anivom-orders-item-price-box {
+  text-align: right;
+  min-width: 100px;
+}
+
+.anivom-item-unit-price {
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.anivom-item-subtotal {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111111;
+  margin-top: 2px;
+}
+
+.anivom-shipping-snapshot-card {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #292929;
+}
+
+.anivom-snapshot-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111111;
+  margin-bottom: 4px;
+}
+
+.anivom-snapshot-line {
+  color: #555555;
+}
+
+.anivom-financial-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.anivom-fin-line {
+  display: flex;
+  justify-content: space-between;
+  color: #555555;
+}
+
+.anivom-fin-line.total {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111111;
+  border-top: 1px solid #111111;
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.anivom-complimentary-tag {
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.anivom-razorpay-ref {
+  font-size: 0.75rem;
+  color: #888888;
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+.anivom-orders-empty-box {
+  text-align: center;
+  padding: 64px 24px;
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  max-width: 540px;
+  margin: 40px auto;
+}
+
+.anivom-orders-symbol {
+  display: block;
+  font-size: 2rem;
+  color: #C6A15B;
+  margin-bottom: 12px;
+}
+
+.anivom-orders-empty-head {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111111;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+}
+
+.anivom-orders-empty-sub {
+  font-size: 0.9rem;
+  color: #666666;
+  margin: 0 0 24px 0;
+}
+
+.anivom-orders-empty-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.anivom-orders-state-box {
+  text-align: center;
+  padding: 80px 24px;
+  background: #F7F2E8;
+  border: 1px solid #e5e0d8;
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+.anivom-orders-spinner {
+  font-size: 2rem;
+  color: #C6A15B;
+  animation: spinSlow 3s linear infinite;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.anivom-orders-state-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #111111;
+  margin: 0;
+}
+
+.anivom-orders-error-head {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #7A1F3D;
+  margin: 0 0 12px 0;
+}
+
+.anivom-orders-state-sub {
+  font-size: 0.9rem;
+  color: #666666;
+  margin: 0 0 20px 0;
+}
+
+@media (max-width: 900px) {
+  .anivom-orders-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .anivom-orders-container {
+    padding: 24px 16px 60px 16px;
+  }
+
+  .anivom-orders-title {
+    font-size: 1.8rem;
+  }
+
+  .anivom-timeline-track {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .anivom-timeline-track::before {
+    display: none;
+  }
+
+  .anivom-timeline-step {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+
+  .anivom-timeline-node {
+    margin-bottom: 0;
+  }
+
+  .anivom-order-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .anivom-order-card-summary {
+    text-align: left;
+    width: 100%;
+    border-top: 1px solid #F7F2E8;
+    padding-top: 12px;
+  }
+}

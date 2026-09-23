@@ -3,7 +3,7 @@ import './Studio.css';
 import { API_BASE_URL } from './config';
 import { PREDEFINED_DESIGNS } from './designsData';
 
-const Studio = ({ product, user, initialCustomization, onBack }) => {
+const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart }) => {
   const availableSizes = product && product.variants
     ? Array.from(new Set(product.variants.map((v) => v.size)))
     : ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -33,6 +33,7 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
     initialCustomization && initialCustomization._id ? initialCustomization._id : null
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
   const [saveError, setSaveError] = useState(null);
 
@@ -455,6 +456,7 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
       }
 
       setSaveMessage('Customized design added to shopping cart!');
+      if (onCartUpdated) onCartUpdated();
       if (onNavigateToCart) {
         setTimeout(() => {
           onNavigateToCart();
@@ -532,13 +534,20 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
       <header className="studio-header">
         <div className="studio-header-left">
           <button className="studio-back-btn" onClick={onBack}>
-            &larr; Back to Product
+            &larr; Catalog
           </button>
-          <span className="studio-badge">ANIVOM STUDIO</span>
+          <div className="studio-brand-group">
+            <span className="studio-badge">ANIVOM STUDIO</span>
+            <span className="studio-tagline">Make something that's yours.</span>
+          </div>
         </div>
-        <div className="studio-header-title">
-          <h1>{product.name}</h1>
-          <span className="studio-price">₹{product.basePrice}</span>
+
+        <div className="studio-header-center">
+          <h1 className="studio-product-name">{product.name}</h1>
+          <span className="studio-price">&#8377;{product.basePrice}</span>
+        </div>
+
+        <div className="studio-header-actions">
           <button
             className="save-customization-btn"
             onClick={handleSaveCustomization}
@@ -550,18 +559,8 @@ const Studio = ({ product, user, initialCustomization, onBack }) => {
             className="add-to-cart-btn"
             onClick={handleAddToCartCustomized}
             disabled={isSaving || isAddingToCart}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#10b981',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              marginLeft: '10px',
-            }}
           >
-            {isAddingToCart ? 'Adding...' : 'Add Design to Bag 🛍️'}
+            {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
           </button>
         </div>
       </header>

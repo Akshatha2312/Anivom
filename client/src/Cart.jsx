@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import './Cart.css'
 import { API_BASE_URL } from './config'
 
-function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }) {
+function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, onCartUpdated, onSelectProduct }) {
   const [cart, setCart] = useState(null)
   const [loading, setLoading] = useState(true)
   const [updatingItemId, setUpdatingItemId] = useState(null)
   const [error, setError] = useState(null)
+  const [recommendations, setRecommendations] = useState([])
 
   const fetchCart = async () => {
     if (!user) {
@@ -37,6 +38,21 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
     fetchCart()
   }, [user])
 
+  useEffect(() => {
+    const fetchRecs = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/products?limit=4`)
+        const data = await res.json()
+        if (res.ok) {
+          setRecommendations(data.data.products || [])
+        }
+      } catch (e) {
+        // silent recommendation fallback
+      }
+    }
+    fetchRecs()
+  }, [])
+
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return
     setUpdatingItemId(itemId)
@@ -53,6 +69,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
       const data = await res.json()
       if (res.ok) {
         setCart(data.data.cart)
+        if (onCartUpdated) onCartUpdated()
       } else {
         setError(data.message || 'Unable to update item quantity.')
       }
@@ -76,6 +93,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
       const data = await res.json()
       if (res.ok) {
         setCart(data.data.cart)
+        if (onCartUpdated) onCartUpdated()
       } else {
         setError(data.message || 'Unable to remove item from cart.')
       }
@@ -103,6 +121,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
       const data = await res.json()
       if (res.ok) {
         setCart(data.data.cart)
+        if (onCartUpdated) onCartUpdated()
       } else {
         setError(data.message || 'Unable to clear cart.')
       }
@@ -123,17 +142,17 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
     return (
       <div className="anivom-cart-container">
         <div className="anivom-empty-cart">
-          <div className="anivom-empty-icon">&#128091;</div>
-          <h3 className="anivom-empty-title">Sign in to view your bag</h3>
+          <div className="anivom-empty-icon">🔒</div>
+          <h3 className="anivom-empty-title">YOUR BAG REQUIRES SIGN-IN</h3>
           <p className="anivom-empty-sub">
-            Log in with your ANIVOM customer account to access your saved shopping cart.
+            Log in with your ANIVOM customer account to view your saved items and complete your bespoke order.
           </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <button className="anivom-btn-checkout" style={{ width: 'auto', padding: '10px 24px' }} onClick={onLoginRedirect}>
-              Log In Now
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center' }}>
+            <button className="anivom-btn-checkout" style={{ width: 'auto', padding: '12px 28px' }} onClick={onLoginRedirect}>
+              Sign In to ANIVOM
             </button>
-            <button className="anivom-btn-continue" style={{ width: 'auto', padding: '10px 24px' }} onClick={onContinueShopping}>
-              Browse Catalog
+            <button className="anivom-btn-continue" style={{ width: 'auto', padding: '12px 28px' }} onClick={onContinueShopping}>
+              Explore Catalog
             </button>
           </div>
         </div>
@@ -145,7 +164,9 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
     return (
       <div className="anivom-cart-container">
         <div className="anivom-empty-cart">
-          <p style={{ fontSize: '16px', fontWeight: '600', color: '#4b5563' }}>Loading your ANIVOM shopping bag...</p>
+          <p style={{ letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '0.85rem', color: '#666666' }}>
+            Retrieving your ANIVOM shopping bag...
+          </p>
         </div>
       </div>
     )
@@ -163,8 +184,8 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
       <div className="anivom-cart-container">
         <div className="anivom-cart-header">
           <div className="anivom-cart-title-group">
-            <h2 className="anivom-cart-title">Your Shopping Bag</h2>
-            <span className="anivom-cart-count">(0 ITEMS)</span>
+            <h1 className="anivom-cart-title">YOUR BAG <span className="anivom-cart-count">(0)</span></h1>
+            <p className="anivom-cart-subtitle">Everything you chose, ready when you are.</p>
           </div>
         </div>
 
@@ -176,15 +197,42 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
         )}
 
         <div className="anivom-empty-cart">
-          <div className="anivom-empty-icon">&#128092;</div>
-          <h3 className="anivom-empty-title">Your shopping bag is empty</h3>
+          <h2 className="anivom-empty-title">YOUR BAG IS WAITING.</h2>
           <p className="anivom-empty-sub">
-            Discover our latest apparel collections and custom Studio designs to add items to your cart.
+            Looks like you haven't added any garments or custom Studio creations to your bag yet.
           </p>
-          <button className="anivom-btn-checkout" style={{ width: 'auto', padding: '12px 32px' }} onClick={onContinueShopping}>
-            Explore Catalog &rarr;
+          <button className="anivom-btn-checkout" style={{ width: 'auto', padding: '14px 36px' }} onClick={onContinueShopping}>
+            Shop the Collection &rarr;
           </button>
         </div>
+
+        {recommendations.length > 0 && (
+          <section className="anivom-cart-rec-section">
+            <h3 className="anivom-cart-rec-title">Users also buy!</h3>
+            <div className="anivom-cart-rec-grid">
+              {recommendations.map((rec) => {
+                const recImg = rec.images && rec.images.length > 0 ? rec.images[0] : null
+                return (
+                  <div
+                    key={rec._id}
+                    className="anivom-rec-card"
+                    onClick={() => onSelectProduct ? onSelectProduct(rec) : onContinueShopping()}
+                  >
+                    <div className="anivom-rec-img-wrap">
+                      {recImg ? (
+                        <img src={recImg} alt={rec.name} className="anivom-rec-img" />
+                      ) : (
+                        <div style={{ padding: '20px', textAlign: 'center', fontSize: '11px', color: '#888' }}>ANIVOM</div>
+                      )}
+                    </div>
+                    <h4 className="anivom-rec-name">{rec.name}</h4>
+                    <span className="anivom-rec-price">&#8377;{rec.basePrice}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
       </div>
     )
   }
@@ -193,8 +241,8 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
     <div className="anivom-cart-container">
       <div className="anivom-cart-header">
         <div className="anivom-cart-title-group">
-          <h2 className="anivom-cart-title">Your Shopping Bag</h2>
-          <span className="anivom-cart-count">({totalItemCount} {totalItemCount === 1 ? 'ITEM' : 'ITEMS'})</span>
+          <h1 className="anivom-cart-title">YOUR BAG <span className="anivom-cart-count">({totalItemCount})</span></h1>
+          <p className="anivom-cart-subtitle">Everything you chose, ready when you are.</p>
         </div>
         <button className="anivom-cart-clear-btn" onClick={handleClearCart}>
           Clear Bag
@@ -223,39 +271,37 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
                   {image ? (
                     <img src={image} alt={product.name || 'Product'} className="anivom-cart-item-img" />
                   ) : (
-                    <span className="anivom-cart-item-no-img">No Image</span>
+                    <span className="anivom-cart-item-no-img">ANIVOM</span>
                   )}
                 </div>
 
                 <div className="anivom-cart-item-details">
-                  <div>
-                    <div className="anivom-cart-item-header">
-                      <h4 className="anivom-cart-item-name">{product.name || 'ANIVOM Apparel'}</h4>
-                      {item.customized && (
-                        <span className="anivom-badge-customized">&#10024; Customized</span>
-                      )}
-                    </div>
-
-                    <div className="anivom-cart-item-meta">
-                      <span>Size: <strong className="anivom-meta-label">{item.size}</strong></span>
-                      <span>Colour: <strong className="anivom-meta-label">{item.colour}</strong></span>
-                    </div>
-
-                    {item.customized && item.customization && item.customization.layers && (
-                      <div className="anivom-customization-preview">
-                        <div className="anivom-preview-title">Custom Design Layers ({item.customization.layers.length}):</div>
-                        <div>
-                          {item.customization.layers.map((layer, idx) => (
-                            <span key={layer._id || idx} className="anivom-layer-chip">
-                              {layer.type === 'text' && `Text: "${layer.text?.content || 'Text'}"`}
-                              {layer.type === 'predefined_design' && `Design: ${layer.design?.designId || 'Vector'}`}
-                              {layer.type === 'uploaded_image' && 'Uploaded Graphic'}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                  <div className="anivom-cart-item-header">
+                    <h3 className="anivom-cart-item-name">{product.name || 'ANIVOM Garment'}</h3>
+                    {item.customized && (
+                      <span className="anivom-badge-customized">✨ Customized</span>
                     )}
                   </div>
+
+                  <div className="anivom-cart-item-meta">
+                    <span>Size: <strong className="anivom-meta-label">{item.size}</strong></span>
+                    <span>Colour: <strong className="anivom-meta-label">{item.colour}</strong></span>
+                  </div>
+
+                  {item.customized && item.customization && item.customization.layers && (
+                    <div className="anivom-customization-preview">
+                      <div className="anivom-preview-title">Bespoke Layers ({item.customization.layers.length})</div>
+                      <div className="anivom-layer-chips-group">
+                        {item.customization.layers.map((layer, idx) => (
+                          <span key={layer._id || idx} className="anivom-layer-chip">
+                            {layer.type === 'text' && `Text: "${layer.text?.content || 'Text'}"`}
+                            {layer.type === 'predefined_design' && `Design: ${layer.design?.name || layer.design?.designId || 'Vector'}`}
+                            {layer.type === 'uploaded_image' && 'Uploaded Graphic'}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="anivom-cart-item-price-row">
                     Unit Price: &#8377;{itemPrice}
@@ -290,7 +336,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
                     disabled={isUpdating}
                     onClick={() => handleRemoveItem(item._id)}
                   >
-                    Remove
+                    Remove Item
                   </button>
                 </div>
               </div>
@@ -312,8 +358,8 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
           </div>
 
           <div className="anivom-summary-row">
-            <span>Estimated Shipping</span>
-            <span style={{ color: '#10b981', fontWeight: '600' }}>COMPLIMENTARY</span>
+            <span>Standard Shipping</span>
+            <span style={{ color: '#2e7d32', fontWeight: '600', fontSize: '0.85rem' }}>COMPLIMENTARY</span>
           </div>
 
           <div className="anivom-summary-row total">
@@ -330,6 +376,34 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout }
           </button>
         </div>
       </div>
+
+      {recommendations.length > 0 && (
+        <section className="anivom-cart-rec-section">
+          <h3 className="anivom-cart-rec-title">Users also buy!</h3>
+          <div className="anivom-cart-rec-grid">
+            {recommendations.map((rec) => {
+              const recImg = rec.images && rec.images.length > 0 ? rec.images[0] : null
+              return (
+                <div
+                  key={rec._id}
+                  className="anivom-rec-card"
+                  onClick={() => onSelectProduct ? onSelectProduct(rec) : onContinueShopping()}
+                >
+                  <div className="anivom-rec-img-wrap">
+                    {recImg ? (
+                      <img src={recImg} alt={rec.name} className="anivom-rec-img" />
+                    ) : (
+                      <div style={{ padding: '20px', textAlign: 'center', fontSize: '11px', color: '#888' }}>ANIVOM</div>
+                    )}
+                  </div>
+                  <h4 className="anivom-rec-name">{rec.name}</h4>
+                  <span className="anivom-rec-price">&#8377;{rec.basePrice}</span>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

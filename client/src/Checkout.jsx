@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Checkout.css'
 import { API_BASE_URL } from './config'
 
-function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect }) {
+function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, onNavigateToOrders }) {
   const [addresses, setAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -20,7 +20,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
   const [city, setCity] = useState('')
   const [state, setState] = useState('')
   const [postalCode, setPostalCode] = useState('')
-  const [country, setCountry] = useState('India')
+  const [country] = useState('India')
   const [label, setLabel] = useState('Home')
   const [isDefault, setIsDefault] = useState(false)
 
@@ -260,13 +260,13 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
   if (!user) {
     return (
       <div className="anivom-checkout-container">
-        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#FFFDF8', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-          <h3 style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 8px 0' }}>Sign in to Checkout</h3>
-          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '24px' }}>
-            Please log in with your ANIVOM customer account to complete your purchase.
+        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#F7F2E8', border: '1px solid #e5e0d8' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', margin: '0 0 12px 0' }}>SIGN IN TO CHECKOUT</h2>
+          <p style={{ color: '#666666', fontSize: '0.95rem', marginBottom: '28px' }}>
+            Please log in with your ANIVOM customer account to complete your order.
           </p>
-          <button className="anivom-btn-pay" style={{ width: 'auto', padding: '12px 32px' }} onClick={onLoginRedirect}>
-            Log In Now
+          <button className="anivom-btn-pay" style={{ width: 'auto', padding: '14px 36px' }} onClick={onLoginRedirect}>
+            Sign In to ANIVOM
           </button>
         </div>
       </div>
@@ -276,22 +276,37 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
   if (paymentStatus === 'SUCCESS' && completedOrder) {
     return (
       <div className="anivom-checkout-container">
-        <div style={{ textAlign: 'center', padding: '60px 20px', background: '#FFFDF8', border: '1px solid #10b981', borderRadius: '8px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
-          <h2 style={{ fontSize: '26px', fontWeight: '900', color: '#111111', margin: '0 0 8px 0' }}>ORDER CONFIRMED!</h2>
-          <p style={{ color: '#4b5563', fontSize: '15px', marginBottom: '24px' }}>
-            Thank you for shopping with ANIVOM. Your payment has been securely verified.
+        <div style={{ textAlign: 'center', padding: '60px 24px', background: '#FFFDF8', border: '1px solid #7A1F3D' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>✦</div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.5rem', color: '#111111', margin: '0 0 8px 0' }}>ORDER CONFIRMED</h2>
+          <p style={{ color: '#555555', fontSize: '1rem', marginBottom: '32px' }}>
+            Thank you for your order with ANIVOM. Your payment has been securely verified.
           </p>
-          <div style={{ maxWidth: '500px', margin: '0 auto 24px auto', background: '#F7F2E8', padding: '16px', borderRadius: '6px', textAlign: 'left', fontSize: '13px' }}>
+          <div style={{ maxWidth: '520px', margin: '0 auto 32px auto', background: '#F7F2E8', padding: '24px', textAlign: 'left', fontSize: '0.9rem', lineHeight: '1.8', border: '1px solid #e5e0d8' }}>
             <div><strong>Order Reference:</strong> #{completedOrder._id}</div>
             <div><strong>Razorpay Payment ID:</strong> {completedOrder.razorpayPaymentId}</div>
             <div><strong>Total Paid:</strong> &#8377;{completedOrder.totalAmount}</div>
-            <div><strong>Payment Status:</strong> <span style={{ color: '#047857', fontWeight: '700' }}>{completedOrder.paymentStatus}</span></div>
-            <div><strong>Order Status:</strong> <span style={{ color: '#047857', fontWeight: '700' }}>{completedOrder.orderStatus}</span></div>
+            <div><strong>Payment Status:</strong> <span style={{ color: '#2e7d32', fontWeight: '700' }}>{completedOrder.paymentStatus}</span></div>
+            <div><strong>Order Status:</strong> <span style={{ color: '#2e7d32', fontWeight: '700' }}>{completedOrder.orderStatus}</span></div>
           </div>
-          <button className="anivom-btn-pay" style={{ width: 'auto', padding: '12px 32px' }} onClick={onContinueShopping}>
-            Continue Shopping
-          </button>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {onNavigateToOrders && (
+              <button
+                className="anivom-btn-pay"
+                style={{ width: 'auto', padding: '14px 32px' }}
+                onClick={() => onNavigateToOrders(completedOrder._id)}
+              >
+                Track Your Order &rarr;
+              </button>
+            )}
+            <button
+              className="anivom-btn-return-bag"
+              style={{ width: 'auto', padding: '14px 32px', border: '1px solid #111111' }}
+              onClick={onContinueShopping}
+            >
+              Continue Shopping
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -300,8 +315,10 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
   if (loading) {
     return (
       <div className="anivom-checkout-container">
-        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#FFFDF8', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-          <p style={{ fontSize: '16px', fontWeight: '600', color: '#4b5563' }}>Validating order details with ANIVOM server...</p>
+        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#F7F2E8', border: '1px solid #e5e0d8' }}>
+          <p style={{ letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '0.85rem', color: '#666666' }}>
+            Validating order details with ANIVOM server...
+          </p>
         </div>
       </div>
     )
@@ -312,12 +329,12 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
   if (items.length === 0) {
     return (
       <div className="anivom-checkout-container">
-        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#FFFDF8', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-          <h3 style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 8px 0' }}>Your bag is empty</h3>
-          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '24px' }}>
-            Add items to your shopping bag before proceeding to checkout.
+        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#F7F2E8', border: '1px solid #e5e0d8' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', margin: '0 0 12px 0' }}>YOUR BAG IS EMPTY</h2>
+          <p style={{ color: '#666666', fontSize: '0.95rem', marginBottom: '28px' }}>
+            Please add items to your shopping bag before proceeding to checkout.
           </p>
-          <button className="anivom-btn-pay" style={{ width: 'auto', padding: '12px 32px' }} onClick={onContinueShopping}>
+          <button className="anivom-btn-pay" style={{ width: 'auto', padding: '14px 36px' }} onClick={onContinueShopping}>
             Explore Catalog &rarr;
           </button>
         </div>
@@ -329,19 +346,36 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
 
   return (
     <div className="anivom-checkout-container">
-      <div className="anivom-checkout-header">
-        <h2 className="anivom-checkout-title">Checkout</h2>
-        <span className="anivom-checkout-secure-badge">&#128274; 256-Bit SSL Encryption</span>
-      </div>
+      <header className="anivom-checkout-header">
+        <div className="anivom-checkout-brand-group">
+          <h1 className="anivom-checkout-brand">ANIVOM</h1>
+          <span className="anivom-checkout-tagline">Wear It Your Way.</span>
+        </div>
+        <div className="anivom-checkout-trust-badge">
+          🔒 Secure 256-Bit SSL Checkout
+        </div>
+      </header>
+
+      <nav className="anivom-checkout-stepper">
+        <div className="anivom-step-item active">
+          <span className="anivom-step-num">01</span> DELIVERY ADDRESS
+        </div>
+        <div className="anivom-step-item active">
+          <span className="anivom-step-num">02</span> ORDER REVIEW
+        </div>
+        <div className="anivom-step-item active">
+          <span className="anivom-step-num">03</span> PAYMENT
+        </div>
+      </nav>
 
       {error && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '14px 18px', borderRadius: '6px', marginBottom: '24px', fontSize: '14px' }}>
+        <div style={{ background: 'rgba(211, 47, 47, 0.1)', border: '1px solid rgba(211, 47, 47, 0.3)', color: '#d32f2f', padding: '12px 18px', marginBottom: '24px', fontSize: '0.9rem' }}>
           {error}
         </div>
       )}
 
       {addressMsg && (
-        <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', padding: '14px 18px', borderRadius: '6px', marginBottom: '24px', fontSize: '14px' }}>
+        <div style={{ background: 'rgba(46, 125, 50, 0.1)', border: '1px solid rgba(46, 125, 50, 0.3)', color: '#2e7d32', padding: '12px 18px', marginBottom: '24px', fontSize: '0.9rem' }}>
           {addressMsg}
         </div>
       )}
@@ -350,14 +384,14 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
         <div>
           <div className="anivom-checkout-section">
             <div className="anivom-section-heading">
-              <span>1. Delivery Address</span>
+              <span>01. Delivery Address</span>
               <button className="anivom-btn-add-address" disabled={isProcessing} onClick={() => setShowAddForm(!showAddForm)}>
                 {showAddForm ? 'Cancel' : '+ Add Address'}
               </button>
             </div>
 
             {addresses.length === 0 && !showAddForm ? (
-              <p style={{ color: '#6b7280', fontSize: '14px' }}>No saved addresses found. Please add a shipping address below.</p>
+              <p style={{ color: '#666666', fontSize: '0.9rem' }}>No saved addresses found. Please add a delivery address below.</p>
             ) : (
               <div className="anivom-address-grid">
                 {addresses.map((addr) => {
@@ -383,8 +417,8 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
                             Set as Default
                           </button>
                         )}
-                        {addr.isDefault && <span style={{ color: '#047857', fontWeight: '700' }}>✓ Default Address</span>}
-                        <button className="anivom-address-action-btn" style={{ color: '#ef4444' }} disabled={isProcessing} onClick={(e) => handleDeleteAddress(addr._id, e)}>
+                        {addr.isDefault && <span style={{ color: '#2e7d32', fontWeight: '700' }}>✓ Default</span>}
+                        <button className="anivom-address-action-btn" style={{ color: '#C65D3B' }} disabled={isProcessing} onClick={(e) => handleDeleteAddress(addr._id, e)}>
                           Delete
                         </button>
                       </div>
@@ -396,7 +430,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
 
             {showAddForm && (
               <form onSubmit={handleCreateAddress} className="anivom-address-form-box">
-                <h4 style={{ margin: '0 0 16px 0', textTransform: 'uppercase', fontSize: '14px', fontWeight: '800' }}>New Delivery Address</h4>
+                <h4 style={{ margin: '0 0 16px 0', textTransform: 'uppercase', fontSize: '0.85rem', fontWeight: '700', letterSpacing: '0.08em' }}>New Delivery Address</h4>
                 <div className="anivom-form-grid">
                   <div className="anivom-form-field">
                     <label className="anivom-form-label">Full Name</label>
@@ -435,8 +469,8 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
                     </select>
                   </div>
                 </div>
-                <div style={{ marginTop: '12px' }}>
-                  <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <div style={{ marginTop: '14px' }}>
+                  <label style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#555555' }}>
                     <input type="checkbox" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
                     Make this my default delivery address
                   </label>
@@ -450,7 +484,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
 
           <div className="anivom-checkout-section">
             <div className="anivom-section-heading">
-              <span>2. Order Items ({summary.totalItemCount})</span>
+              <span>02. Order Review ({summary.totalItemCount} {summary.totalItemCount === 1 ? 'Item' : 'Items'})</span>
             </div>
 
             <div>
@@ -462,22 +496,22 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
                     {image ? (
                       <img src={image} alt={product.name} className="anivom-checkout-item-img" />
                     ) : (
-                      <div className="anivom-checkout-item-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#999' }}>No Img</div>
+                      <div className="anivom-checkout-item-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#888' }}>ANIVOM</div>
                     )}
                     <div className="anivom-checkout-item-details">
-                      <div className="anivom-checkout-item-name">{product.name}</div>
+                      <h4 className="anivom-checkout-item-name">{product.name}</h4>
                       <div className="anivom-checkout-item-meta">
                         Size: <strong>{item.size}</strong> | Colour: <strong>{item.colour}</strong> | Qty: <strong>{item.quantity}</strong>
                       </div>
                       {item.customized && (
-                        <div style={{ fontSize: '11px', color: '#7e22ce', fontWeight: '700', marginTop: '4px' }}>
+                        <div style={{ fontSize: '0.78rem', color: '#7A1F3D', fontWeight: '700', marginTop: '4px' }}>
                           ✨ Customized Design Attached
                         </div>
                       )}
                     </div>
                     <div className="anivom-checkout-item-price">
                       &#8377;{item.itemSubtotal}
-                      <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '500' }}>(&#8377;{item.unitPrice} ea)</div>
+                      <div style={{ fontSize: '0.75rem', color: '#888888', fontWeight: '500' }}>(&#8377;{item.unitPrice} ea)</div>
                     </div>
                   </div>
                 )
@@ -487,21 +521,23 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
         </div>
 
         <div className="anivom-checkout-summary-card">
-          <h3 style={{ fontSize: '18px', fontWeight: '900', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Order Summary</h3>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: '600', margin: '0 0 14px 0', paddingBottom: '10px', borderBottom: '1px solid #e5e0d8' }}>
+            03. Payment Summary
+          </h3>
 
           <div className="anivom-summary-line">
-            <span>Items Count</span>
+            <span>Total Items</span>
             <span>{summary.totalItemCount}</span>
           </div>
 
           <div className="anivom-summary-line">
-            <span>Subtotal (Authoritative)</span>
+            <span>Authoritative Subtotal</span>
             <span>&#8377;{summary.subtotal}</span>
           </div>
 
           <div className="anivom-summary-line">
-            <span>Shipping Fee</span>
-            <span style={{ color: '#047857', fontWeight: '700' }}>COMPLIMENTARY</span>
+            <span>Standard Shipping</span>
+            <span style={{ color: '#2e7d32', fontWeight: '600', fontSize: '0.85rem' }}>COMPLIMENTARY</span>
           </div>
 
           <div className="anivom-summary-line total">
@@ -513,12 +549,17 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect })
             {paymentStatus === 'PREPARING' && 'Preparing Order...'}
             {paymentStatus === 'OPENING_GATEWAY' && 'Opening Gateway...'}
             {paymentStatus === 'VERIFYING' && 'Verifying Payment...'}
-            {(paymentStatus === 'IDLE' || paymentStatus === 'FAILED') && 'Proceed to Pay 💳'}
+            {(paymentStatus === 'IDLE' || paymentStatus === 'FAILED') && `Pay ₹${summary.totalAmount} Securely 🔒`}
           </button>
 
           <button className="anivom-btn-return-bag" disabled={isProcessing} onClick={onReturnToCart}>
-            Return to Shopping Bag
+            Back to Bag
           </button>
+
+          <p className="anivom-security-note">
+            Payment handled securely via Razorpay Test Mode.<br />
+            256-bit encrypted checkout transaction.
+          </p>
         </div>
       </div>
     </div>

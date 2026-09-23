@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Catalog.css'
 import { API_BASE_URL } from './config'
 
-function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
+function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct }) {
   const availableSizes = product && product.variants && product.variants.length > 0
     ? Array.from(new Set(product.variants.map((v) => v.size)))
     : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -13,7 +13,6 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
 
   const [selectedSize, setSelectedSize] = useState(availableSizes[0] || 'M')
   const [selectedColour, setSelectedColour] = useState(availableColours[0] || 'Black')
-  const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [adding, setAdding] = useState(false)
   const [cardMsg, setCardMsg] = useState(null)
@@ -21,6 +20,14 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
 
   const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
   const secondaryImage = product.images && product.images.length > 1 ? product.images[1] : primaryImage
+
+  const handleCardClick = () => {
+    if (onSelectProduct) {
+      onSelectProduct(product)
+    } else {
+      openStudio(product)
+    }
+  }
 
   const handleAddToCart = async () => {
     if (!user) {
@@ -41,7 +48,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
           product: product._id,
           size: selectedSize,
           colour: selectedColour,
-          quantity: Number(quantity),
+          quantity: 1,
           customized: false,
         }),
       })
@@ -62,7 +69,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
 
   return (
     <div className="anivom-fashion-card">
-      <div className="anivom-card-img-container" onClick={() => openStudio(product)}>
+      <div className="anivom-card-img-container" onClick={handleCardClick}>
         {primaryImage ? (
           <>
             <img src={primaryImage} alt={product.name} className="anivom-card-img-primary" />
@@ -71,20 +78,32 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
             )}
           </>
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontWeight: '600' }}>
-            ANIVOM Apparel
+          <div className="anivom-card-no-img">
+            ANIVOM Couture
           </div>
         )}
 
         <button
           className="anivom-wishlist-btn"
+          aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
           onClick={(e) => {
             e.stopPropagation()
             setIsWishlisted(!isWishlisted)
           }}
-          title="Add to Wishlist"
+          title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
           {isWishlisted ? '❤️' : '🤍'}
+        </button>
+
+        <button
+          className="anivom-quick-hover-btn"
+          onClick={(e) => {
+            e.stopPropagation()
+            handleAddToCart()
+          }}
+          disabled={adding}
+        >
+          {adding ? 'Adding...' : '+ Quick Add Bag'}
         </button>
       </div>
 
@@ -124,8 +143,8 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
             </div>
           </div>
 
-          {cardMsg && <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '700', marginBottom: '8px' }}>{cardMsg}</div>}
-          {cardErr && <div style={{ fontSize: '12px', color: '#ef4444', fontWeight: '700', marginBottom: '8px' }}>{cardErr}</div>}
+          {cardMsg && <div className="anivom-card-msg success">{cardMsg}</div>}
+          {cardErr && <div className="anivom-card-msg error">{cardErr}</div>}
         </div>
 
         <div className="anivom-card-btn-group">
@@ -149,14 +168,14 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated }) {
   )
 }
 
-function Catalog({ user, openStudio, onCartUpdated }) {
+function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCategory = 'All' }) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const [search, setSearch] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState('All')
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'All')
   const [selectedSize, setSelectedSize] = useState('All')
   const [selectedColour, setSelectedColour] = useState('All')
   const [minPrice, setMinPrice] = useState('')
@@ -185,7 +204,7 @@ function Catalog({ user, openStudio, onCartUpdated }) {
       if (maxPrice !== '') params.append('maxPrice', maxPrice)
       if (sortOption) params.append('sort', sortOption)
       params.append('page', page)
-      params.append('limit', 6)
+      params.append('limit', 12)
 
       const res = await fetch(`${API_BASE_URL}/api/v1/products?${params.toString()}`)
       const data = await res.json()
@@ -233,15 +252,20 @@ function Catalog({ user, openStudio, onCartUpdated }) {
     setPage(1)
   }
 
+  const startItemNum = totalProducts > 0 ? (page - 1) * 12 + 1 : 0
+  const endItemNum = Math.min(page * 12, totalProducts)
+
   return (
     <div className="anivom-catalog-root">
-      <div className="anivom-promo-ticker">
-        COMPLIMENTARY NATIONWIDE EXPRESS SHIPPING ON ALL ORDERS | WEAR IT YOUR WAY
-      </div>
-
       <div className="anivom-hero-banner">
-        <h1 className="anivom-brand-title">ANIVOM</h1>
-        <p className="anivom-brand-tagline">Wear It Your Way.</p>
+        <div className="anivom-hero-content-box">
+          <span className="anivom-hero-kicker">CURATED APPAREL</span>
+          <h1 className="anivom-brand-title">THE ANIVOM COLLECTION</h1>
+          <p className="anivom-brand-tagline">Find your fit. Find your colour. Make it yours.</p>
+          <div className="anivom-catalog-count-badge">
+            {totalProducts} PRODUCTS AVAILABLE
+          </div>
+        </div>
 
         <form onSubmit={handleSearchSubmit} className="anivom-search-container">
           <div className="anivom-search-input-wrap">
@@ -260,19 +284,22 @@ function Catalog({ user, openStudio, onCartUpdated }) {
 
         <div className="anivom-trending-tags">
           <span className="anivom-trending-label">Trending Now:</span>
-          {['Oversized', 'Graphic', 'Minimal', 'Custom', 'Egyptian Cotton'].map((tag) => (
+          {['Oversized', 'Graphic', 'Minimal', 'Custom', 'Black Tees', 'New Drops'].map((tag) => (
             <span
               key={tag}
               className="anivom-tag-pill"
               onClick={() => {
-                setSearch(tag === 'Egyptian Cotton' ? '' : tag)
-                if (tag !== 'Egyptian Cotton') {
+                if (tag === 'Black Tees') {
+                  setActiveCategory('Minimal')
+                } else if (tag === 'New Drops') {
+                  setSortOption('newest')
+                } else {
                   setActiveCategory(tag)
                 }
                 setPage(1)
               }}
             >
-              {tag}
+              #{tag}
             </span>
           ))}
         </div>
@@ -362,21 +389,22 @@ function Catalog({ user, openStudio, onCartUpdated }) {
         </div>
 
         {error && (
-          <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '16px', borderRadius: '6px', marginBottom: '24px', textAlign: 'center' }}>
-            {error}
+          <div className="anivom-catalog-error-box">
+            <span>{error}</span>
+            <button onClick={fetchProducts} className="anivom-retry-btn">Retry</button>
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlignment: 'center', padding: '60px 20px', textAlign: 'center', fontSize: '16px', fontWeight: '600', color: '#6b7280' }}>
+          <div className="anivom-catalog-loading-box">
             Discovering ANIVOM products...
           </div>
         ) : products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', background: '#F7F2E8', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 8px 0' }}>No products match your filter criteria</h3>
-            <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>Try broadening your search or resetting size, colour, or price filters.</p>
+          <div className="anivom-catalog-empty-box">
+            <h3 className="anivom-empty-head">Nothing matched that search</h3>
+            <p className="anivom-empty-sub">Try another style, colour, or price range.</p>
             <button onClick={handleResetFilters} className="anivom-btn-add-bag" style={{ width: 'auto', padding: '10px 24px' }}>
-              Reset All Filters
+              Clear Filters
             </button>
           </div>
         ) : (
@@ -389,6 +417,7 @@ function Catalog({ user, openStudio, onCartUpdated }) {
                   user={user}
                   openStudio={openStudio}
                   onCartUpdated={onCartUpdated}
+                  onSelectProduct={onSelectProduct}
                 />
               ))}
             </div>
@@ -400,17 +429,17 @@ function Catalog({ user, openStudio, onCartUpdated }) {
                   onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                   className="anivom-pagination-btn"
                 >
-                  &larr; Previous Page
+                  &larr; Previous
                 </button>
                 <span className="anivom-pagination-info">
-                  Page <strong>{page}</strong> of <strong>{totalPages}</strong> ({totalProducts} Products)
+                  Showing <strong>{startItemNum}–{endItemNum}</strong> of <strong>{totalProducts}</strong> Products
                 </span>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
                   className="anivom-pagination-btn"
                 >
-                  Next Page &rarr;
+                  Next &rarr;
                 </button>
               </div>
             )}

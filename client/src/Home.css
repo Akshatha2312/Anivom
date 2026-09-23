@@ -1,0 +1,581 @@
+.anivom-home-root {
+  width: 100%;
+  background-color: #FFFDF8;
+  color: #111111;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.anivom-hero-editorial {
+  background-color: #F7F2E8;
+  border-bottom: 1px solid #E8E2D5;
+  padding: 60px 24px;
+}
+
+.anivom-hero-grid {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.anivom-hero-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.anivom-hero-kicker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #7A1F3D;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.anivom-hero-heading {
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin: 0;
+  color: #111111;
+  line-height: 1;
+}
+
+.anivom-hero-subtag {
+  font-size: 20px;
+  font-style: italic;
+  color: #C6A15B;
+  margin: 8px 0 20px 0;
+  font-family: serif;
+}
+
+.anivom-hero-desc {
+  font-size: 16px;
+  color: #4b5563;
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 0 32px 0;
+}
+
+.anivom-hero-cta-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.anivom-btn-primary {
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  border: none;
+  padding: 14px 32px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.anivom-btn-primary:hover {
+  background-color: #C65D3B;
+}
+
+.anivom-btn-secondary {
+  background-color: transparent;
+  color: #111111;
+  border: 1px solid #111111;
+  padding: 14px 32px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-secondary:hover {
+  background-color: #111111;
+  color: #FFFDF8;
+}
+
+.anivom-hero-visual-col {
+  width: 100%;
+}
+
+.anivom-hero-img-frame {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.anivom-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.anivom-hero-img-badge {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: #111111;
+  color: #C6A15B;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  padding: 8px 16px;
+  text-transform: uppercase;
+}
+
+.anivom-intro-section {
+  background-color: #FFFDF8;
+  padding: 60px 24px;
+  text-align: center;
+  border-bottom: 1px solid #E8E2D5;
+}
+
+.anivom-intro-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.anivom-intro-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin: 0 0 16px 0;
+  color: #111111;
+}
+
+.anivom-intro-text {
+  font-size: 15px;
+  color: #666666;
+  line-height: 1.8;
+  margin: 0 0 20px 0;
+}
+
+.anivom-intro-tamil-accent {
+  font-size: 14px;
+  font-weight: 600;
+  color: #C65D3B;
+  letter-spacing: 0.05em;
+}
+
+.anivom-styles-section, .anivom-featured-section, .anivom-trending-section, .anivom-rec-section {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 60px 36px;
+  box-sizing: border-box;
+}
+
+.anivom-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 32px;
+  border-bottom: 1px solid #E8E2D5;
+  padding-bottom: 12px;
+}
+
+.anivom-section-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin: 0;
+  color: #111111;
+  text-transform: uppercase;
+}
+
+.anivom-section-sub {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C6A15B;
+  letter-spacing: 0.1em;
+}
+
+.anivom-link-btn {
+  background: transparent;
+  border: none;
+  color: #7A1F3D;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.anivom-link-btn:hover {
+  color: #C65D3B;
+}
+
+.anivom-styles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.anivom-style-tile {
+  position: relative;
+  height: 320px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.anivom-style-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.anivom-style-tile:hover .anivom-style-img {
+  transform: scale(1.05);
+}
+
+.anivom-style-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(17, 17, 17, 0.85) 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #FFFDF8;
+}
+
+.anivom-style-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+}
+
+.anivom-style-desc {
+  font-size: 12px;
+  color: #cccccc;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.anivom-style-arrow {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C6A15B;
+  text-transform: uppercase;
+}
+
+.anivom-featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.anivom-home-card {
+  background-color: #FFFDF8;
+  border: 1px solid #E8E2D5;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.anivom-home-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.anivom-home-card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background-color: #F7F2E8;
+}
+
+.anivom-home-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.anivom-no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  color: #cccccc;
+}
+
+.anivom-home-card-quickadd {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background-color: rgba(17, 17, 17, 0.9);
+  color: #FFFDF8;
+  border: none;
+  padding: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.anivom-home-card:hover .anivom-home-card-quickadd {
+  opacity: 1;
+}
+
+.anivom-home-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.anivom-home-card-cat {
+  font-size: 10px;
+  font-weight: 800;
+  color: #C65D3B;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.anivom-home-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: #111111;
+}
+
+.anivom-home-card-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 12px;
+}
+
+.anivom-home-card-actions {
+  margin-top: auto;
+}
+
+.anivom-card-sub-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #C6A15B;
+  color: #111111;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.anivom-card-sub-btn:hover {
+  background: #C6A15B;
+  color: #FFFDF8;
+}
+
+.anivom-custom-banner {
+  background-color: #111111;
+  color: #FFFDF8;
+  padding: 60px 24px;
+}
+
+.anivom-custom-banner-content {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.anivom-custom-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #C6A15B;
+}
+
+.anivom-custom-heading {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin: 8px 0 40px 0;
+}
+
+.anivom-custom-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+  text-align: left;
+}
+
+.anivom-step {
+  border-left: 2px solid #7A1F3D;
+  padding-left: 16px;
+}
+
+.anivom-step-num {
+  font-size: 12px;
+  font-weight: 800;
+  color: #C65D3B;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.anivom-step h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #FFFDF8;
+}
+
+.anivom-step p {
+  font-size: 13px;
+  color: #999999;
+  margin: 0;
+}
+
+.anivom-trending-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.anivom-trending-pill-btn {
+  background-color: #F7F2E8;
+  color: #111111;
+  border: 1px solid #E8E2D5;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.anivom-trending-pill-btn:hover {
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+}
+
+.anivom-rec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.anivom-rec-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #F7F2E8;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.anivom-rec-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.anivom-rec-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.anivom-rec-name {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #111111;
+}
+
+.anivom-rec-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: #7A1F3D;
+}
+
+.anivom-statement-section {
+  background-color: #F7F2E8;
+  padding: 80px 24px;
+  text-align: center;
+  border-top: 1px solid #E8E2D5;
+  border-bottom: 1px solid #E8E2D5;
+}
+
+.anivom-statement-box {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.anivom-statement-text {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #111111;
+  margin: 0 0 12px 0;
+}
+
+.anivom-statement-sub {
+  font-size: 11px;
+  font-weight: 800;
+  color: #C6A15B;
+  letter-spacing: 0.15em;
+}
+
+.anivom-final-cta-section {
+  padding: 80px 24px;
+  text-align: center;
+  background-color: #FFFDF8;
+}
+
+.anivom-cta-title {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.05em;
+}
+
+.anivom-cta-sub {
+  font-size: 15px;
+  color: #666666;
+  margin: 0 0 32px 0;
+}
+
+@media (max-width: 900px) {
+  .anivom-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .anivom-hero-heading {
+    font-size: 40px;
+  }
+  
+  .anivom-hero-img-frame {
+    height: 360px;
+  }
+}
