@@ -223,6 +223,18 @@ function App() {
     }
   }
 
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (accountDropdownOpen && !e.target.closest('.anivom-account-dropdown-wrapper')) {
+        setAccountDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [accountDropdownOpen])
+
   if (view === 'studio') {
     return (
       <Studio
@@ -249,11 +261,13 @@ function App() {
         <div className="anivom-nav-container">
           <div className="anivom-brand-group" onClick={() => setView('home')}>
             <h1 className="anivom-wordmark">ANIVOM</h1>
-            <span className="anivom-tagline">Wear It Your Way.</span>
-            <span className="anivom-tamil-accent">அனிவோம்</span>
+            <div className="anivom-brand-sub">
+              <span className="anivom-tagline">Wear It Your Way.</span>
+              <span className="anivom-tamil-accent">அனிவோம்</span>
+            </div>
           </div>
 
-          <nav className="anivom-desktop-nav" aria-label="Main Navigation">
+          <nav className="anivom-center-nav" aria-label="Main Navigation">
             <button
               onClick={() => setView('home')}
               className={`anivom-nav-link ${view === 'home' ? 'active' : ''}`}
@@ -263,111 +277,147 @@ function App() {
 
             <button
               onClick={() => setView('catalog')}
-              className={`anivom-nav-link ${view === 'catalog' ? 'active' : ''}`}
+              className={`anivom-nav-link ${view === 'catalog' || view === 'product' ? 'active' : ''}`}
             >
-              Catalog
+              Shop
             </button>
 
             <button
               onClick={() => openStudio(null)}
-              className="anivom-nav-link anivom-badge-studio"
+              className={`anivom-nav-link ${view === 'studio' ? 'active' : ''}`}
             >
-              ✦ Studio
+              Studio
             </button>
+          </nav>
 
-            {user && (
-              <>
-                <button
-                  onClick={() => openOrders(null)}
-                  className={`anivom-nav-link ${view === 'orders' ? 'active' : ''}`}
-                >
-                  My Orders
-                </button>
-                <button
-                  onClick={openMyCreations}
-                  className={`anivom-nav-link ${view === 'creations' ? 'active' : ''}`}
-                >
-                  My Creations
-                </button>
-              </>
-            )}
-
+          <div className="anivom-right-actions">
             <button
               onClick={() => setView('cart')}
-              className={`anivom-nav-link ${view === 'cart' ? 'active' : ''}`}
+              className={`anivom-icon-action-btn ${view === 'cart' ? 'active' : ''}`}
+              title="Shopping Bag"
+              aria-label="Shopping Bag"
             >
-              Bag ({cartCount})
+              <span className="anivom-action-icon">🛍️</span>
+              <span className="anivom-action-label">Bag</span>
+              {cartCount > 0 && <span className="anivom-badge-count">{cartCount}</span>}
             </button>
 
             {authLoading ? (
-              <span style={{ fontSize: '12px', color: '#999' }}>Loading...</span>
+              <span style={{ fontSize: '11px', color: '#999', letterSpacing: '0.05em' }}>...</span>
             ) : user ? (
-              <div className="anivom-auth-user">
+              <div className="anivom-account-dropdown-wrapper">
                 <button
-                  onClick={() => setView('account')}
-                  className={`anivom-user-greeting-btn ${view === 'account' ? 'active' : ''}`}
-                  style={{ background: 'transparent', border: 'none', color: '#FFFDF8', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }}
+                  onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                  className={`anivom-account-btn ${view === 'account' || view === 'orders' || view === 'creations' ? 'active' : ''}`}
+                  aria-expanded={accountDropdownOpen}
+                  aria-label="Account Menu"
                 >
-                  Account (<strong>{user.name}</strong>)
+                  <span className="anivom-user-avatar">{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
+                  <span className="anivom-user-name">{user.name}</span>
+                  <span className="anivom-dropdown-caret">▾</span>
                 </button>
-                <button onClick={handleLogout} className="anivom-btn-logout">
-                  Log Out
-                </button>
+
+                {accountDropdownOpen && (
+                  <div className="anivom-account-menu">
+                    <div className="anivom-menu-header">
+                      <div className="anivom-menu-user-name">{user.name}</div>
+                      <div className="anivom-menu-user-email">{user.email}</div>
+                    </div>
+                    <div className="anivom-menu-divider" />
+                    <button
+                      className="anivom-menu-item"
+                      onClick={() => {
+                        setView('account')
+                        setAccountDropdownOpen(false)
+                      }}
+                    >
+                      ✦ My Profile
+                    </button>
+                    <button
+                      className="anivom-menu-item"
+                      onClick={() => {
+                        openOrders(null)
+                        setAccountDropdownOpen(false)
+                      }}
+                    >
+                      🛍️ My Orders
+                    </button>
+                    <button
+                      className="anivom-menu-item"
+                      onClick={() => {
+                        openMyCreations()
+                        setAccountDropdownOpen(false)
+                      }}
+                    >
+                      🎨 My Creations
+                    </button>
+                    <div className="anivom-menu-divider" />
+                    <button
+                      className="anivom-menu-item logout"
+                      onClick={() => {
+                        handleLogout()
+                        setAccountDropdownOpen(false)
+                      }}
+                    >
+                      ↳ Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button
                 onClick={() => setView('account')}
-                className={`anivom-nav-link ${view === 'account' ? 'active' : ''}`}
-                style={{ border: '1px solid #FFFDF8', marginLeft: '8px' }}
+                className={`anivom-btn-auth-link ${view === 'account' ? 'active' : ''}`}
               >
-                Account / Sign In
+                Sign In
               </button>
             )}
-          </nav>
 
-          <button
-            className="anivom-mobile-toggle"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-          >
-            {mobileMenuOpen ? '✕' : '☰'}
-          </button>
+            <button
+              className="anivom-mobile-toggle"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
 
         <div className={`anivom-mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
-          <button onClick={() => { setView('home'); setMobileMenuOpen(false); }} className="anivom-nav-link">
+          <button onClick={() => { setView('home'); setMobileMenuOpen(false); }} className={`anivom-mobile-link ${view === 'home' ? 'active' : ''}`}>
             Home
           </button>
-          <button onClick={() => { setView('catalog'); setMobileMenuOpen(false); }} className="anivom-nav-link">
-            Catalog
+          <button onClick={() => { setView('catalog'); setMobileMenuOpen(false); }} className={`anivom-mobile-link ${view === 'catalog' ? 'active' : ''}`}>
+            Shop / Catalog
           </button>
-          <button onClick={() => { openStudio(null); setMobileMenuOpen(false); }} className="anivom-nav-link anivom-badge-studio">
-            ✦ Studio
+          <button onClick={() => { openStudio(null); setMobileMenuOpen(false); }} className="anivom-mobile-link studio">
+            ✦ ANIVOM Studio
           </button>
-          <button onClick={() => { setView('account'); setMobileMenuOpen(false); }} className="anivom-nav-link">
-            Account
+          <button onClick={() => { setView('cart'); setMobileMenuOpen(false); }} className={`anivom-mobile-link ${view === 'cart' ? 'active' : ''}`}>
+            Shopping Bag ({cartCount})
           </button>
-          {user && (
+          
+          <div className="anivom-mobile-divider" />
+          
+          {user ? (
             <>
-              <button onClick={() => { openOrders(null); setMobileMenuOpen(false); }} className="anivom-nav-link">
+              <div className="anivom-mobile-user-info">Signed in as <strong>{user.name}</strong></div>
+              <button onClick={() => { setView('account'); setMobileMenuOpen(false); }} className="anivom-mobile-link">
+                My Profile
+              </button>
+              <button onClick={() => { openOrders(null); setMobileMenuOpen(false); }} className="anivom-mobile-link">
                 My Orders
               </button>
-              <button onClick={() => { openMyCreations(); setMobileMenuOpen(false); }} className="anivom-nav-link">
+              <button onClick={() => { openMyCreations(); setMobileMenuOpen(false); }} className="anivom-mobile-link">
                 My Creations
               </button>
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="anivom-mobile-link logout">
+                Sign Out
+              </button>
             </>
-          )}
-          <button onClick={() => { setView('cart'); setMobileMenuOpen(false); }} className="anivom-nav-link">
-            Bag ({cartCount})
-          </button>
-          {!user && (
-            <button onClick={() => { setView('auth'); setMode('login'); setMobileMenuOpen(false); }} className="anivom-nav-link">
+          ) : (
+            <button onClick={() => { setView('account'); setMobileMenuOpen(false); }} className="anivom-mobile-link auth">
               Sign In / Register
-            </button>
-          )}
-          {user && (
-            <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="anivom-btn-logout" style={{ marginTop: '8px' }}>
-              Log Out ({user.name})
             </button>
           )}
         </div>

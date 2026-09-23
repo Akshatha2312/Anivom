@@ -4,7 +4,7 @@
   z-index: 1000;
   background-color: #111111;
   color: #FFFDF8;
-  border-bottom: 1px solid #292929;
+  border-bottom: 1px solid #242424;
 }
 
 .anivom-ticker-bar {
@@ -33,37 +33,46 @@
 }
 
 .anivom-nav-container {
-  max-width: 1600px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 36px;
+  padding: 16px 32px;
   box-sizing: border-box;
 }
 
+/* Brand Group */
 .anivom-brand-group {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  flex-direction: column;
   cursor: pointer;
   user-select: none;
 }
 
 .anivom-wordmark {
   margin: 0;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: 0.15em;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #FFFDF8;
+  line-height: 1;
+}
+
+.anivom-brand-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .anivom-tagline {
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   color: #C6A15B;
   text-transform: uppercase;
   font-style: italic;
@@ -73,83 +82,228 @@
   font-size: 10px;
   color: #C65D3B;
   letter-spacing: 0.05em;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
-.anivom-desktop-nav {
+/* Center Editorial Navigation */
+.anivom-center-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 32px;
 }
 
 .anivom-nav-link {
   background: transparent;
   border: none;
-  color: #FFFDF8;
+  color: #D8D2C6;
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 8px 14px;
+  padding: 8px 4px;
   cursor: pointer;
-  border-radius: 2px;
-  transition: all 0.2s ease;
+  position: relative;
+  transition: color 0.2s ease;
 }
 
 .anivom-nav-link:hover {
-  color: #C6A15B;
-  background-color: rgba(255, 253, 248, 0.05);
+  color: #FFFDF8;
 }
 
 .anivom-nav-link.active {
   color: #FFFDF8;
+}
+
+.anivom-nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
   background-color: #7A1F3D;
 }
 
-.anivom-badge-studio {
-  background-color: #C6A15B;
-  color: #111111;
-  font-weight: 700;
-}
-
-.anivom-badge-studio:hover {
-  background-color: #C65D3B;
-  color: #FFFDF8;
-}
-
-.anivom-auth-user {
+/* Right Actions Group */
+.anivom-right-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-left: 12px;
-  padding-left: 12px;
-  border-left: 1px solid #333333;
+  gap: 20px;
 }
 
-.anivom-user-greeting {
-  font-size: 12px;
-  color: #F7F2E8;
-}
-
-.anivom-btn-logout {
-  background-color: transparent;
-  color: #C65D3B;
-  border: 1px solid #C65D3B;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.anivom-icon-action-btn {
+  background: transparent;
+  border: none;
+  color: #FFFDF8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.anivom-icon-action-btn:hover {
+  color: #C6A15B;
+}
+
+.anivom-action-icon {
+  font-size: 14px;
+}
+
+.anivom-badge-count {
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 2px;
+}
+
+/* Account Dropdown */
+.anivom-account-dropdown-wrapper {
+  position: relative;
+}
+
+.anivom-account-btn {
+  background: transparent;
+  border: 1px solid #3A3A3A;
+  color: #FFFDF8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   transition: all 0.2s ease;
 }
 
-.anivom-btn-logout:hover {
-  background-color: #C65D3B;
+.anivom-account-btn:hover,
+.anivom-account-btn.active {
+  border-color: #7A1F3D;
+  background-color: rgba(122, 31, 61, 0.15);
+}
+
+.anivom-user-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.anivom-user-name {
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.anivom-dropdown-caret {
+  font-size: 10px;
+  color: #999999;
+}
+
+.anivom-account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background-color: #161616;
+  border: 1px solid #2E2E2E;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  z-index: 1001;
+}
+
+.anivom-menu-header {
+  padding: 10px 16px;
+}
+
+.anivom-menu-user-name {
+  font-size: 13px;
+  font-weight: 700;
   color: #FFFDF8;
 }
 
+.anivom-menu-user-email {
+  font-size: 11px;
+  color: #888888;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.anivom-menu-divider {
+  height: 1px;
+  background-color: #242424;
+  margin: 6px 0;
+}
+
+.anivom-menu-item {
+  background: transparent;
+  border: none;
+  color: #D8D2C6;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.anivom-menu-item:hover {
+  background-color: #222222;
+  color: #FFFDF8;
+}
+
+.anivom-menu-item.logout {
+  color: #C65D3B;
+}
+
+.anivom-menu-item.logout:hover {
+  background-color: rgba(198, 93, 59, 0.1);
+  color: #FFFDF8;
+}
+
+.anivom-btn-auth-link {
+  background: transparent;
+  border: 1px solid #7A1F3D;
+  color: #FFFDF8;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-auth-link:hover {
+  background-color: #7A1F3D;
+}
+
+/* Mobile Toggle & Menu */
 .anivom-mobile-toggle {
   display: none;
   background: transparent;
@@ -163,8 +317,8 @@
 .anivom-mobile-menu {
   display: none;
   flex-direction: column;
-  background-color: #111111;
-  border-top: 1px solid #292929;
+  background-color: #141414;
+  border-top: 1px solid #242424;
   padding: 16px 24px;
   gap: 12px;
 }
@@ -173,30 +327,79 @@
   display: flex;
 }
 
+.anivom-mobile-link {
+  background: transparent;
+  border: none;
+  color: #D8D2C6;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.anivom-mobile-link.active {
+  color: #FFFDF8;
+  font-weight: 700;
+}
+
+.anivom-mobile-link.studio {
+  color: #C6A15B;
+}
+
+.anivom-mobile-link.logout {
+  color: #C65D3B;
+}
+
+.anivom-mobile-link.auth {
+  color: #FFFDF8;
+  font-weight: 700;
+}
+
+.anivom-mobile-divider {
+  height: 1px;
+  background-color: #242424;
+  margin: 4px 0;
+}
+
+.anivom-mobile-user-info {
+  font-size: 12px;
+  color: #888888;
+  padding: 4px 0;
+}
+
+.anivom-mobile-user-info strong {
+  color: #FFFDF8;
+}
+
+/* Footer Styling */
 .anivom-shell-footer {
   background-color: #111111;
   color: #FFFDF8;
   padding: 48px 24px 24px;
   margin-top: auto;
-  border-top: 1px solid #292929;
+  border-top: 1px solid #242424;
 }
 
 .anivom-footer-container {
-  max-width: 1600px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 40px;
   padding-bottom: 40px;
-  border-bottom: 1px solid #292929;
+  border-bottom: 1px solid #242424;
   box-sizing: border-box;
 }
 
 .anivom-footer-brand-title {
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 22px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-weight: 800;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   margin: 0 0 8px 0;
   color: #FFFDF8;
@@ -246,7 +449,7 @@
 }
 
 .anivom-footer-bottom {
-  max-width: 1600px;
+  max-width: 1440px;
   width: 100%;
   margin: 24px auto 0;
   display: flex;
@@ -266,8 +469,9 @@
   letter-spacing: 0.05em;
 }
 
+/* Responsive Media Queries */
 @media (max-width: 900px) {
-  .anivom-desktop-nav {
+  .anivom-center-nav {
     display: none;
   }
 
@@ -282,6 +486,14 @@
 }
 
 @media (max-width: 600px) {
+  .anivom-nav-container {
+    padding: 14px 18px;
+  }
+
+  .anivom-user-name {
+    display: none;
+  }
+
   .anivom-footer-container {
     grid-template-columns: 1fr;
   }
