@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Home.css'
 import { API_BASE_URL } from './config'
 
-function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated }) {
+function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, onSelectProduct }) {
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [recommendations, setRecommendations] = useState([])
   const [banners, setBanners] = useState([])
@@ -224,7 +224,17 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated }) 
             {featuredProducts.map((product) => {
               const img = product.images && product.images.length > 0 ? product.images[0] : null
               return (
-                <div key={product._id} className="anivom-home-card" onClick={onNavigateToCatalog}>
+                <div
+                  key={product._id}
+                  className="anivom-home-card"
+                  onClick={() => {
+                    if (onSelectProduct) {
+                      onSelectProduct(product)
+                    } else {
+                      onNavigateToCatalog()
+                    }
+                  }}
+                >
                   <div className="anivom-home-card-img-wrap">
                     {img ? (
                       <img src={img} alt={product.name} className="anivom-home-card-img" />
@@ -321,7 +331,17 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated }) 
           {recommendations.map((product) => {
             const img = product.images && product.images.length > 0 ? product.images[0] : null
             return (
-              <div key={product._id} className="anivom-rec-card" onClick={onNavigateToCatalog}>
+              <div
+                key={product._id}
+                className="anivom-rec-card"
+                onClick={() => {
+                  if (onSelectProduct) {
+                    onSelectProduct(product)
+                  } else {
+                    onNavigateToCatalog()
+                  }
+                }}
+              >
                 {img && <img src={img} alt={product.name} className="anivom-rec-img" />}
                 <div className="anivom-rec-details">
                   <h4 className="anivom-rec-name">{product.name}</h4>
