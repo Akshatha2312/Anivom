@@ -378,7 +378,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCate
         </form>
 
         <div className="anivom-trending-tags">
-          <span className="anivom-trending-label">Trending Now:</span>
+          <span className="anivom-trending-label">Trending:</span>
           {['Oversized', 'Graphic', 'Minimal', 'Custom', 'Black Tees', 'New Drops'].map((tag) => (
             <span
               key={tag}
@@ -394,7 +394,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCate
                 setPage(1)
               }}
             >
-              #{tag}
+              {tag}
             </span>
           ))}
         </div>
