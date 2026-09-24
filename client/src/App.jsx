@@ -455,11 +455,12 @@ function App() {
         {view === 'home' && (
           <Home
             openStudio={openStudio}
+            onNavigateToStudio={openStudio}
             onSelectProduct={(product) => {
               setSelectedProduct(product)
               setView('product')
             }}
-            onNavigateCatalog={() => setView('catalog')}
+            onNavigateToCatalog={() => setView('catalog')}
           />
         )}
 
