@@ -68,7 +68,6 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
       const data = await res.json()
       if (res.ok) {
-        setCardMsg('Added to bag!')
         if (onCartUpdated) onCartUpdated()
       } else {
         setCardErr(data.message || 'Failed to add item to cart.')

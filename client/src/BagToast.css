@@ -1,0 +1,93 @@
+/* ANIVOM Bag Toast Notification Stylesheet */
+
+.anivom-bag-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  background-color: #111111;
+  color: #FFFDF8;
+  border: 1px solid #C6A15B;
+  border-left: 3px solid #7A1F3D;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: anivom-toast-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.anivom-bag-toast:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  background-color: #1a1a1a;
+}
+
+.anivom-bag-toast-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.anivom-bag-toast-check {
+  color: #C6A15B;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.anivom-bag-toast-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #FFFDF8;
+}
+
+.anivom-bag-toast-link {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #C6A15B;
+  text-transform: uppercase;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.anivom-bag-toast-close {
+  background: none;
+  border: none;
+  color: #888888;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  transition: color 0.2s ease;
+}
+
+.anivom-bag-toast-close:hover {
+  color: #FFFDF8;
+}
+
+@keyframes anivom-toast-slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile viewport positioning */
+@media (max-width: 640px) {
+  .anivom-bag-toast {
+    bottom: 20px;
+    right: 16px;
+    left: 16px;
+    justify-content: space-between;
+    padding: 12px 14px;
+  }
+}

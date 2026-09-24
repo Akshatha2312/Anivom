@@ -190,7 +190,6 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
 
       const data = await res.json()
       if (res.ok) {
-        setMsg(`Added ${quantity} ${product.name} (${selectedSize} / ${selectedColour}) to bag!`)
         if (onCartUpdated) onCartUpdated()
       } else {
         setErr(data.message || 'Failed to add product to cart.')

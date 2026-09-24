@@ -7,7 +7,6 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
   const [loading, setLoading] = useState(true)
   const [updatingItemId, setUpdatingItemId] = useState(null)
   const [error, setError] = useState(null)
-  const [recommendations, setRecommendations] = useState([])
 
   const fetchCart = async () => {
     if (!user) {
@@ -37,21 +36,6 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
   useEffect(() => {
     fetchCart()
   }, [user])
-
-  useEffect(() => {
-    const fetchRecs = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/products?limit=4`)
-        const data = await res.json()
-        if (res.ok) {
-          setRecommendations(data.data.products || [])
-        }
-      } catch (e) {
-        // silent recommendation fallback
-      }
-    }
-    fetchRecs()
-  }, [])
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return
@@ -376,34 +360,6 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
           </button>
         </div>
       </div>
-
-      {recommendations.length > 0 && (
-        <section className="anivom-cart-rec-section">
-          <h3 className="anivom-cart-rec-title">Users also buy!</h3>
-          <div className="anivom-cart-rec-grid">
-            {recommendations.map((rec) => {
-              const recImg = rec.images && rec.images.length > 0 ? rec.images[0] : null
-              return (
-                <div
-                  key={rec._id}
-                  className="anivom-rec-card"
-                  onClick={() => onSelectProduct ? onSelectProduct(rec) : onContinueShopping()}
-                >
-                  <div className="anivom-rec-img-wrap">
-                    {recImg ? (
-                      <img src={recImg} alt={rec.name} className="anivom-rec-img" />
-                    ) : (
-                      <div style={{ padding: '20px', textAlign: 'center', fontSize: '11px', color: '#888' }}>ANIVOM</div>
-                    )}
-                  </div>
-                  <h4 className="anivom-rec-name">{rec.name}</h4>
-                  <span className="anivom-rec-price">&#8377;{rec.basePrice}</span>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
     </div>
   )
 }

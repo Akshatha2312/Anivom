@@ -2,7 +2,7 @@
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
-  padding: 40px 36px 80px 36px;
+  padding: 40px 36px 48px 36px;
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;
@@ -399,66 +399,6 @@
   font-size: 1rem;
 }
 
-.anivom-cart-rec-section {
-  margin-top: 80px;
-  border-top: 1px solid #e5e0d8;
-  padding-top: 60px;
-}
-
-.anivom-cart-rec-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  text-align: center;
-  margin-bottom: 36px;
-  color: #111111;
-}
-
-.anivom-cart-rec-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-}
-
-.anivom-rec-card {
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.anivom-rec-card:hover {
-  transform: translateY(-4px);
-}
-
-.anivom-rec-img-wrap {
-  aspect-ratio: 3 / 4;
-  background: #F7F2E8;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.anivom-rec-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: scale 0.4s ease;
-}
-
-.anivom-rec-card:hover .anivom-rec-img {
-  scale: 1.05;
-}
-
-.anivom-rec-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin: 0 0 4px 0;
-  color: #111111;
-}
-
-.anivom-rec-price {
-  font-size: 0.85rem;
-  color: #7A1F3D;
-  font-weight: 600;
-}
-
 @media (max-width: 992px) {
   .anivom-cart-layout {
     grid-template-columns: 1fr;
@@ -467,10 +407,6 @@
 
   .anivom-cart-summary-card {
     position: static;
-  }
-
-  .anivom-cart-rec-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import Studio from './Studio'
 import MyCreations from './MyCreations'
@@ -11,6 +11,7 @@ import AuthModal from './AuthModal'
 import Account from './Account'
 import Orders from './Orders'
 import WelcomeModal from './WelcomeModal'
+import BagToast from './BagToast'
 import { API_BASE_URL } from './config'
 
 const TICKER_MESSAGES = [
@@ -31,6 +32,23 @@ function App() {
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [initialCustomization, setInitialCustomization] = useState(null)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [showBagToast, setShowBagToast] = useState(false)
+  const bagToastTimerRef = useRef(null)
+
+  const triggerBagToast = () => {
+    if (bagToastTimerRef.current) {
+      clearTimeout(bagToastTimerRef.current)
+    }
+    setShowBagToast(true)
+    bagToastTimerRef.current = setTimeout(() => {
+      setShowBagToast(false)
+    }, 3500)
+  }
+
+  const handleCartItemAdded = () => {
+    fetchCartCount()
+    triggerBagToast()
+  }
 
   useEffect(() => {
     try {
@@ -237,21 +255,32 @@ function App() {
 
   if (view === 'studio') {
     return (
-      <Studio
-        product={selectedProduct}
-        user={user}
-        initialCustomization={initialCustomization}
-        onBack={() => setView('catalog')}
-        onCartUpdated={fetchCartCount}
-        onNavigateToCart={() => {
-          fetchCartCount()
-          setView('cart')
-        }}
-        onAuthSuccess={(userData) => {
-          setUser(userData)
-          fetchCartCount()
-        }}
-      />
+      <>
+        <Studio
+          product={selectedProduct}
+          user={user}
+          initialCustomization={initialCustomization}
+          onBack={() => setView('catalog')}
+          onCartUpdated={handleCartItemAdded}
+          onNavigateToCart={() => {
+            fetchCartCount()
+            setView('cart')
+          }}
+          onAuthSuccess={(userData) => {
+            setUser(userData)
+            fetchCartCount()
+          }}
+        />
+        {showBagToast && (
+          <BagToast
+            onClick={() => {
+              setShowBagToast(false)
+              setView('cart')
+            }}
+            onClose={() => setShowBagToast(false)}
+          />
+        )}
+      </>
     )
   }
 
@@ -471,6 +500,7 @@ function App() {
           <Home
             openStudio={openStudio}
             onNavigateToStudio={openStudio}
+            onCartUpdated={handleCartItemAdded}
             onSelectProduct={(product) => {
               setSelectedProduct(product)
               setView('product')
@@ -508,7 +538,7 @@ function App() {
             productId={selectedProduct ? selectedProduct._id : null}
             initialProduct={selectedProduct}
             openStudio={openStudio}
-            onCartUpdated={fetchCartCount}
+            onCartUpdated={handleCartItemAdded}
             onBackToCatalog={() => setView('catalog')}
             onSelectProduct={(product) => {
               setSelectedProduct(product)
@@ -559,7 +589,7 @@ function App() {
           <Catalog
             user={user}
             openStudio={openStudio}
-            onCartUpdated={fetchCartCount}
+            onCartUpdated={handleCartItemAdded}
             onSelectProduct={(product) => {
               setSelectedProduct(product)
               setView('product')
@@ -617,6 +647,16 @@ function App() {
           <div className="anivom-signature">with love, akshu ❤️</div>
         </div>
       </footer>
+
+      {showBagToast && (
+        <BagToast
+          onClick={() => {
+            setShowBagToast(false)
+            setView('cart')
+          }}
+          onClose={() => setShowBagToast(false)}
+        />
+      )}
     </div>
   )
 }

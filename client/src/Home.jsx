@@ -84,7 +84,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
 
       if (res.ok) {
         if (onCartUpdated) onCartUpdated()
-        alert(`Added ${product.name} (${defaultVariant.size} / ${defaultVariant.colour}) to your bag!`)
       } else {
         const data = await res.json()
         alert(data.message || 'Failed to add item to bag.')
