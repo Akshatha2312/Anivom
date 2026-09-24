@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Studio.css';
 import { API_BASE_URL } from './config';
 import { PREDEFINED_DESIGNS } from './designsData';
+import AuthModal from './AuthModal';
 
-const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart }) => {
+const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
   const [productsList, setProductsList] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [productsError, setProductsError] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const [activeView, setActiveView] = useState('front');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -322,6 +324,10 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const selectedLayer = layers.find((l) => l.id === selectedLayerId);
 
   const handleAddTextLayer = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     const timestamp = Date.now().toString(36);
     const randomSuffix = Math.random().toString(36).substring(2, 6);
     const newLayer = {
@@ -349,6 +355,10 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   };
 
   const handleAddDesignLayer = (designObj) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     const timestamp = Date.now().toString(36);
     const randomSuffix = Math.random().toString(36).substring(2, 6);
     const newLayer = {
@@ -378,7 +388,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     if (!file) return;
 
     if (!user) {
-      setUploadError('Please log in to upload custom artwork.');
+      setShowAuthModal(true);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -668,6 +678,11 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     setSaveMessage(null);
     setSaveError(null);
 
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (isSaving) return;
     setIsSaving(true);
 
@@ -687,7 +702,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
   const handleAddToCartCustomized = async () => {
     if (!user) {
-      setSaveError('Please log in to add customized products to your cart.');
+      setShowAuthModal(true);
       return;
     }
 
@@ -1221,7 +1236,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                 <button
                   className="upload-action-btn"
                   disabled={isUploadingImage}
-                  onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                  onClick={() => {
+                    if (!user) {
+                      setShowAuthModal(true);
+                      return;
+                    }
+                    if (fileInputRef.current) fileInputRef.current.click();
+                  }}
                 >
                   {isUploadingImage ? 'Uploading Image to Cloudinary...' : 'Select Image File'}
                 </button>
@@ -1328,63 +1349,63 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                   ))}
                 </div>
 
-              {selectedLayer && selectedLayer.type === 'predefined_design' && (
-                <div className="design-editor-controls">
-                  <div className="editor-title-bar">
-                    <span className="editor-title">Edit Artwork Layer</span>
-                    <button
-                      className="delete-layer-btn"
-                      onClick={() => handleDeleteLayer(selectedLayer.id)}
-                    >
-                      Delete ✕
-                    </button>
-                  </div>
+                {selectedLayer && selectedLayer.type === 'predefined_design' && (
+                  <div className="design-editor-controls">
+                    <div className="editor-title-bar">
+                      <span className="editor-title">Edit Artwork Layer</span>
+                      <button
+                        className="delete-layer-btn"
+                        onClick={() => handleDeleteLayer(selectedLayer.id)}
+                      >
+                        Delete ✕
+                      </button>
+                    </div>
 
-                  <div className="control-group">
-                    <label>Color</label>
-                    <input
-                      type="color"
-                      className="color-input"
-                      value={selectedLayer.design.color || '#FFFDF8'}
-                      onChange={(e) => updateSelectedLayerDesignColor(e.target.value)}
-                    />
-                  </div>
+                    <div className="control-group">
+                      <label>Color</label>
+                      <input
+                        type="color"
+                        className="color-input"
+                        value={selectedLayer.design.color || '#FFFDF8'}
+                        onChange={(e) => updateSelectedLayerDesignColor(e.target.value)}
+                      />
+                    </div>
 
-                  <div className="control-group">
-                    <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="3"
-                      step="0.1"
-                      className="range-input"
-                      value={selectedLayer.scale ? selectedLayer.scale.x : 1}
-                      onChange={(e) =>
-                        updateSelectedLayerTransform('scale', {
-                          x: parseFloat(e.target.value),
-                          y: parseFloat(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
+                    <div className="control-group">
+                      <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="3"
+                        step="0.1"
+                        className="range-input"
+                        value={selectedLayer.scale ? selectedLayer.scale.x : 1}
+                        onChange={(e) =>
+                          updateSelectedLayerTransform('scale', {
+                            x: parseFloat(e.target.value),
+                            y: parseFloat(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
 
-                  <div className="control-group">
-                    <label>Rotation ({selectedLayer.rotation || 0}°)</label>
-                    <input
-                      type="range"
-                      min="-180"
-                      max="180"
-                      step="5"
-                      className="range-input"
-                      value={selectedLayer.rotation || 0}
-                      onChange={(e) =>
-                        updateSelectedLayerTransform('rotation', parseInt(e.target.value, 10))
-                      }
-                    />
+                    <div className="control-group">
+                      <label>Rotation ({selectedLayer.rotation || 0}°)</label>
+                      <input
+                        type="range"
+                        min="-180"
+                        max="180"
+                        step="5"
+                        className="range-input"
+                        value={selectedLayer.rotation || 0}
+                        onChange={(e) =>
+                          updateSelectedLayerTransform('rotation', parseInt(e.target.value, 10))
+                        }
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             );
           })()}
 
@@ -1423,15 +1444,15 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                             {layer.type === 'text'
                               ? 'Text'
                               : layer.type === 'predefined_design'
-                              ? 'Artwork'
-                              : 'Image'}
+                                ? 'Artwork'
+                                : 'Image'}
                           </span>
                           <span className="layer-item-title">
                             {layer.type === 'text'
                               ? layer.text.content || 'Text Layer'
                               : layer.type === 'predefined_design'
-                              ? layer.design.name || 'Artwork'
-                              : layer.image.name || 'Uploaded Image'}
+                                ? layer.design.name || 'Artwork'
+                                : layer.image.name || 'Uploaded Image'}
                           </span>
                         </div>
                         <button
@@ -1572,6 +1593,19 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           </div>
         </main>
       </div>
+
+      {showAuthModal && (
+        <AuthModal
+          user={user}
+          mode="login"
+          onClose={() => setShowAuthModal(false)}
+          onNavigateToCatalog={() => setShowAuthModal(false)}
+          onAuthSuccess={(userData) => {
+            setShowAuthModal(false);
+            if (onAuthSuccess) onAuthSuccess(userData);
+          }}
+        />
+      )}
     </div>
   );
 };

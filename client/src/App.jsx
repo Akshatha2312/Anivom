@@ -247,6 +247,10 @@ function App() {
           fetchCartCount()
           setView('cart')
         }}
+        onAuthSuccess={(userData) => {
+          setUser(userData)
+          fetchCartCount()
+        }}
       />
     )
   }
@@ -396,9 +400,9 @@ function App() {
           <button onClick={() => { setView('cart'); setMobileMenuOpen(false); }} className={`anivom-mobile-link ${view === 'cart' ? 'active' : ''}`}>
             Shopping Bag ({cartCount})
           </button>
-          
+
           <div className="anivom-mobile-divider" />
-          
+
           {user ? (
             <>
               <div className="anivom-mobile-user-info">Signed in as <strong>{user.name}</strong></div>
