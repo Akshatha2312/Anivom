@@ -365,8 +365,18 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                 disabled={adding || isOutOfStock}
                 onClick={handleAddToCart}
                 className="anivom-btn-add-pdp"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                {adding ? 'Adding to Bag...' : isOutOfStock ? 'Out of Stock' : 'Add to Bag 🛍️'}
+                {adding ? 'Adding to Bag...' : isOutOfStock ? 'Out of Stock' : (
+                  <>
+                    <span>Add to Bag</span>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: 'middle' }}>
+                      <circle cx="9" cy="21" r="1" />
+                      <circle cx="20" cy="21" r="1" />
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                  </>
+                )}
               </button>
 
               <button
