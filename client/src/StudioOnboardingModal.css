@@ -1,0 +1,199 @@
+/* ANIVOM Studio Onboarding Guide Stylesheet */
+
+.anivom-onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: anivom-fade-in 0.25s ease-out;
+}
+
+@keyframes anivom-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.anivom-onboarding-modal {
+  background-color: #FFFDF8;
+  color: #111111;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #C6A15B;
+  padding: 36px 32px;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  animation: anivom-scale-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes anivom-scale-up {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.anivom-onboarding-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #111111;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 4px 8px;
+}
+
+.anivom-onboarding-close:hover {
+  color: #7A1F3D;
+}
+
+.anivom-onboarding-tag {
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #C6A15B;
+  margin-bottom: 6px;
+}
+
+.anivom-onboarding-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #111111;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+}
+
+.anivom-onboarding-subtitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 0.975rem;
+  color: #7A1F3D;
+  margin: 0 0 24px 0;
+}
+
+.anivom-onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 28px;
+}
+
+.anivom-onboarding-step {
+  background-color: #F7F2E8;
+  border: 1px solid #EAE4D9;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.anivom-onboarding-step:hover {
+  border-color: #C6A15B;
+}
+
+.anivom-onboarding-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.anivom-onboarding-step-num {
+  font-size: 0.675rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #7A1F3D;
+  background: rgba(122, 31, 61, 0.08);
+  padding: 2px 6px;
+  border: 1px solid rgba(122, 31, 61, 0.2);
+}
+
+.anivom-onboarding-step-icon {
+  font-size: 0.85rem;
+  color: #C6A15B;
+}
+
+.anivom-onboarding-step-title {
+  font-size: 0.825rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #111111;
+  margin: 0;
+}
+
+.anivom-onboarding-step-desc {
+  font-size: 0.8rem;
+  color: #555555;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.anivom-onboarding-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background-color: #111111;
+  color: #FFFDF8;
+  border: 1px solid #111111;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.anivom-onboarding-btn:hover {
+  background-color: #7A1F3D;
+  border-color: #7A1F3D;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .anivom-onboarding-modal {
+    padding: 28px 20px;
+  }
+
+  .anivom-onboarding-title {
+    font-size: 1.4rem;
+  }
+
+  .anivom-onboarding-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+}

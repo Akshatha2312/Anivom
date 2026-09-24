@@ -3,6 +3,7 @@ import './Studio.css';
 import { API_BASE_URL } from './config';
 import { PREDEFINED_DESIGNS } from './designsData';
 import AuthModal from './AuthModal';
+import StudioOnboardingModal from './StudioOnboardingModal';
 
 const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
@@ -10,6 +11,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [productsError, setProductsError] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
   const [activeView, setActiveView] = useState('front');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -43,6 +45,26 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
   const printAreaRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      const hasSeen = localStorage.getItem('anivom_has_seen_studio_onboarding');
+      if (!hasSeen) {
+        setShowOnboardingModal(true);
+      }
+    } catch (e) {
+      setShowOnboardingModal(true);
+    }
+  }, []);
+
+  const handleCloseOnboarding = () => {
+    try {
+      localStorage.setItem('anivom_has_seen_studio_onboarding', 'true');
+    } catch (e) {
+      // fallback if storage disabled
+    }
+    setShowOnboardingModal(false);
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -174,6 +196,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               <span className="studio-badge">ANIVOM STUDIO ✦ ATELIER</span>
               <span className="studio-tagline">Make it yours. Choose a piece and start creating.</span>
             </div>
+            <button
+              className="studio-back-btn"
+              onClick={() => setShowOnboardingModal(true)}
+              style={{ marginLeft: '12px' }}
+            >
+              HOW IT WORKS ✦
+            </button>
           </div>
         </header>
 
@@ -280,6 +309,9 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             </div>
           )}
         </div>
+        {showOnboardingModal && (
+          <StudioOnboardingModal onClose={handleCloseOnboarding} />
+        )}
       </div>
     );
   }
@@ -938,6 +970,9 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
         </div>
 
         <div className="studio-header-actions">
+          <button className="studio-back-btn" onClick={() => setShowOnboardingModal(true)}>
+            HOW IT WORKS ✦
+          </button>
           <button className="studio-back-btn" onClick={() => setIsPreviewMode(true)}>
             PREVIEW ✦
           </button>
@@ -1606,6 +1641,10 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             if (onAuthSuccess) onAuthSuccess(userData);
           }}
         />
+      )}
+
+      {showOnboardingModal && (
+        <StudioOnboardingModal onClose={handleCloseOnboarding} />
       )}
     </div>
   );
