@@ -1598,6 +1598,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
         <AuthModal
           user={user}
           mode="login"
+          isOverlay={true}
           onClose={() => setShowAuthModal(false)}
           onNavigateToCatalog={() => setShowAuthModal(false)}
           onAuthSuccess={(userData) => {

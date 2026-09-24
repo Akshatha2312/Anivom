@@ -12,9 +12,10 @@
   grid-template-columns: 1fr 1.1fr;
   width: 100%;
   max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
   border: 1px solid #e5e0d8;
   background-color: #FFFDF8;
-  overflow: hidden;
   box-shadow: 0 16px 40px rgba(17, 17, 17, 0.04);
 }
 

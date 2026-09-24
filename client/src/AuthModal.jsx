@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './AuthModal.css'
 import { API_BASE_URL } from './config'
 
-function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, onNavigateToCatalog }) {
+function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, onNavigateToCatalog, isOverlay = false }) {
   const [mode, setMode] = useState(initialMode)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -15,7 +15,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
 
   if (user) {
     return (
-      <div className="anivom-auth-page">
+      <div className={isOverlay ? "anivom-welcome-overlay" : "anivom-auth-page"}>
         <div className="anivom-auth-card-logged">
           <h2 className="anivom-auth-heading">ALREADY SIGNED IN</h2>
           <p className="anivom-auth-desc">You are logged in as <strong>{user.email}</strong>.</p>
@@ -105,25 +105,34 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
     }
   }
 
-  return (
-    <div className="anivom-auth-page">
-      <div className="anivom-auth-split-wrapper">
-        <div className="anivom-auth-visual-side">
-          <div className="anivom-auth-brand-area">
-            <span className="anivom-auth-brand-logo">ANIVOM</span>
-            <span className="anivom-auth-tagline">Wear It Your Way.</span>
-            <p className="anivom-auth-manifesto">
-              Join the bespoke fashion movement. Create custom streetwear, order classic heavyweight basics, and manage your saved creations.
-            </p>
-            <div className="anivom-auth-tamil-accent">
-              "உன் Style. உன் Rules."
-            </div>
+  const contentMarkup = (
+    <div className="anivom-auth-split-wrapper" style={{ position: 'relative' }}>
+      {isOverlay && onClose && (
+        <button
+          className="anivom-welcome-close-btn"
+          onClick={onClose}
+          aria-label="Close Authentication Modal"
+          style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 20 }}
+        >
+          ✕
+        </button>
+      )}
+      <div className="anivom-auth-visual-side">
+        <div className="anivom-auth-brand-area">
+          <span className="anivom-auth-brand-logo">ANIVOM</span>
+          <span className="anivom-auth-tagline">Wear It Your Way.</span>
+          <p className="anivom-auth-manifesto">
+            Join the bespoke fashion movement. Create custom streetwear, order classic heavyweight basics, and manage your saved creations.
+          </p>
+          <div className="anivom-auth-tamil-accent">
+            "உன் Style. உன் Rules."
           </div>
-
-          <button className="anivom-auth-back-link" onClick={onNavigateToCatalog || onClose}>
-            &larr; Back to ANIVOM
-          </button>
         </div>
+
+        <button className="anivom-auth-back-link" onClick={onNavigateToCatalog || onClose}>
+          &larr; Back to ANIVOM
+        </button>
+      </div>
 
         <div className="anivom-auth-form-side">
           <div className="anivom-auth-header-toggle">
@@ -280,9 +289,27 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
             </form>
           )}
         </div>
-      </div>
     </div>
   )
+
+  if (isOverlay) {
+    return (
+      <div
+        className="anivom-welcome-overlay"
+        onClick={(e) => {
+          if (e.target.classList.contains('anivom-welcome-overlay') && onClose) {
+            onClose()
+          }
+        }}
+        role="dialog"
+        aria-modal="true"
+      >
+        {contentMarkup}
+      </div>
+    )
+  }
+
+  return <div className="anivom-auth-page">{contentMarkup}</div>
 }
 
 export default AuthModal
