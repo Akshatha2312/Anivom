@@ -4,7 +4,6 @@ import { API_BASE_URL } from './config'
 
 function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, onSelectProduct }) {
   const [featuredProducts, setFeaturedProducts] = useState([])
-  const [recommendations, setRecommendations] = useState([])
   const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -22,7 +21,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
         if (prodRes.ok) {
           const list = prodData.data?.products || []
           setFeaturedProducts(list.slice(0, 4))
-          setRecommendations(list.slice(4, 8).length > 0 ? list.slice(4, 8) : list.slice(0, 4))
         } else {
           setError(prodData.message || 'Failed to load featured products.')
         }
@@ -103,8 +101,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
     { title: 'Minimalist', desc: 'Subtle couture details, refined aesthetic cuts', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80', cat: 'Minimal' },
     { title: 'Custom Studio', desc: 'Designed by you on ANIVOM interactive studio', image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80', cat: 'Custom' },
   ]
-
-  const trendingTags = ['Oversized', 'Graphic', 'Minimal', 'Custom', 'Black Tees', 'New Drops']
 
   const activeHeroBanner = banners.length > 0 ? banners[0] : null
 
@@ -300,56 +296,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
           <button className="anivom-btn-primary" onClick={() => onNavigateToStudio(null)}>
             Customize in Studio &rarr;
           </button>
-        </div>
-      </section>
-
-      <section className="anivom-trending-section">
-        <div className="anivom-section-header">
-          <h2 className="anivom-section-title">TRENDING NOW</h2>
-          <span className="anivom-section-sub">POPULAR SEARCH SUGGESTIONS</span>
-        </div>
-        <div className="anivom-trending-pills">
-          {trendingTags.map((tag) => (
-            <button
-              key={tag}
-              className="anivom-trending-pill-btn"
-              onClick={() => onNavigateToCatalog(tag === 'Black Tees' ? 'Minimal' : tag)}
-            >
-              #{tag}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="anivom-rec-section">
-        <div className="anivom-section-header">
-          <h2 className="anivom-section-title">USERS ALSO BUY</h2>
-          <span className="anivom-section-sub">RECOMMENDED COMBINATIONS</span>
-        </div>
-
-        <div className="anivom-rec-grid">
-          {recommendations.map((product) => {
-            const img = product.images && product.images.length > 0 ? product.images[0] : null
-            return (
-              <div
-                key={product._id}
-                className="anivom-rec-card"
-                onClick={() => {
-                  if (onSelectProduct) {
-                    onSelectProduct(product)
-                  } else {
-                    onNavigateToCatalog()
-                  }
-                }}
-              >
-                {img && <img src={img} alt={product.name} className="anivom-rec-img" />}
-                <div className="anivom-rec-details">
-                  <h4 className="anivom-rec-name">{product.name}</h4>
-                  <span className="anivom-rec-price">&#8377;{product.basePrice}</span>
-                </div>
-              </div>
-            )
-          })}
         </div>
       </section>
 
