@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import './Catalog.css'
 import { API_BASE_URL } from './config'
+import AuthModal from './AuthModal'
 
-function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle }) {
+function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
   const availableSizes = product && product.variants && product.variants.length > 0
     ? Array.from(new Set(product.variants.map((v) => v.size)))
     : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -43,7 +44,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
   const handleAddToCart = async () => {
     if (!user) {
-      setCardErr('Please log in to add items to your cart.')
+      if (onRequireAuth) onRequireAuth()
       return
     }
 
@@ -187,11 +188,12 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
   )
 }
 
-function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCategory = 'All' }) {
+function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSuccess, initialCategory = 'All' }) {
   const [products, setProducts] = useState([])
   const [wishlistIds, setWishlistIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const fetchWishlist = async () => {
     if (!user) {
@@ -525,6 +527,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCate
                   onSelectProduct={onSelectProduct}
                   wishlistIds={wishlistIds}
                   onWishlistToggle={handleWishlistToggle}
+                  onRequireAuth={() => setShowAuthModal(true)}
                 />
               ))}
             </div>
@@ -553,6 +556,20 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, initialCate
           </>
         )}
       </div>
+
+      {showAuthModal && (
+        <AuthModal
+          user={user}
+          mode="login"
+          isOverlay={true}
+          onClose={() => setShowAuthModal(false)}
+          onNavigateToCatalog={() => setShowAuthModal(false)}
+          onAuthSuccess={(userData) => {
+            setShowAuthModal(false)
+            if (onAuthSuccess) onAuthSuccess(userData)
+          }}
+        />
+      )}
     </div>
   )
 }

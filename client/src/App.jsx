@@ -564,6 +564,10 @@ function App() {
               setSelectedProduct(product)
               setView('product')
             }}
+            onAuthSuccess={(userData) => {
+              setUser(userData)
+              fetchCartCount()
+            }}
           />
         )}
       </main>
