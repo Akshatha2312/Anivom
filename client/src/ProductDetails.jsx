@@ -7,7 +7,6 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
   const [loadingProduct, setLoadingProduct] = useState(!propProduct && !initialProduct && !!productId)
   const [productFetchErr, setProductFetchErr] = useState(null)
 
-  const [recommendations, setRecommendations] = useState([])
   const [selectedImgIndex, setSelectedImgIndex] = useState(0)
   const [selectedSize, setSelectedSize] = useState('M')
   const [selectedColour, setSelectedColour] = useState('Black')
@@ -59,22 +58,6 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
       fetchProductById()
     }
   }, [propProduct, initialProduct, productId])
-
-  useEffect(() => {
-    const fetchRecs = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/products?limit=4`)
-        const data = await res.json()
-        if (res.ok) {
-          const list = data.data.products || []
-          setRecommendations(list.filter((p) => p._id !== (product ? product._id : '')))
-        }
-      } catch (e) {
-        console.error('Failed loading recommendations', e)
-      }
-    }
-    fetchRecs()
-  }, [product])
 
   useEffect(() => {
     const fetchWishlistStatus = async () => {
@@ -401,42 +384,6 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
             </div>
           </div>
         </div>
-
-        {recommendations.length > 0 && (
-          <section className="anivom-pdp-rec-section">
-            <h3 className="anivom-pdp-rec-title">USERS ALSO BUY</h3>
-            <div className="anivom-pdp-rec-grid">
-              {recommendations.map((rec) => {
-                const recImg = rec.images && rec.images.length > 0 ? rec.images[0] : null
-                return (
-                  <div
-                    key={rec._id}
-                    className="anivom-pdp-rec-card"
-                    onClick={() => onSelectProduct(rec)}
-                  >
-                    {recImg ? (
-                      <img
-                        src={recImg}
-                        alt={rec.name}
-                        className="anivom-pdp-rec-img"
-                        onError={(e) => {
-                          e.target.onerror = null
-                          e.target.src = DEFAULT_PLACEHOLDER
-                        }}
-                      />
-                    ) : (
-                      <div className="anivom-pdp-rec-no-img">ANIVOM</div>
-                    )}
-                    <div className="anivom-pdp-rec-info">
-                      <h4 className="anivom-pdp-rec-name">{rec.name}</h4>
-                      <span className="anivom-pdp-rec-price">&#8377;{rec.basePrice}</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
       </div>
     </div>
   )

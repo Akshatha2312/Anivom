@@ -9,23 +9,23 @@
 }
 
 .anivom-pdp-container {
-  max-width: 1320px;
+  max-width: 1240px;
   width: 100%;
   margin: 0 auto;
-  padding: 32px 24px 80px 24px;
+  padding: 20px 24px 32px 24px;
   box-sizing: border-box;
 }
 
 /* Loading & Error States */
 .pdp-loading,
 .anivom-pdp-error-box {
-  min-height: 60vh;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 60px 24px;
+  padding: 40px 24px;
 }
 
 .pdp-loading-spinner {
@@ -59,11 +59,11 @@
 
 /* Breadcrumb */
 .anivom-breadcrumb {
-  font-size: 0.825rem;
+  font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #777777;
-  margin-bottom: 36px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -90,8 +90,8 @@
 /* Grid Layout: Controlled Two-Column Desktop */
 .anivom-pdp-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: 56px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 36px;
   align-items: start;
 }
 
@@ -99,16 +99,16 @@
 .anivom-pdp-gallery-col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   position: sticky;
-  top: 32px;
+  top: 16px;
 }
 
 .anivom-pdp-main-frame {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
-  max-height: 640px;
+  max-height: 420px;
   background-color: #F7F2E8;
   border: 1px solid #EAE4D9;
   overflow: hidden;
@@ -138,10 +138,10 @@
 /* Wishlist Button Overlay */
 .anivom-pdp-wishlist-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 46px;
-  height: 46px;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #FFFDF8;
   border: 1px solid rgba(17, 17, 17, 0.15);
@@ -149,7 +149,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   line-height: 1;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -165,15 +165,15 @@
 /* Thumbnail Row */
 .anivom-pdp-thumbnails {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
   scroll-behavior: smooth;
 }
 
 .anivom-pdp-thumb {
-  width: 84px;
-  height: 108px;
+  width: 60px;
+  height: 78px;
   aspect-ratio: 3 / 4;
   object-fit: cover;
   background-color: #F7F2E8;
@@ -201,35 +201,35 @@
 }
 
 .anivom-pdp-cat-badge {
-  font-size: 0.75rem;
+  font-size: 0.725rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #C6A15B;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .anivom-pdp-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.01em;
   color: #111111;
-  margin: 0 0 14px 0;
+  margin: 0 0 6px 0;
 }
 
 .anivom-pdp-price {
-  font-size: 1.65rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #7A1F3D;
   letter-spacing: -0.01em;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .anivom-pdp-stock-status {
-  margin-bottom: 24px;
-  font-size: 0.85rem;
+  margin-bottom: 10px;
+  font-size: 0.775rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -257,27 +257,27 @@
 }
 
 .anivom-pdp-desc {
-  font-size: 0.975rem;
-  line-height: 1.65;
+  font-size: 0.875rem;
+  line-height: 1.45;
   color: #444444;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #EAE4D9;
 }
 
 /* Option Sections */
 .anivom-pdp-option-section {
-  margin-bottom: 28px;
+  margin-bottom: 12px;
 }
 
 .anivom-option-label {
   display: block;
-  font-size: 0.825rem;
+  font-size: 0.775rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #111111;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .anivom-option-label strong {
@@ -288,21 +288,21 @@
 /* Colour Chips */
 .anivom-color-chips {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .anivom-color-chip {
-  padding: 10px 20px;
+  padding: 6px 14px;
   border: 1px solid #D8D2C6;
   background-color: #FFFDF8;
   color: #111111;
-  font-size: 0.875rem;
+  font-size: 0.825rem;
   font-weight: 500;
   letter-spacing: 0.03em;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 76px;
+  min-width: 64px;
   text-align: center;
 }
 
@@ -321,18 +321,18 @@
 /* Size Chips */
 .anivom-size-chips {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .anivom-size-chip {
-  min-width: 52px;
-  height: 46px;
-  padding: 0 14px;
+  min-width: 44px;
+  height: 38px;
+  padding: 0 10px;
   border: 1px solid #D8D2C6;
   background-color: #FFFDF8;
   color: #111111;
-  font-size: 0.875rem;
+  font-size: 0.825rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   display: flex;
@@ -371,11 +371,11 @@
 }
 
 .anivom-qty-btn {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #111111;
   cursor: pointer;
@@ -395,19 +395,19 @@
 }
 
 .anivom-qty-val {
-  width: 48px;
+  width: 38px;
   text-align: center;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #111111;
 }
 
 /* Feedback Notice Banners */
 .anivom-pdp-notice {
-  padding: 14px 18px;
-  font-size: 0.9rem;
+  padding: 10px 14px;
+  font-size: 0.85rem;
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   border-radius: 2px;
 }
 
@@ -427,18 +427,18 @@
 .anivom-pdp-cta-block {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-top: 12px;
-  margin-bottom: 32px;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 14px;
 }
 
 .anivom-btn-add-pdp {
   width: 100%;
-  padding: 18px 28px;
+  padding: 12px 20px;
   background-color: #111111;
   color: #FFFDF8;
   border: 1px solid #111111;
-  font-size: 0.925rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -447,7 +447,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .anivom-btn-add-pdp:hover:not(:disabled) {
@@ -464,11 +464,11 @@
 
 .anivom-btn-studio-pdp {
   width: 100%;
-  padding: 16px 28px;
+  padding: 10px 20px;
   background-color: transparent;
   color: #7A1F3D;
   border: 1.5px solid #7A1F3D;
-  font-size: 0.9rem;
+  font-size: 0.825rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -490,15 +490,15 @@
 .anivom-custom-note-box {
   background-color: #F7F2E8;
   border: 1px solid #EAE4D9;
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 12px 14px;
+  margin-bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .anivom-note-title {
-  font-size: 0.8rem;
+  font-size: 0.725rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   color: #7A1F3D;
@@ -506,9 +506,9 @@
 }
 
 .anivom-note-body {
-  font-size: 0.9rem;
+  font-size: 0.825rem;
   color: #555555;
-  line-height: 1.5;
+  line-height: 1.35;
   margin: 0;
 }
 
@@ -519,14 +519,14 @@
   padding: 0;
   color: #111111;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.775rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: underline;
-  text-underline-offset: 4px;
+  text-underline-offset: 3px;
   transition: color 0.2s ease;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .anivom-note-btn:hover {
