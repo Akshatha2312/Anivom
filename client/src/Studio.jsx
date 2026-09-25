@@ -255,7 +255,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           ) : (
             <div className="studio-selector-grid">
               {productsList.map((prod) => {
-                const img = (prod.images && prod.images.length > 0 ? prod.images[0] : null) || prod.garmentImages?.front;
+                const img = getStudioGarmentFrontImage(prod);
                 const sizes = prod.variants ? Array.from(new Set(prod.variants.map((v) => v.size))) : [];
                 const colors = prod.variants ? Array.from(new Set(prod.variants.map((v) => v.colour))) : [];
 
@@ -325,6 +325,20 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     );
   }
 
+  const getStudioGarmentFrontImage = (prod) => {
+    if (!prod) return null;
+    if (prod.garmentImages?.front) return prod.garmentImages.front;
+    if (prod.garmentImages?.byColour) {
+      const byCol = prod.garmentImages.byColour;
+      const colMapObj = byCol instanceof Map ? Object.fromEntries(byCol) : byCol;
+      const firstCol = Object.keys(colMapObj || {})[0];
+      if (firstCol && colMapObj[firstCol]?.front) {
+        return colMapObj[firstCol].front;
+      }
+    }
+    return prod.images && prod.images.length > 0 ? prod.images[0] : null;
+  };
+
   const getGarmentViewImage = (view) => {
     if (selectedColour && activeProduct?.garmentImages?.byColour) {
       const byColourObj = activeProduct.garmentImages.byColour;
@@ -341,7 +355,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
   const frontImage =
     getGarmentViewImage('front') ||
-    (activeProduct?.images && activeProduct.images.length > 0 ? activeProduct.images[0] : null);
+    getStudioGarmentFrontImage(activeProduct);
 
   const backImage =
     getGarmentViewImage('back') ||
@@ -1145,7 +1159,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                 <div className="studio-product-picker-grid">
                   {productsList.map((prod) => {
                     const isSelected = activeProduct && (activeProduct._id === prod._id || activeProduct.id === prod.id)
-                    const thumbImg = prod.images && prod.images.length > 0 ? prod.images[0] : null
+                    const thumbImg = getStudioGarmentFrontImage(prod);
                     return (
                       <button
                         key={prod._id || prod.id}
