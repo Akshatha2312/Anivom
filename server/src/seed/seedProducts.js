@@ -290,6 +290,96 @@ const newProductTypes = [
     images: ['https://res.cloudinary.com/dbkt9hcro/image/upload/v1790355362/polo-black-front_y82xzd.png'],
     colours: ['Black', 'Blue', 'Green', 'Maroon', 'White', 'Yellow'],
   },
+  {
+    name: 'Sleeveless',
+    category: 'Sleeveless',
+    description: 'Athletic cut armless tank tee crafted with lightweight breathable combed cotton for unrestricted movement.',
+    basePrice: 899,
+    garmentImages: {
+      front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358628/sleeveless-black-front_lsu9bw.png',
+      back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358628/sleeveless-black-back_ccf5xg.png',
+      byColour: {
+        'Black': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358628/sleeveless-black-front_lsu9bw.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358628/sleeveless-black-back_ccf5xg.png',
+        },
+        'Blue': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358629/sleeveless-blue-front_zxsahh.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358629/sleeveless-blue-back_xcyvq2.png',
+        },
+        'Green': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358630/sleeveless-green-front_wzrkuh.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358630/sleeveless-green-back_osvpe3.png',
+        },
+        'Pink': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358772/sleeveless-pink-front_gszlbd.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358771/sleeveless-pink-back_u0pbfq.png',
+        },
+        'White': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358772/sleeveless-white-front_hywrku.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358771/sleeveless-white-back_hy1q8k.png',
+        },
+        'Yellow': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358773/sleeveless-yellow-front_kmh32i.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358774/sleeveless-yellow-back_xsrrop.png',
+        },
+      },
+    },
+    images: ['https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358628/sleeveless-black-front_lsu9bw.png'],
+    colours: ['Black', 'Blue', 'Green', 'Pink', 'White', 'Yellow'],
+  },
+  {
+    name: 'Full Sleeve',
+    category: 'Full Sleeve',
+    description: 'Premium full sleeve t-shirt crafted from rich combed cotton for warmth, structured silhouette, and all-day comfort.',
+    basePrice: 1299,
+    garmentImages: {
+      front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-front_ptxokc.png',
+      back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360282/fullsleve-black-back_w1ohon.png',
+      left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-left_jkanl4.png',
+      right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-right_n9dycn.png',
+      byColour: {
+        'Black': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-front_ptxokc.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360282/fullsleve-black-back_w1ohon.png',
+          left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-left_jkanl4.png',
+          right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-right_n9dycn.png',
+        },
+        'Blue': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360286/fullsleve-blue-front_mvxx1a.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360285/fullsleve-blue-back_i1abp9.png',
+          left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360284/fullsleve-blue-left_hb7jdx.png',
+          right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360284/fullsleve-blue-right_uuatov.png',
+        },
+        'Green': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360287/fullsleve-green-front_ezt5z1.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360286/fullsleve-green-back_djka52.png',
+          left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360286/fullsleve-green-left_m08pmg.png',
+          right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360288/fullsleve-green-right_gidxtp.png',
+        },
+        'Grey': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360287/fullsleve-grey-front_vhccbj.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360286/fullslevee-grey-front_2_p3edim.png',
+          left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360288/fullsleve-grey-left_gtmwjn.png',
+          right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360288/fullsleve-grey-right_bkpu0r.png',
+        },
+        'Maroon': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360290/fullsleve-maroon-front_liyt6m.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360289/fullsleve-maroon-back_ecjrv4.png',
+          left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360289/fullsleve-maroon-left_xtqy5k.png',
+          right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360289/fullsleve-maroon-right_jy7h8h.png',
+        },
+        'Yellow': {
+          front: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360292/fullsleve-yellow-front_pgf5mk.png',
+          back: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360289/fullsleve-yellow-back_zlalgw.png',
+          left: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360290/fullsleve-yellow-left_e7foa6.png',
+          right: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360291/fullsleve-yellow-right_i8paaq.png',
+        },
+      },
+    },
+    images: ['https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-front_ptxokc.png'],
+    colours: ['Black', 'Blue', 'Green', 'Grey', 'Maroon', 'Yellow'],
+  },
 ];
 
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];

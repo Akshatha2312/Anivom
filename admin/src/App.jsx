@@ -128,26 +128,6 @@ function App() {
           </button>
 
           <button
-            className={`nav-item ${activeTab === 'sizes' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('sizes');
-              setMobileMenuOpen(false);
-            }}
-          >
-            <span>Sizes</span>
-          </button>
-
-          <button
-            className={`nav-item ${activeTab === 'colours' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('colours');
-              setMobileMenuOpen(false);
-            }}
-          >
-            <span>Colours</span>
-          </button>
-
-          <button
             className={`nav-item ${activeTab === 'designs' ? 'active' : ''}`}
             onClick={() => {
               setActiveTab('designs');

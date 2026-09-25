@@ -325,16 +325,16 @@ function Designs() {
       )}
 
       {modalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-container design-modal">
-            <div className="modal-header">
-              <h2>{editingDesign ? 'Edit Studio Design' : 'Create Studio Design'}</h2>
-              <button className="close-modal-btn" onClick={() => setModalOpen(false)}>×</button>
+        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h2>{editingDesign ? 'EDIT STUDIO DESIGN' : 'CREATE NEW STUDIO DESIGN'}</h2>
+              <button className="admin-modal-close" onClick={() => setModalOpen(false)}>✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-form">
-              {formError && <div className="admin-banner error">{formError}</div>}
+            <form onSubmit={handleSubmit} className="admin-form-stack">
+              {formError && <div className="admin-error-banner">{formError}</div>}
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Design Title / Name *</label>
                 <input
                   type="text"
@@ -345,7 +345,7 @@ function Designs() {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Category *</label>
                 <select
                   value={formData.category}
@@ -357,10 +357,10 @@ function Designs() {
                 </select>
               </div>
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Design Format Type</label>
-                <div className="radio-group" style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.25rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                     <input
                       type="radio"
                       name="type"
@@ -370,7 +370,7 @@ function Designs() {
                     />
                     SVG Vector Code
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                     <input
                       type="radio"
                       name="type"
@@ -384,7 +384,7 @@ function Designs() {
               </div>
 
               {formData.type === 'svg' ? (
-                <div className="form-group">
+                <div className="admin-input-group">
                   <label>SVG Markup Code *</label>
                   <textarea
                     rows={6}
@@ -393,23 +393,25 @@ function Designs() {
                     placeholder='<svg viewBox="0 0 100 100">...</svg>'
                     style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
                   />
-                  <small className="help-text">Paste valid XML/SVG code snippet to render as scalable vector artwork.</small>
+                  <small style={{ fontSize: '0.75rem', color: '#888888', marginTop: '4px' }}>
+                    Paste valid XML/SVG code snippet to render as scalable vector artwork in Atelier Studio.
+                  </small>
                 </div>
               ) : (
-                <div className="form-group">
+                <div className="admin-input-group">
                   <label>Upload Image / Graphic *</label>
                   <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                  {uploadingImage && <span>Uploading to Cloudinary...</span>}
+                  {uploadingImage && <span style={{ fontSize: '0.8rem', color: '#C6A15B', marginTop: '4px' }}>Uploading artwork to Cloudinary...</span>}
                   {formData.url && (
-                    <div className="image-preview-preview" style={{ marginTop: '0.5rem' }}>
-                      <img src={formData.url} alt="Uploaded preview" style={{ height: '60px', borderRadius: '4px' }} />
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <img src={formData.url} alt="Uploaded preview" style={{ height: '70px', borderRadius: '2px', border: '1px solid #111' }} />
                     </div>
                   )}
                 </div>
               )}
 
-              <div className="form-group checkbox-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <div className="admin-input-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                   <input
                     type="checkbox"
                     checked={formData.isActive}
@@ -419,12 +421,12 @@ function Designs() {
                 </label>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="secondary-action-btn" onClick={() => setModalOpen(false)}>
+              <div className="admin-modal-actions">
+                <button type="button" className="admin-btn-secondary" onClick={() => setModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="primary-action-btn" disabled={submitting || uploadingImage}>
-                  {submitting ? 'Saving...' : editingDesign ? 'Update Design' : 'Create Design'}
+                <button type="submit" className="admin-submit-btn" disabled={submitting || uploadingImage}>
+                  {submitting ? 'SAVING...' : editingDesign ? 'UPDATE DESIGN' : 'CREATE DESIGN ✦'}
                 </button>
               </div>
             </form>

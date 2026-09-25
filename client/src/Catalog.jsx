@@ -392,7 +392,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const defaultSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
   const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
 
-  const categories = ['All', 'Cropped', 'Oversized', 'Polo', 'Slim Fit', 'V-Neck']
+  const categories = ['All', 'Cropped', 'Full Sleeve', 'Oversized', 'Polo', 'Sleeveless', 'Slim Fit', 'V-Neck']
   const sizes = ['All', ...(dbSizes.length > 0 ? dbSizes : defaultSizes)]
   const colours = ['All', ...(dbColours.length > 0 ? dbColours : defaultColours)]
 
@@ -513,7 +513,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
 
         <div className="anivom-trending-tags">
           <span className="anivom-trending-label">Trending:</span>
-          {['Cropped', 'Oversized', 'Polo', 'Slim Fit', 'V-Neck', 'New Drops'].map((tag) => (
+          {['Cropped', 'Full Sleeve', 'Oversized', 'Polo', 'Sleeveless', 'Slim Fit', 'V-Neck', 'New Drops'].map((tag) => (
             <span
               key={tag}
               className="anivom-tag-pill"

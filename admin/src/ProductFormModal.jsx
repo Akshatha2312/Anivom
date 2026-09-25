@@ -260,7 +260,23 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
           </div>
 
           <div className="admin-variants-section">
-            <h3>VARIANTS & STOCK MATRIX</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h3 style={{ margin: 0 }}>PRODUCT-SPECIFIC VARIANTS & STOCK MATRIX</h3>
+              <span className="admin-tag-pill" style={{ textTransform: 'uppercase', color: '#C65D3B' }}>
+                {name || 'Product'} Specific
+              </span>
+            </div>
+
+            <div style={{ background: '#FFFDF8', border: '1px solid rgba(17, 17, 17, 0.08)', padding: '10px 14px', marginBottom: '16px', fontSize: '0.78rem', color: '#555555' }}>
+              <div style={{ marginBottom: '4px' }}>
+                <strong>Configured Colours ({Array.from(new Set(variants.map(v => v.colour))).length}):</strong>{' '}
+                {Array.from(new Set(variants.map(v => v.colour))).join(', ') || 'None'}
+              </div>
+              <div>
+                <strong>Configured Sizes ({Array.from(new Set(variants.map(v => v.size))).length}):</strong>{' '}
+                {Array.from(new Set(variants.map(v => v.size))).join(', ') || 'None'}
+              </div>
+            </div>
 
             <div className="add-variant-row">
               <div className="admin-input-group flex-1">

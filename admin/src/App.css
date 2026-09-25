@@ -461,11 +461,12 @@
 }
 
 .admin-page-title {
-  font-family: serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.35rem;
+  font-weight: 700;
   margin: 0 0 2px 0;
   color: #111111;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .admin-page-subtitle {

@@ -1065,8 +1065,8 @@
 
 .studio-selector-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
   width: 100%;
   align-items: stretch;
 }
@@ -1474,4 +1474,90 @@
     grid-template-columns: 1fr;
     gap: 14px;
   }
+}
+
+/* Studio View Unavailable Modal Overlay */
+.studio-view-unavailable-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.studio-view-unavailable-card {
+  background: #181818;
+  border: 1px solid rgba(198, 161, 91, 0.4);
+  padding: 28px 24px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+  border-radius: 2px;
+}
+
+.studio-modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: #888888;
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.studio-modal-close-btn:hover {
+  color: #FFFDF8;
+}
+
+.studio-view-unavailable-badge {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  color: #C65D3B;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.studio-view-unavailable-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFDF8;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.05em;
+}
+
+.studio-view-unavailable-text {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #aaaaaa;
+  margin-bottom: 20px;
+}
+
+.studio-view-unavailable-btn {
+  width: 100%;
+  padding: 9px 16px;
+  background: #7A1F3D;
+  color: #FFFDF8;
+  border: 1px solid #7A1F3D;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.studio-view-unavailable-btn:hover {
+  background: #96284d;
+  border-color: #96284d;
 }

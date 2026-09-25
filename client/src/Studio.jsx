@@ -14,6 +14,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
   const [activeView, setActiveView] = useState('front');
+  const [viewUnavailableModal, setViewUnavailableModal] = useState(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [activeToolTab, setActiveToolTab] = useState('garment');
 
@@ -1585,13 +1586,25 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               </button>
               <button
                 className={`stage-view-btn ${activeView === 'left' ? 'active' : ''}`}
-                onClick={() => setActiveView('left')}
+                onClick={() => {
+                  if (activeProduct && activeProduct.name === 'Sleeveless') {
+                    setViewUnavailableModal('LEFT');
+                  } else {
+                    setActiveView('left');
+                  }
+                }}
               >
                 LEFT
               </button>
               <button
                 className={`stage-view-btn ${activeView === 'right' ? 'active' : ''}`}
-                onClick={() => setActiveView('right')}
+                onClick={() => {
+                  if (activeProduct && activeProduct.name === 'Sleeveless') {
+                    setViewUnavailableModal('RIGHT');
+                  } else {
+                    setActiveView('right');
+                  }
+                }}
               >
                 RIGHT
               </button>
@@ -1725,6 +1738,24 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
       {showOnboardingModal && (
         <StudioOnboardingModal onClose={handleCloseOnboarding} />
+      )}
+
+      {viewUnavailableModal && (
+        <div className="studio-view-unavailable-overlay" onClick={() => setViewUnavailableModal(null)}>
+          <div className="studio-view-unavailable-card" onClick={(e) => e.stopPropagation()}>
+            <button className="studio-modal-close-btn" onClick={() => setViewUnavailableModal(null)}>
+              &times;
+            </button>
+            <div className="studio-view-unavailable-badge">✦ VIEW NOTICE</div>
+            <h3 className="studio-view-unavailable-title">{viewUnavailableModal} VIEW UNAVAILABLE</h3>
+            <p className="studio-view-unavailable-text">
+              This Sleeveless garment currently has Front and Back views only.
+            </p>
+            <button className="studio-view-unavailable-btn" onClick={() => setViewUnavailableModal(null)}>
+              UNDERSTOOD ✦
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
