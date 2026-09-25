@@ -4,16 +4,38 @@ import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
 
 function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
-  const availableSizes = product && product.variants && product.variants.length > 0
-    ? Array.from(new Set(product.variants.map((v) => v.size)))
-    : ['XS', 'S', 'M', 'L', 'XL', 'XXL']
-
+  // 1. Get colours available for this specific product (from variants with stock > 0)
   const availableColours = product && product.variants && product.variants.length > 0
-    ? Array.from(new Set(product.variants.map((v) => v.colour)))
-    : ['Black', 'White', 'Navy']
+    ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
+    : []
 
-  const [selectedSize, setSelectedSize] = useState(availableSizes[0] || 'M')
-  const [selectedColour, setSelectedColour] = useState(availableColours[0] || 'Black')
+  const [selectedColour, setSelectedColour] = useState(availableColours[0] || '')
+
+  // Keep selectedColour valid if product variants update
+  useEffect(() => {
+    if (availableColours.length > 0 && !availableColours.includes(selectedColour)) {
+      setSelectedColour(availableColours[0])
+    }
+  }, [availableColours, selectedColour])
+
+  // 2. Get sizes available for the currently selected colour with stock > 0
+  const availableSizes = product && product.variants && product.variants.length > 0
+    ? Array.from(new Set(
+        product.variants
+          .filter((v) => (selectedColour ? v.colour === selectedColour : true) && v.stock > 0)
+          .map((v) => v.size)
+      ))
+    : []
+
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0] || '')
+
+  // Keep selectedSize valid whenever availableSizes change
+  useEffect(() => {
+    if (availableSizes.length > 0 && !availableSizes.includes(selectedSize)) {
+      setSelectedSize(availableSizes[0])
+    }
+  }, [availableSizes, selectedSize])
+
   const [adding, setAdding] = useState(false)
   const [cardMsg, setCardMsg] = useState(null)
   const [cardErr, setCardErr] = useState(null)
@@ -27,7 +49,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
     if (onSelectProduct) {
       onSelectProduct(product)
     } else {
-      openStudio(product)
+      openStudio(product, { initialColor: selectedColour, initialSize: selectedSize })
     }
   }
 
@@ -45,6 +67,11 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
   const handleAddToCart = async () => {
     if (!user) {
       if (onRequireAuth) onRequireAuth()
+      return
+    }
+
+    if (!selectedColour || !selectedSize) {
+      setCardErr('Please select an available colour and size.')
       return
     }
 
@@ -128,7 +155,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
             e.stopPropagation()
             handleAddToCart()
           }}
-          disabled={adding}
+          disabled={adding || availableColours.length === 0}
         >
           {adding ? 'Adding...' : '+ Quick Add Bag'}
         </button>
@@ -142,20 +169,6 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
           <div className="anivom-variant-selectors">
             <div>
-              <label className="anivom-filter-label">Size</label>
-              <select
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                className="anivom-filter-select"
-                style={{ width: '100%' }}
-              >
-                {availableSizes.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
               <label className="anivom-filter-label">Colour</label>
               <select
                 value={selectedColour}
@@ -168,6 +181,20 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="anivom-filter-label">Size</label>
+              <select
+                value={selectedSize}
+                onChange={(e) => setSelectedSize(e.target.value)}
+                className="anivom-filter-select"
+                style={{ width: '100%' }}
+              >
+                {availableSizes.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {cardMsg && <div className="anivom-card-msg success">{cardMsg}</div>}
@@ -176,7 +203,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
         <div className="anivom-card-btn-group">
           <button
-            onClick={() => openStudio(product)}
+            onClick={() => openStudio(product, { initialColor: selectedColour, initialSize: selectedSize })}
             className="anivom-btn-studio"
           >
             CUSTOMIZE IN STUDIO
@@ -267,7 +294,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           setDbCategories(data.data.categories.map((c) => c.name))
         }
       })
-      .catch(() => {})
+      .catch(() => { })
 
     fetch(`${API_BASE_URL}/api/v1/sizes`)
       .then((res) => res.json())
@@ -276,7 +303,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           setDbSizes(data.data.sizes.map((s) => s.name))
         }
       })
-      .catch(() => {})
+      .catch(() => { })
 
     fetch(`${API_BASE_URL}/api/v1/colours`)
       .then((res) => res.json())
@@ -285,7 +312,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           setDbColours(data.data.colours.map((c) => c.name))
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const defaultCategories = ['Oversized', 'Regular Fit', 'Graphic', 'Minimal', 'Custom']

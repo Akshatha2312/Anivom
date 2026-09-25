@@ -4,7 +4,16 @@ const mongoose = require('mongoose');
 const connectDB = require('../config/db');
 const Category = require('../models/Category');
 
-const initialCategories = ['Oversized', 'Minimal', 'Graphic', 'Regular Fit', 'Custom'];
+const initialCategories = [
+  'Crew Neck',
+  'V-Neck',
+  'Henley',
+  'Polo',
+  'Regular Fit',
+  'Slim Fit',
+  'Oversized',
+  'Cropped',
+];
 
 const seedCategories = async () => {
   try {

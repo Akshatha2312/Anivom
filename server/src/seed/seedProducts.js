@@ -1,166 +1,234 @@
 const mongoose = require('mongoose');
-require('dotenv').config({ path: '../.env' });
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const Product = require('../models/Product');
+const Order = require('../models/Order');
+const connectDB = require('../config/db');
 
-const developmentProducts = [
+const newProductTypes = [
   {
-    name: 'ANIVOM Monogram Heavyweight Oversized Tee',
-    description: 'Luxurious 280 GSM combed cotton oversized graphic t-shirt featuring subtle front chest monogram embroidery and back high-density rubber print.',
-    category: 'Oversized',
-    basePrice: 1499,
-    images: [
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'XS', colour: 'Black', stock: 15 },
-      { size: 'S', colour: 'Black', stock: 20 },
-      { size: 'M', colour: 'Black', stock: 25 },
-      { size: 'L', colour: 'Black', stock: 20 },
-      { size: 'XL', colour: 'Black', stock: 15 },
-      { size: 'XXL', colour: 'Black', stock: 10 },
-      { size: 'M', colour: 'White', stock: 18 },
-      { size: 'L', colour: 'White', stock: 12 }
-    ],
-    isActive: true
-  },
-  {
-    name: 'ANIVOM Minimalist Boxy Drop-Shoulder Tee',
-    description: 'Clean architectural lines, relaxed drop-shoulder cut, crafted from organic luxury cotton with a velvety touch finish.',
-    category: 'Minimal',
-    basePrice: 1299,
-    images: [
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'S', colour: 'Cream', stock: 14 },
-      { size: 'M', colour: 'Cream', stock: 22 },
-      { size: 'L', colour: 'Cream', stock: 18 },
-      { size: 'XL', colour: 'Cream', stock: 12 },
-      { size: 'M', colour: 'Grey', stock: 15 },
-      { size: 'L', colour: 'Grey', stock: 10 }
-    ],
-    isActive: true
-  },
-  {
-    name: 'ANIVOM Heritage Crest Graphic T-Shirt',
-    description: 'Vintage wash graphic tee with handcrafted heraldry crest screenprint and distressed rib neckline.',
-    category: 'Graphic',
-    basePrice: 1699,
-    images: [
-      'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'XS', colour: 'Navy', stock: 10 },
-      { size: 'S', colour: 'Navy', stock: 15 },
-      { size: 'M', colour: 'Navy', stock: 20 },
-      { size: 'L', colour: 'Navy', stock: 15 },
-      { size: 'XL', colour: 'Navy', stock: 8 },
-      { size: 'M', colour: 'Maroon', stock: 12 }
-    ],
-    isActive: true
-  },
-  {
-    name: 'ANIVOM Essential Crewneck Regular Fit Tee',
-    description: 'The definitive daily crewneck t-shirt. Tailored regular fit engineered from 220 GSM ring-spun Egyptian cotton.',
-    category: 'Regular Fit',
+    name: 'Crew Neck',
+    category: 'Crew Neck',
+    description: 'Classic crew neck t-shirt engineered from 100% premium combed cotton for everyday comfort and durability.',
     basePrice: 999,
-    images: [
-      'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1618354691438-25bc04584c23?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'XS', colour: 'White', stock: 25 },
-      { size: 'S', colour: 'White', stock: 30 },
-      { size: 'M', colour: 'White', stock: 40 },
-      { size: 'L', colour: 'White', stock: 35 },
-      { size: 'XL', colour: 'White', stock: 20 },
-      { size: 'XXL', colour: 'White', stock: 15 },
-      { size: 'M', colour: 'Black', stock: 35 },
-      { size: 'L', colour: 'Black', stock: 30 }
-    ],
-    isActive: true
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Grey', 'Red', 'Blue', 'Olive'],
   },
   {
-    name: 'ANIVOM Studio Blank Custom Canvas Tee',
-    description: 'Premium blank canvas garment optimized for Studio vector customization, high-res text printing, and uploaded graphics.',
-    category: 'Custom',
-    basePrice: 1199,
-    images: [
-      'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'XS', colour: 'Black', stock: 20 },
-      { size: 'S', colour: 'Black', stock: 25 },
-      { size: 'M', colour: 'Black', stock: 30 },
-      { size: 'L', colour: 'Black', stock: 25 },
-      { size: 'XL', colour: 'Black', stock: 20 },
-      { size: 'XXL', colour: 'Black', stock: 15 },
-      { size: 'S', colour: 'Red', stock: 12 },
-      { size: 'M', colour: 'Red', stock: 18 }
-    ],
-    isActive: true
+    name: 'V-Neck',
+    category: 'V-Neck',
+    description: 'Sleek V-neck t-shirt with a modern tailored cut, perfect for layering or standalone wear.',
+    basePrice: 1099,
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Grey', 'Maroon', 'Beige'],
   },
   {
-    name: 'ANIVOM Earth Tone Oversized Tee',
-    description: 'Earth-toned garment dyed oversized t-shirt in warm olive, featuring reinforced double-needle collar stitching.',
-    category: 'Oversized',
-    basePrice: 1599,
-    images: [
-      'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'S', colour: 'Olive', stock: 15 },
-      { size: 'M', colour: 'Olive', stock: 20 },
-      { size: 'L', colour: 'Olive', stock: 18 },
-      { size: 'XL', colour: 'Olive', stock: 10 },
-      { size: 'XXL', colour: 'Olive', stock: 8 }
-    ],
-    isActive: true
-  },
-  {
-    name: 'ANIVOM Maroon Signature Emblem Tee',
-    description: 'Deep maroon regular fit tee with gold thread signature logo emblem on sleeve hem.',
-    category: 'Regular Fit',
+    name: 'Henley',
+    category: 'Henley',
+    description: 'Buttoned placket Henley t-shirt crafted with textured waffle-knit fabric for a refined casual aesthetic.',
     basePrice: 1399,
-    images: [
-      'https://images.unsplash.com/photo-1618354691438-25bc04584c23?w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&auto=format&fit=crop'
-    ],
-    variants: [
-      { size: 'S', colour: 'Maroon', stock: 12 },
-      { size: 'M', colour: 'Maroon', stock: 22 },
-      { size: 'L', colour: 'Maroon', stock: 16 },
-      { size: 'XL', colour: 'Maroon', stock: 10 }
-    ],
-    isActive: true
-  }
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Olive', 'Brown', 'Cream', 'Wine'],
+  },
+  {
+    name: 'Polo',
+    category: 'Polo',
+    description: 'Structured polo t-shirt featuring a ribbed collar, mother-of-pearl buttons, and breathable cotton pique.',
+    basePrice: 1599,
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Red', 'Blue', 'Teal', 'Yellow', 'Green'],
+  },
+  {
+    name: 'Regular Fit',
+    category: 'Regular Fit',
+    description: 'Timeless regular fit t-shirt with a standard straight silhouette suitable for all body types.',
+    basePrice: 899,
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Grey', 'Red', 'Blue', 'Pink', 'Purple', 'Orange'],
+  },
+  {
+    name: 'Slim Fit',
+    category: 'Slim Fit',
+    description: 'Form-fitting slim t-shirt designed with elastane-infused cotton for flexible movement and sharp contour.',
+    basePrice: 1199,
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Grey', 'Maroon'],
+  },
+  {
+    name: 'Oversized',
+    category: 'Oversized',
+    description: 'Heavyweight drop-shoulder oversized t-shirt boasting a trendy boxy fit and street-lux aesthetic.',
+    basePrice: 1499,
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Mustard', 'Sky Blue', 'Wine', 'Purple'],
+  },
+  {
+    name: 'Cropped',
+    category: 'Cropped',
+    description: 'Modern cropped style t-shirt with a raw hem trim and relaxed casual upper body silhouette.',
+    basePrice: 999,
+    garmentImages: {
+      front: '',
+      back: '',
+      left: '',
+      right: '',
+    },
+    images: [],
+    colours: ['Black', 'White', 'Pink', 'Yellow', 'Sky Blue', 'Cream'],
+  },
 ];
 
-async function seed() {
+const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+
+function generateVariants(colours) {
+  const variants = [];
+  for (const colour of colours) {
+    for (const size of sizes) {
+      variants.push({
+        size,
+        colour,
+        stock: 25,
+      });
+    }
+  }
+  return variants;
+}
+
+async function seedProducts() {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://akshathaprabakaran_db_user:7kdotT5hRIDgin3N@cluster0.uyvzevq.mongodb.net';
-    await mongoose.connect(mongoUri);
-    
+    await connectDB();
+
+    console.log('Connected to MongoDB.');
+
+    // 1. Find all product IDs referenced in existing orders
+    const orders = await Order.find({}, 'items.product');
+    const orderedProductIds = new Set();
+    orders.forEach((order) => {
+      (order.items || []).forEach((item) => {
+        if (item.product) {
+          orderedProductIds.add(item.product.toString());
+        }
+      });
+    });
+
+    console.log(`Found ${orderedProductIds.size} unique product ID(s) referenced in historical orders.`);
+
+    // 2. Identify active seed products to replace/deactivate
+    const targetProductNames = newProductTypes.map((p) => p.name);
+
+    // Deactivate or safely soft-delete old active products not in the new set
+    const obsoleteProducts = await Product.find({
+      name: { $nin: targetProductNames },
+    });
+
+    let softDeletedCount = 0;
+    let hardDeletedCount = 0;
+
+    for (const prod of obsoleteProducts) {
+      if (orderedProductIds.has(prod._id.toString())) {
+        // Soft delete / deactivate so historical orders referencing this product remain intact
+        prod.isActive = false;
+        await prod.save();
+        softDeletedCount++;
+      } else {
+        // Hard delete non-ordered obsolete active product
+        await Product.deleteOne({ _id: prod._id });
+        hardDeletedCount++;
+      }
+    }
+
+    console.log(`Obsolete products handled: ${softDeletedCount} soft-deleted/deactivated (referenced in historical orders), ${hardDeletedCount} hard-deleted.`);
+
+    // 3. Upsert / seed the 8 new product types without creating duplicates
     let createdCount = 0;
-    for (const pData of developmentProducts) {
-      const existing = await Product.findOne({ name: pData.name });
-      if (!existing) {
-        await Product.create(pData);
+    let updatedCount = 0;
+
+    for (const pTypeDef of newProductTypes) {
+      const variants = generateVariants(pTypeDef.colours);
+
+      const productPayload = {
+        name: pTypeDef.name,
+        description: pTypeDef.description,
+        category: pTypeDef.category,
+        basePrice: pTypeDef.basePrice,
+        garmentImages: pTypeDef.garmentImages,
+        images: pTypeDef.images,
+        variants,
+        isActive: true,
+      };
+
+      const existing = await Product.findOne({ name: pTypeDef.name });
+
+      if (existing) {
+        await Product.updateOne({ _id: existing._id }, productPayload);
+        updatedCount++;
+      } else {
+        await Product.create(productPayload);
         createdCount++;
       }
     }
-    
-    console.log(`Development seed completed. ${createdCount} new products created (${developmentProducts.length - createdCount} already existed).`);
+
+    console.log(`Seed execution complete: ${createdCount} created, ${updatedCount} updated.`);
+
     await mongoose.disconnect();
-  } catch (err) {
-    console.error('Seed error:', err);
-    process.exit(1);
+    console.log('Database connection closed successfully.');
+    if (require.main === module) {
+      process.exit(0);
+    }
+  } catch (error) {
+    console.error('Error during product seeding:', error);
+    if (require.main === module) {
+      process.exit(1);
+    } else {
+      throw error;
+    }
   }
 }
 
-seed();
+if (require.main === module) {
+  seedProducts();
+}
+
+module.exports = { seedProducts, newProductTypes };

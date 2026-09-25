@@ -3,28 +3,14 @@ import './Home.css'
 import { API_BASE_URL } from './config'
 
 function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, onSelectProduct }) {
-  const [featuredProducts, setFeaturedProducts] = useState([])
   const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
     const fetchHomeData = async () => {
       setLoading(true)
       try {
-        const [prodRes, bannerRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/v1/products?limit=8`),
-          fetch(`${API_BASE_URL}/api/v1/banners`),
-        ])
-
-        const prodData = await prodRes.json()
-        if (prodRes.ok) {
-          const list = prodData.data?.products || []
-          setFeaturedProducts(list.slice(0, 4))
-        } else {
-          setError(prodData.message || 'Failed to load featured products.')
-        }
-
+        const bannerRes = await fetch(`${API_BASE_URL}/api/v1/banners`)
         if (bannerRes.ok) {
           const bannerData = await bannerRes.json()
           if (bannerData.data?.banners) {
@@ -32,7 +18,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
           }
         }
       } catch (err) {
-        setError('Network error loading homepage items.')
+        // Silent fallback for banners
       } finally {
         setLoading(false)
       }
@@ -56,40 +42,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
       window.location.href = cleanLink
     } else {
       onNavigateToCatalog()
-    }
-  }
-
-  const handleQuickAdd = async (product, e) => {
-    e.stopPropagation()
-    if (!user) {
-      alert('Please sign in to add items to your shopping bag.')
-      return
-    }
-
-    const defaultVariant = product.variants && product.variants.length > 0 ? product.variants[0] : { size: 'M', colour: 'Black' }
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/cart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          product: product._id,
-          size: defaultVariant.size,
-          colour: defaultVariant.colour,
-          quantity: 1,
-          customized: false,
-        }),
-      })
-
-      if (res.ok) {
-        if (onCartUpdated) onCartUpdated()
-      } else {
-        const data = await res.json()
-        alert(data.message || 'Failed to add item to bag.')
-      }
-    } catch (err) {
-      alert('Network error adding product to bag.')
     }
   }
 
@@ -200,70 +152,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
             </div>
           ))}
         </div>
-      </section>
-
-      <section className="anivom-featured-section">
-        <div className="anivom-section-header">
-          <h2 className="anivom-section-title">FEATURED DROPS</h2>
-          <button className="anivom-link-btn" onClick={() => onNavigateToCatalog()}>
-            View All Products &rarr;
-          </button>
-        </div>
-
-        {error && <div className="anivom-error-notice">{error}</div>}
-
-        {loading ? (
-          <div className="anivom-loading-notice">Loading featured drop collection...</div>
-        ) : (
-          <div className="anivom-featured-grid">
-            {featuredProducts.map((product) => {
-              const img = product.images && product.images.length > 0 ? product.images[0] : null
-              return (
-                <div
-                  key={product._id}
-                  className="anivom-home-card"
-                  onClick={() => {
-                    if (onSelectProduct) {
-                      onSelectProduct(product)
-                    } else {
-                      onNavigateToCatalog()
-                    }
-                  }}
-                >
-                  <div className="anivom-home-card-img-wrap">
-                    {img ? (
-                      <img src={img} alt={product.name} className="anivom-home-card-img" />
-                    ) : (
-                      <div className="anivom-no-img">ANIVOM</div>
-                    )}
-                    <button
-                      className="anivom-home-card-quickadd"
-                      onClick={(e) => handleQuickAdd(product, e)}
-                    >
-                      + Quick Add Bag
-                    </button>
-                  </div>
-                  <div className="anivom-home-card-body">
-                    <span className="anivom-home-card-cat">{product.category}</span>
-                    <h3 className="anivom-home-card-title">{product.name}</h3>
-                    <div className="anivom-home-card-price">&#8377;{product.basePrice}</div>
-                    <div className="anivom-home-card-actions">
-                      <button
-                        className="anivom-card-sub-btn"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onNavigateToStudio(product)
-                        }}
-                      >
-                        Customize in Studio ✦
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </section>
 
       <section className="anivom-custom-banner">

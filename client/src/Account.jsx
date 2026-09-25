@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Account.css'
 import { API_BASE_URL } from './config'
 
-function Account({ user, onBackToCatalog, onNavigateToCreations, onNavigateToOrders, onLoginRedirect, onLogout }) {
+function Account({ user, onBackToCatalog, onNavigateToCreations, onNavigateToOrders, onNavigateToWishlist, onLoginRedirect, onLogout }) {
   const [addresses, setAddresses] = useState([])
   const [orders, setOrders] = useState([])
   const [loadingAddresses, setLoadingAddresses] = useState(true)
@@ -227,6 +227,11 @@ function Account({ user, onBackToCatalog, onNavigateToCreations, onNavigateToOrd
           {onNavigateToOrders && (
             <button className="anivom-btn-acc-nav" onClick={() => onNavigateToOrders(null)}>
               My Orders
+            </button>
+          )}
+          {onNavigateToWishlist && (
+            <button className="anivom-btn-acc-nav" onClick={onNavigateToWishlist}>
+              My Wishlist
             </button>
           )}
           <button className="anivom-btn-acc-nav" onClick={onNavigateToCreations}>

@@ -43,7 +43,7 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
           setDbCategories(data.data.categories.map((c) => c.name));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch(`${API_BASE_URL}/api/v1/sizes`, { credentials: 'include' })
       .then((res) => res.json())
@@ -52,7 +52,7 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
           setDbSizes(data.data.sizes.map((s) => s.name));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch(`${API_BASE_URL}/api/v1/colours`, { credentials: 'include' })
       .then((res) => res.json())
@@ -61,7 +61,7 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
           setDbColours(data.data.colours.map((c) => c.name));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const defaultCategories = ['Oversized', 'Minimal', 'Graphic', 'Regular Fit', 'Custom'];
@@ -93,9 +93,9 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
     product && product.variants && product.variants.length > 0
       ? product.variants
       : [
-          { size: 'M', colour: 'Black', stock: 20 },
-          { size: 'L', colour: 'Black', stock: 15 },
-        ]
+        { size: 'M', colour: 'Black', stock: 20 },
+        { size: 'L', colour: 'Black', stock: 15 },
+      ]
   );
 
   const [newSize, setNewSize] = useState('M');

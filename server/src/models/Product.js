@@ -66,6 +66,12 @@ const productSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    garmentImages: {
+      front: { type: String, default: "" },
+      back: { type: String, default: "" },
+      left: { type: String, default: "" },
+      right: { type: String, default: "" },
+    },
     variants: [variantSchema],
     isActive: {
       type: Boolean,

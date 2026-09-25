@@ -5,6 +5,11 @@ import { PREDEFINED_DESIGNS } from './designsData';
 import AuthModal from './AuthModal';
 import StudioOnboardingModal from './StudioOnboardingModal';
 
+const ALL_STUDIO_COLOURS = [
+  'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Pink', 'Purple',
+  'Grey', 'Navy', 'Maroon', 'Beige', 'Cream', 'Olive', 'Teal', 'Mustard', 'Wine'
+];
+
 const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
   const [productsList, setProductsList] = useState([]);
@@ -23,16 +28,18 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     ? Array.from(new Set(activeProduct.variants.map((v) => v.size)))
     : ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-  const availableColours = activeProduct && activeProduct.variants && activeProduct.variants.length > 0
+  const productVariantColours = activeProduct && activeProduct.variants && activeProduct.variants.length > 0
     ? Array.from(new Set(activeProduct.variants.map((v) => v.colour)))
-    : ['Black', 'White', 'Navy'];
+    : [];
+
+  const availableColours = Array.from(new Set([...productVariantColours, ...ALL_STUDIO_COLOURS]));
+
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColour, setSelectedColour] = useState('Black');
 
   const [layers, setLayers] = useState([]);
   const [selectedLayerId, setSelectedLayerId] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [uploadError, setUploadError] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
@@ -107,32 +114,30 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   }, [activeProduct, initialCustomization]);
 
   useEffect(() => {
-    if (!activeProduct) {
-      let isMounted = true;
-      setLoadingProducts(true);
-      setProductsError(null);
-      fetch(`${API_BASE_URL}/api/v1/products`)
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to load products');
-          return res.json();
-        })
-        .then((data) => {
-          if (isMounted) {
-            setProductsList(data.data?.products || []);
-            setLoadingProducts(false);
-          }
-        })
-        .catch(() => {
-          if (isMounted) {
-            setProductsError('Error connecting to ANIVOM products API.');
-            setLoadingProducts(false);
-          }
-        });
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [activeProduct]);
+    let isMounted = true;
+    setLoadingProducts(true);
+    setProductsError(null);
+    fetch(`${API_BASE_URL}/api/v1/products`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load products');
+        return res.json();
+      })
+      .then((data) => {
+        if (isMounted) {
+          setProductsList(data.data?.products || []);
+          setLoadingProducts(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setProductsError('Error connecting to ANIVOM products API.');
+          setLoadingProducts(false);
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (initialCustomization) {
@@ -183,6 +188,8 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
       }
     }
   }, [initialCustomization]);
+
+  const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>";
 
   if (!activeProduct) {
     return (
@@ -262,7 +269,15 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                   <div key={prod._id} className="studio-product-card" onClick={() => setSelectedStudioProduct(prod)}>
                     <div className="studio-product-img-wrapper">
                       {img ? (
-                        <img src={img} alt={prod.name} className="studio-product-img" />
+                        <img
+                          src={img}
+                          alt={prod.name}
+                          className="studio-product-img"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = DEFAULT_PLACEHOLDER;
+                          }}
+                        />
                       ) : (
                         <div className="studio-product-no-img">ANIVOM BASE GARMENT</div>
                       )}
@@ -316,41 +331,50 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     );
   }
 
-  const primaryImage =
-    activeProduct && activeProduct.images && activeProduct.images.length > 0
-      ? activeProduct.images[0]
-      : null;
+  const frontImage =
+    activeProduct?.garmentImages?.front ||
+    (activeProduct?.images && activeProduct.images.length > 0 ? activeProduct.images[0] : null);
+
+  const backImage =
+    activeProduct?.garmentImages?.back ||
+    (activeProduct?.images && activeProduct.images.length > 1 ? activeProduct.images[1] : frontImage);
+
+  const leftImage = activeProduct?.garmentImages?.left || null;
+  const rightImage = activeProduct?.garmentImages?.right || null;
+
+  let currentGarmentImage = frontImage;
+  if (activeView === 'back') {
+    currentGarmentImage = backImage;
+  } else if (activeView === 'left') {
+    currentGarmentImage = leftImage;
+  } else if (activeView === 'right') {
+    currentGarmentImage = rightImage;
+  }
 
   const colourMap = {
     Black: '#18181b',
     White: '#f8fafc',
-    Red: '#ef4444',
-    Blue: '#3b82f6',
-    Green: '#22c55e',
+    Red: '#dc2626',
+    Blue: '#2563eb',
+    Green: '#16a34a',
     Yellow: '#eab308',
-    Orange: '#f97316',
+    Orange: '#ea580c',
     Pink: '#ec4899',
-    Purple: '#a855f7',
+    Purple: '#9333ea',
     Maroon: '#7A1F3D',
     Navy: '#1e3a8a',
     Grey: '#64748b',
     Brown: '#78350f',
     Beige: '#f5f5dc',
     Cream: '#fffdd0',
-    Teal: '#14b8a6',
-    Mustard: '#C65D3B',
     Olive: '#65a30d',
-    'Sky Blue': '#0ea5e9',
-    Wine: '#7A1F3D',
+    Teal: '#0d9488',
+    Mustard: '#d97706',
+    Wine: '#701a75',
+    'Sky Blue': '#0284c7',
   };
 
   const garmentColor = colourMap[selectedColour] || '#18181b';
-
-  const categories = ['All', ...Array.from(new Set(PREDEFINED_DESIGNS.map((d) => d.category)))];
-
-  const filteredDesigns = selectedCategory === 'All'
-    ? PREDEFINED_DESIGNS
-    : PREDEFINED_DESIGNS.filter((d) => d.category === selectedCategory);
 
   const activeViewLayers = layers.filter((l) => (l.view || 'front') === activeView);
   const selectedLayer = layers.find((l) => l.id === selectedLayerId);
@@ -750,6 +774,10 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
         activeCustomizationId = savedDoc._id;
       }
 
+      const hasExactColourVariant = activeProduct?.variants?.some((v) => v.colour === selectedColour);
+      const fallbackColour = activeProduct?.variants?.[0]?.colour || selectedColour;
+      const colourToSubmit = hasExactColourVariant ? selectedColour : fallbackColour;
+
       const res = await fetch(`${API_BASE_URL}/api/v1/cart`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -757,7 +785,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
         body: JSON.stringify({
           product: activeProduct._id,
           size: selectedSize,
-          colour: selectedColour,
+          colour: colourToSubmit,
           quantity: 1,
           customized: true,
           customization: activeCustomizationId,
@@ -834,11 +862,31 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               >
                 BACK VIEW
               </button>
+              <button
+                className={`view-switch-btn ${activeView === 'left' ? 'active' : ''}`}
+                onClick={() => setActiveView('left')}
+              >
+                LEFT VIEW
+              </button>
+              <button
+                className={`view-switch-btn ${activeView === 'right' ? 'active' : ''}`}
+                onClick={() => setActiveView('right')}
+              >
+                RIGHT VIEW
+              </button>
             </div>
 
             <div className="garment-base garment-base-large" style={{ backgroundColor: garmentColor }}>
-              {primaryImage ? (
-                <img src={primaryImage} alt={activeProduct.name} className="product-image-overlay" />
+              {currentGarmentImage ? (
+                <img
+                  src={currentGarmentImage}
+                  alt={activeProduct.name}
+                  className="product-image-overlay"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = DEFAULT_PLACEHOLDER;
+                  }}
+                />
               ) : (
                 <div className="tshirt-silhouette-fallback">
                   <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" className="silhouette-svg">
@@ -921,6 +969,8 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               <div className="spec-layers-summary">
                 <div>Front View: <strong>{layers.filter((l) => (l.view || 'front') === 'front').length} layers</strong></div>
                 <div>Back View: <strong>{layers.filter((l) => l.view === 'back').length} layers</strong></div>
+                <div>Left View: <strong>{layers.filter((l) => l.view === 'left').length} layers</strong></div>
+                <div>Right View: <strong>{layers.filter((l) => l.view === 'right').length} layers</strong></div>
               </div>
             </div>
 
@@ -949,15 +999,6 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           <button className="studio-back-btn" onClick={onBack}>
             &larr; Catalog
           </button>
-          {selectedStudioProduct && (
-            <button
-              className="studio-back-btn"
-              onClick={() => setSelectedStudioProduct(null)}
-              style={{ marginLeft: '8px' }}
-            >
-              ✦ Change Piece
-            </button>
-          )}
           <div className="studio-brand-group">
             <span className="studio-badge">ANIVOM STUDIO</span>
             <span className="studio-tagline">Make something that's yours.</span>
@@ -1088,13 +1129,41 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                 </div>
               </div>
 
-              <button
-                className="studio-back-btn full-width"
-                onClick={() => setSelectedStudioProduct(null)}
-                style={{ marginTop: '16px' }}
-              >
-                ✦ Change Piece
-              </button>
+              <div className="control-group" style={{ marginTop: '20px' }}>
+                <label className="panel-sublabel">PRODUCTS</label>
+                <div className="studio-product-picker-grid">
+                  {productsList.map((prod) => {
+                    const isSelected = activeProduct && (activeProduct._id === prod._id || activeProduct.id === prod.id)
+                    const thumbImg = prod.images && prod.images.length > 0 ? prod.images[0] : null
+                    return (
+                      <button
+                        key={prod._id || prod.id}
+                        className={`studio-product-select-card ${isSelected ? 'active' : ''}`}
+                        onClick={() => setSelectedStudioProduct(prod)}
+                      >
+                        {thumbImg ? (
+                          <img
+                            src={thumbImg}
+                            alt={prod.name}
+                            className="studio-select-thumb"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = DEFAULT_PLACEHOLDER;
+                            }}
+                          />
+                        ) : (
+                          <div className="studio-select-no-img">ANIVOM</div>
+                        )}
+                        <div className="studio-select-info">
+                          <span className="studio-select-name">{prod.name}</span>
+                          <span className="studio-select-price">&#8377;{prod.basePrice}</span>
+                        </div>
+                        {isSelected && <span className="studio-select-badge">ACTIVE</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           )}
 
@@ -1343,106 +1412,87 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             </div>
           )}
 
-          {activeToolTab === 'artwork' && (() => {
-            const categories = ['All', ...Array.from(new Set(libraryDesigns.map((d) => d.category)))];
-            const filteredDesigns = libraryDesigns.filter(
-              (d) => selectedCategory === 'All' || d.category === selectedCategory
-            );
-
-            return (
-              <div className="drawer-content">
-                <div className="panel-section-header">
-                  <h3>ANIVOM Artwork Collections</h3>
-                </div>
-
-                <div className="category-filter-bar">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
-                      onClick={() => setSelectedCategory(cat)}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="designs-grid">
-                  {filteredDesigns.map((d) => (
-                    <div
-                      key={d.id}
-                      className="design-card"
-                      onClick={() => handleAddDesignLayer(d)}
-                      title={`Add ${d.name}`}
-                    >
-                      <div
-                        className="design-card-preview"
-                        dangerouslySetInnerHTML={{ __html: d.svg }}
-                      />
-                      <span className="design-card-name">{d.name}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {selectedLayer && selectedLayer.type === 'predefined_design' && (
-                  <div className="design-editor-controls">
-                    <div className="editor-title-bar">
-                      <span className="editor-title">Edit Artwork Layer</span>
-                      <button
-                        className="delete-layer-btn"
-                        onClick={() => handleDeleteLayer(selectedLayer.id)}
-                      >
-                        Delete ✕
-                      </button>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Color</label>
-                      <input
-                        type="color"
-                        className="color-input"
-                        value={selectedLayer.design.color || '#FFFDF8'}
-                        onChange={(e) => updateSelectedLayerDesignColor(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
-                      <input
-                        type="range"
-                        min="0.5"
-                        max="3"
-                        step="0.1"
-                        className="range-input"
-                        value={selectedLayer.scale ? selectedLayer.scale.x : 1}
-                        onChange={(e) =>
-                          updateSelectedLayerTransform('scale', {
-                            x: parseFloat(e.target.value),
-                            y: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label>Rotation ({selectedLayer.rotation || 0}°)</label>
-                      <input
-                        type="range"
-                        min="-180"
-                        max="180"
-                        step="5"
-                        className="range-input"
-                        value={selectedLayer.rotation || 0}
-                        onChange={(e) =>
-                          updateSelectedLayerTransform('rotation', parseInt(e.target.value, 10))
-                        }
-                      />
-                    </div>
-                  </div>
-                )}
+          {activeToolTab === 'artwork' && (
+            <div className="drawer-content">
+              <div className="panel-section-header">
+                <h3>ANIVOM Artwork Collections</h3>
               </div>
-            );
-          })()}
+
+              <div className="designs-grid">
+                {libraryDesigns.map((d) => (
+                  <div
+                    key={d.id}
+                    className="design-card"
+                    onClick={() => handleAddDesignLayer(d)}
+                    title={`Add ${d.name}`}
+                  >
+                    <div
+                      className="design-card-preview"
+                      dangerouslySetInnerHTML={{ __html: d.svg }}
+                    />
+                    <span className="design-card-name">{d.name}</span>
+                  </div>
+                ))}
+              </div>
+
+              {selectedLayer && selectedLayer.type === 'predefined_design' && (
+                <div className="design-editor-controls">
+                  <div className="editor-title-bar">
+                    <span className="editor-title">Edit Artwork Layer</span>
+                    <button
+                      className="delete-layer-btn"
+                      onClick={() => handleDeleteLayer(selectedLayer.id)}
+                    >
+                      Delete ✕
+                    </button>
+                  </div>
+
+                  <div className="control-group">
+                    <label>Color</label>
+                    <input
+                      type="color"
+                      className="color-input"
+                      value={selectedLayer.design.color || '#FFFDF8'}
+                      onChange={(e) => updateSelectedLayerDesignColor(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="control-group">
+                    <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="3"
+                      step="0.1"
+                      className="range-input"
+                      value={selectedLayer.scale ? selectedLayer.scale.x : 1}
+                      onChange={(e) =>
+                        updateSelectedLayerTransform('scale', {
+                          x: parseFloat(e.target.value),
+                          y: parseFloat(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="control-group">
+                    <label>Rotation ({selectedLayer.rotation || 0}°)</label>
+                    <input
+                      type="range"
+                      min="-180"
+                      max="180"
+                      step="5"
+                      className="range-input"
+                      value={selectedLayer.rotation || 0}
+                      onChange={(e) =>
+                        updateSelectedLayerTransform('rotation', parseInt(e.target.value, 10))
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {activeToolTab === 'layers' && (
             <div className="drawer-content">
@@ -1515,13 +1565,25 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                 className={`stage-view-btn ${activeView === 'front' ? 'active' : ''}`}
                 onClick={() => setActiveView('front')}
               >
-                FRONT VIEW
+                FRONT
               </button>
               <button
                 className={`stage-view-btn ${activeView === 'back' ? 'active' : ''}`}
                 onClick={() => setActiveView('back')}
               >
-                BACK VIEW
+                BACK
+              </button>
+              <button
+                className={`stage-view-btn ${activeView === 'left' ? 'active' : ''}`}
+                onClick={() => setActiveView('left')}
+              >
+                LEFT
+              </button>
+              <button
+                className={`stage-view-btn ${activeView === 'right' ? 'active' : ''}`}
+                onClick={() => setActiveView('right')}
+              >
+                RIGHT
               </button>
             </div>
             <span className="stage-active-badge">Editing {activeView.toUpperCase()} View</span>
@@ -1530,8 +1592,16 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           <div className="studio-preview-section">
             <div className="studio-canvas-container">
               <div className="garment-base" style={{ backgroundColor: garmentColor }}>
-                {primaryImage ? (
-                  <img src={primaryImage} alt={activeProduct.name} className="product-image-overlay" />
+                {currentGarmentImage ? (
+                  <img
+                    src={currentGarmentImage}
+                    alt={activeProduct.name}
+                    className="product-image-overlay"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = DEFAULT_PLACEHOLDER;
+                    }}
+                  />
                 ) : (
                   <div className="tshirt-silhouette-fallback">
                     <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" className="silhouette-svg">

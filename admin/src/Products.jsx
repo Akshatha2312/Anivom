@@ -65,7 +65,7 @@ const Products = () => {
           setDbCategories(data.data.categories.map((c) => c.name));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const predefinedCategories = ['All', 'Oversized', 'Minimal', 'Graphic', 'Regular Fit', 'Custom'];

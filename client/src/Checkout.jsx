@@ -669,7 +669,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
             {paymentStatus === 'OPENING_GATEWAY' && 'Opening Gateway...'}
             {paymentStatus === 'VERIFYING' && 'Verifying Payment...'}
             {(paymentStatus === 'IDLE' || paymentStatus === 'FAILED') &&
-              `Pay ₹${Math.max(0, summary.subtotal - (appliedCoupon ? appliedCoupon.discountAmount : 0))} Securely 🔒`}
+              `Pay ₹${Math.max(0, summary.subtotal - (appliedCoupon ? appliedCoupon.discountAmount : 0))} Securely`}
           </button>
 
           <button className="anivom-btn-return-bag" disabled={isProcessing} onClick={onReturnToCart}>

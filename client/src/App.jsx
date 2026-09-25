@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import Studio from './Studio'
 import MyCreations from './MyCreations'
+import Wishlist from './Wishlist'
 import Cart from './Cart'
 import Catalog from './Catalog'
 import Checkout from './Checkout'
@@ -207,9 +208,16 @@ function App() {
     }
   }
 
-  const openStudio = (product) => {
+  const openStudio = (product, options = {}) => {
     setSelectedProduct(product)
-    setInitialCustomization(null)
+    if (options.initialColor || options.initialSize) {
+      setInitialCustomization({
+        colour: options.initialColor,
+        size: options.initialSize,
+      })
+    } else {
+      setInitialCustomization(null)
+    }
     setView('studio')
   }
 
@@ -389,11 +397,21 @@ function App() {
                     <button
                       className="anivom-menu-item"
                       onClick={() => {
+                        setView('wishlist')
+                        setAccountDropdownOpen(false)
+                      }}
+                    >
+                      <span style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle' }}>❤️</span>
+                      My Wishlist
+                    </button>
+                    <button
+                      className="anivom-menu-item"
+                      onClick={() => {
                         openMyCreations()
                         setAccountDropdownOpen(false)
                       }}
                     >
-                      🎨 My Creations
+                      My Creations
                     </button>
                     <div className="anivom-menu-divider" />
                     <button
@@ -451,6 +469,9 @@ function App() {
               </button>
               <button onClick={() => { openOrders(null); setMobileMenuOpen(false); }} className="anivom-mobile-link">
                 My Orders
+              </button>
+              <button onClick={() => { setView('wishlist'); setMobileMenuOpen(false); }} className="anivom-mobile-link">
+                My Wishlist
               </button>
               <button onClick={() => { openMyCreations(); setMobileMenuOpen(false); }} className="anivom-mobile-link">
                 My Creations
@@ -515,6 +536,7 @@ function App() {
             onBackToCatalog={() => setView('catalog')}
             onNavigateToCreations={openMyCreations}
             onNavigateToOrders={openOrders}
+            onNavigateToWishlist={() => setView('wishlist')}
             onLoginRedirect={() => { setView('auth'); setMode('login'); }}
             onLogout={handleLogout}
           />
@@ -558,6 +580,20 @@ function App() {
             onBackToCatalog={() => setView('catalog')}
             onLoginRedirect={() => { setView('auth'); setMode('login'); }}
             onRetry={fetchCreations}
+          />
+        )}
+
+        {view === 'wishlist' && (
+          <Wishlist
+            user={user}
+            onBackToCatalog={() => setView('catalog')}
+            onLoginRedirect={() => { setView('auth'); setMode('login'); }}
+            onSelectProduct={(product) => {
+              setSelectedProduct(product)
+              setView('product')
+            }}
+            onCartUpdated={handleCartItemAdded}
+            openStudio={openStudio}
           />
         )}
 
