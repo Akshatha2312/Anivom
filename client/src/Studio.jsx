@@ -183,6 +183,20 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     }
   }, [initialCustomization]);
 
+  const getStudioGarmentFrontImage = (prod) => {
+    if (!prod) return null;
+    if (prod.garmentImages?.front) return prod.garmentImages.front;
+    if (prod.garmentImages?.byColour) {
+      const byCol = prod.garmentImages.byColour;
+      const colMapObj = byCol instanceof Map ? Object.fromEntries(byCol) : byCol;
+      const firstCol = Object.keys(colMapObj || {})[0];
+      if (firstCol && colMapObj[firstCol]?.front) {
+        return colMapObj[firstCol].front;
+      }
+    }
+    return prod.images && prod.images.length > 0 ? prod.images[0] : null;
+  };
+
   const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>";
 
   if (!activeProduct) {
@@ -324,20 +338,6 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
       </div>
     );
   }
-
-  const getStudioGarmentFrontImage = (prod) => {
-    if (!prod) return null;
-    if (prod.garmentImages?.front) return prod.garmentImages.front;
-    if (prod.garmentImages?.byColour) {
-      const byCol = prod.garmentImages.byColour;
-      const colMapObj = byCol instanceof Map ? Object.fromEntries(byCol) : byCol;
-      const firstCol = Object.keys(colMapObj || {})[0];
-      if (firstCol && colMapObj[firstCol]?.front) {
-        return colMapObj[firstCol].front;
-      }
-    }
-    return prod.images && prod.images.length > 0 ? prod.images[0] : null;
-  };
 
   const getGarmentViewImage = (view) => {
     if (selectedColour && activeProduct?.garmentImages?.byColour) {
