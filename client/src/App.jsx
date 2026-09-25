@@ -32,6 +32,7 @@ const PATH_MAP = {
   '/': 'home',
   '/home': 'home',
   '/catalog': 'catalog',
+  '/products': 'catalog',
   '/shop': 'catalog',
   '/studio': 'studio',
   '/cart': 'cart',
@@ -82,8 +83,15 @@ function App() {
 
   const setView = (nextView, options = {}) => {
     setViewState(nextView)
-    const targetPath = VIEW_MAP[nextView] || '/'
-    if (window.location.pathname !== targetPath && !options?.skipPush) {
+    let targetPath = VIEW_MAP[nextView] || '/'
+    if (nextView === 'product') {
+      const pId = options?.productId || options?.id || selectedProduct?._id || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('id') : null)
+      if (pId) {
+        targetPath = `/product?id=${pId}`
+      }
+    }
+    const currentPathWithSearch = typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : ''
+    if (currentPathWithSearch !== targetPath && !options?.skipPush) {
       window.history.pushState({}, '', targetPath)
     }
     if (!options?.skipScroll) {
@@ -326,6 +334,17 @@ function App() {
   useEffect(() => {
     fetchCartCount()
   }, [user])
+
+  useEffect(() => {
+    if (view === 'creations' && user) {
+      fetchCreations()
+    }
+  }, [view, user])
+
+  const handleSelectProduct = (product) => {
+    setSelectedProduct(product)
+    setView('product', { productId: product?._id })
+  }
 
   const handleLogout = async () => {
     try {
@@ -655,10 +674,7 @@ function App() {
             openStudio={openStudio}
             onNavigateToStudio={openStudio}
             onCartUpdated={handleCartItemAdded}
-            onSelectProduct={(product) => {
-              setSelectedProduct(product)
-              setView('product')
-            }}
+            onSelectProduct={handleSelectProduct}
             onNavigateToCatalog={() => setView('catalog')}
           />
         )}
@@ -700,15 +716,12 @@ function App() {
           <ProductDetails
             user={user}
             product={selectedProduct}
-            productId={selectedProduct ? selectedProduct._id : null}
+            productId={selectedProduct ? selectedProduct._id : (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('id') : null)}
             initialProduct={selectedProduct}
             openStudio={openStudio}
             onCartUpdated={handleCartItemAdded}
             onBackToCatalog={() => setView('catalog')}
-            onSelectProduct={(product) => {
-              setSelectedProduct(product)
-              setView('product')
-            }}
+            onSelectProduct={handleSelectProduct}
           />
         )}
 
@@ -731,10 +744,7 @@ function App() {
             user={user}
             onBackToCatalog={() => setView('catalog')}
             onLoginRedirect={() => { setView('auth'); setMode('login'); }}
-            onSelectProduct={(product) => {
-              setSelectedProduct(product)
-              setView('product')
-            }}
+            onSelectProduct={handleSelectProduct}
             onCartUpdated={handleCartItemAdded}
             openStudio={openStudio}
           />
@@ -747,10 +757,7 @@ function App() {
             onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
             onProceedToCheckout={() => setView('checkout')}
             onCartUpdated={fetchCartCount}
-            onSelectProduct={(product) => {
-              setSelectedProduct(product)
-              setView('product')
-            }}
+            onSelectProduct={handleSelectProduct}
           />
         )}
 
@@ -769,10 +776,7 @@ function App() {
             user={user}
             openStudio={openStudio}
             onCartUpdated={handleCartItemAdded}
-            onSelectProduct={(product) => {
-              setSelectedProduct(product)
-              setView('product')
-            }}
+            onSelectProduct={handleSelectProduct}
             onAuthSuccess={(userData) => {
               setUser(userData)
               fetchCartCount()

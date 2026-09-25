@@ -172,8 +172,8 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.')
       return
     }
 
@@ -363,7 +363,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="anivom-auth-input"
-                  placeholder="At least 6 characters"
+                  placeholder="At least 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

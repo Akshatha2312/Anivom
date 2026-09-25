@@ -351,6 +351,11 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     return activeProduct?.garmentImages?.[view] || null;
   };
 
+  const isGarmentViewAvailable = (viewKey) => {
+    if (viewKey === 'front' || viewKey === 'back') return true;
+    return !!getGarmentViewImage(viewKey);
+  };
+
   const hasColourGarmentImages = !!(selectedColour && activeProduct?.garmentImages?.byColour);
 
   const frontImage =
@@ -889,13 +894,25 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               </button>
               <button
                 className={`view-switch-btn ${activeView === 'left' ? 'active' : ''}`}
-                onClick={() => setActiveView('left')}
+                onClick={() => {
+                  if (!isGarmentViewAvailable('left')) {
+                    setViewUnavailableModal('LEFT');
+                  } else {
+                    setActiveView('left');
+                  }
+                }}
               >
                 LEFT VIEW
               </button>
               <button
                 className={`view-switch-btn ${activeView === 'right' ? 'active' : ''}`}
-                onClick={() => setActiveView('right')}
+                onClick={() => {
+                  if (!isGarmentViewAvailable('right')) {
+                    setViewUnavailableModal('RIGHT');
+                  } else {
+                    setActiveView('right');
+                  }
+                }}
               >
                 RIGHT VIEW
               </button>
@@ -1601,7 +1618,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               <button
                 className={`stage-view-btn ${activeView === 'left' ? 'active' : ''}`}
                 onClick={() => {
-                  if (activeProduct && activeProduct.name === 'Sleeveless') {
+                  if (!isGarmentViewAvailable('left')) {
                     setViewUnavailableModal('LEFT');
                   } else {
                     setActiveView('left');
@@ -1613,7 +1630,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               <button
                 className={`stage-view-btn ${activeView === 'right' ? 'active' : ''}`}
                 onClick={() => {
-                  if (activeProduct && activeProduct.name === 'Sleeveless') {
+                  if (!isGarmentViewAvailable('right')) {
                     setViewUnavailableModal('RIGHT');
                   } else {
                     setActiveView('right');
@@ -1763,7 +1780,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             <div className="studio-view-unavailable-badge">✦ VIEW NOTICE</div>
             <h3 className="studio-view-unavailable-title">{viewUnavailableModal} VIEW UNAVAILABLE</h3>
             <p className="studio-view-unavailable-text">
-              This Sleeveless garment currently has Front and Back views only.
+              This garment currently has Front and Back views only.
             </p>
             <button className="studio-view-unavailable-btn" onClick={() => setViewUnavailableModal(null)}>
               UNDERSTOOD ✦
