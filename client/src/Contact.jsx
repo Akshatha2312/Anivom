@@ -73,7 +73,7 @@ function Contact({ user }) {
 
   return (
     <div className="info-page-container">
-      <div className="info-page-inner">
+      <div className="info-page-inner reveal">
         <span className="info-header-badge">CLIENT CARE</span>
         <h1 className="info-page-title">CONTACT ATELIER SUPPORT</h1>
         <p className="info-page-subtitle">
@@ -83,7 +83,7 @@ function Contact({ user }) {
         <div className="info-hero-divider" />
 
         <div className="contact-layout">
-          <div className="contact-info-panel">
+          <div className="contact-info-panel reveal">
             <div className="contact-info-block">
               <h4>CUSTOMER SUPPORT EMAIL</h4>
               <p>support@anivom.com</p>
@@ -109,7 +109,7 @@ function Contact({ user }) {
             </div>
           </div>
 
-          <div className="contact-form-panel">
+          <div className="contact-form-panel reveal" style={{ '--reveal-delay': '100ms' }}>
             {submitted && (
               <div className="contact-success-banner">
                 Thank you for reaching out to ANIVOM Atelier. Your message has been received by ANIVOM Support and our team will get back to you shortly.

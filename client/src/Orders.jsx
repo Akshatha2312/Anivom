@@ -702,7 +702,7 @@ function Orders({
 
   return (
     <div className="anivom-orders-container">
-      <div className="anivom-orders-header">
+      <div className="anivom-orders-header reveal">
         <div>
           <h1 className="anivom-orders-title">MY ORDERS</h1>
           <p className="anivom-orders-subtitle">
@@ -722,14 +722,18 @@ function Orders({
       </div>
 
       <div className="anivom-orders-list">
-        {orders.map((order) => {
+        {orders.map((order, idx) => {
           const itemCount = order.items ? order.items.reduce((acc, i) => acc + i.quantity, 0) : 0
           const hasCustomizedItem = order.items && order.items.some((i) => i.customized)
           const canCancel = ['PLACED', 'CONFIRMED', 'PROCESSING'].includes(order.orderStatus)
           const canReturn = order.orderStatus === 'DELIVERED' && isOrderWithinReturnWindow(order)
 
           return (
-            <div key={order._id} className="anivom-order-card">
+            <div
+              key={order._id}
+              className="anivom-order-card reveal"
+              style={{ '--reveal-delay': `${(idx % 5) * 60}ms` }}
+            >
               <div className="anivom-order-card-header">
                 <div>
                   <div className="anivom-order-date">{formatDate(order.createdAt)}</div>

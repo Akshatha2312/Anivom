@@ -3,7 +3,7 @@ import './Catalog.css'
 import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
 
-function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
+function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
   // 1. Get colours available for this specific product (from variants with stock > 0)
   const availableColours = product && product.variants && product.variants.length > 0
     ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
@@ -153,7 +153,7 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
   }
 
   return (
-    <div className="anivom-fashion-card">
+    <div className="anivom-fashion-card reveal" style={{ '--reveal-delay': `${(index % 6) * 50}ms` }}>
       <div className="anivom-card-img-container" onClick={handleCardClick}>
         {primaryImage ? (
           <>
@@ -499,7 +499,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   return (
     <div className="anivom-catalog-root">
       <div className="anivom-hero-banner">
-        <div className="anivom-hero-content-box">
+        <div className="anivom-hero-content-box reveal">
           <span className="anivom-hero-kicker">CURATED APPAREL</span>
           <h1 className="anivom-brand-title">THE ANIVOM COLLECTION</h1>
           <p className="anivom-brand-tagline">Find your fit. Find your colour. Make it yours.</p>
@@ -685,9 +685,10 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
         ) : (
           <>
             <div className="anivom-product-grid">
-              {products.map((product) => (
+              {products.map((product, idx) => (
                 <CatalogProductCard
                   key={product._id}
+                  index={idx}
                   product={product}
                   user={user}
                   openStudio={openStudio}

@@ -17,6 +17,7 @@ import Faq from './Faq'
 import Shipping from './Shipping'
 import Returns from './Returns'
 import Contact from './Contact'
+import Referrals from './Referrals'
 import { API_BASE_URL } from './config'
 
 const TICKER_MESSAGES = [
@@ -40,6 +41,8 @@ const PATH_MAP = {
   '/orders': 'orders',
   '/creations': 'creations',
   '/wishlist': 'wishlist',
+  '/referrals': 'referrals',
+  '/referral': 'referrals',
   '/product': 'product',
   '/faq': 'faq',
   '/shipping': 'shipping',
@@ -57,6 +60,7 @@ const VIEW_MAP = {
   orders: '/orders',
   creations: '/creations',
   wishlist: '/wishlist',
+  referrals: '/referrals',
   product: '/product',
   faq: '/faq',
   shipping: '/shipping',
@@ -97,6 +101,67 @@ function App() {
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search)
+      const refParam = searchParams.get('ref')
+      if (refParam) {
+        localStorage.setItem('anivom_ref_code', refParam.trim().toUpperCase())
+      }
+      const path = window.location.pathname.toLowerCase()
+      if (path === '/register') {
+        setViewState('auth')
+        setMode('register')
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-revealed'))
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px -40px 0px',
+        threshold: 0.05,
+      }
+    )
+
+    const observeElements = () => {
+      const elements = document.querySelectorAll('.reveal:not(.is-revealed)')
+      elements.forEach((el) => observer.observe(el))
+    }
+
+    observeElements()
+
+    const mutationObserver = new MutationObserver(() => {
+      observeElements()
+    })
+
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+
+    return () => {
+      observer.disconnect()
+      mutationObserver.disconnect()
+    }
+  }, [viewState])
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [initialCustomization, setInitialCustomization] = useState(null)
@@ -605,8 +670,18 @@ function App() {
             onNavigateToCreations={openMyCreations}
             onNavigateToOrders={openOrders}
             onNavigateToWishlist={() => setView('wishlist')}
+            onNavigateToReferrals={() => setView('referrals')}
             onLoginRedirect={() => { setView('auth'); setMode('login'); }}
             onLogout={handleLogout}
+          />
+        )}
+
+        {view === 'referrals' && (
+          <Referrals
+            user={user}
+            onBackToAccount={() => setView('account')}
+            onBackToCatalog={() => setView('catalog')}
+            onLoginRedirect={() => { setView('auth'); setMode('login'); }}
           />
         )}
 
@@ -747,6 +822,7 @@ function App() {
               <li className="anivom-footer-link" onClick={() => openStudio(null)}>ANIVOM Studio</li>
               <li className="anivom-footer-link" onClick={() => setView('cart')}>Bag ({cartCount})</li>
               {user && <li className="anivom-footer-link" onClick={openMyCreations}>My Creations</li>}
+              {user && <li className="anivom-footer-link" onClick={() => setView('referrals')}>Referral Atelier</li>}
             </ul>
           </div>
 

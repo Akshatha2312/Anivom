@@ -96,7 +96,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
   if (!user) {
     return (
       <div className="anivom-wishlist-container">
-        <div className="anivom-wishlist-empty-box">
+        <div className="anivom-wishlist-empty-box reveal">
           <h2 className="anivom-wishlist-empty-head">SIGN IN TO VIEW YOUR WISHLIST</h2>
           <p className="anivom-wishlist-empty-sub">
             Please log in with your ANIVOM customer account to view your saved products.
@@ -117,7 +117,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
   if (loading) {
     return (
       <div className="anivom-wishlist-container">
-        <div className="anivom-wishlist-empty-box">
+        <div className="anivom-wishlist-empty-box reveal">
           <p className="anivom-wishlist-loading-text">Loading your saved wishlist items...</p>
         </div>
       </div>
@@ -127,7 +127,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
   if (error) {
     return (
       <div className="anivom-wishlist-container">
-        <div className="anivom-wishlist-empty-box error">
+        <div className="anivom-wishlist-empty-box error reveal">
           <h2 className="anivom-wishlist-empty-head">UNABLE TO LOAD WISHLIST</h2>
           <p className="anivom-wishlist-empty-sub">{error}</p>
           <button className="anivom-btn-wishlist-primary" onClick={fetchWishlist}>
@@ -140,7 +140,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
 
   return (
     <div className="anivom-wishlist-container">
-      <header className="anivom-wishlist-header">
+      <header className="anivom-wishlist-header reveal">
         <div>
           <h1 className="anivom-wishlist-title">
             MY WISHLIST
@@ -154,7 +154,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
       </header>
 
       {wishlistItems.length === 0 ? (
-        <div className="anivom-wishlist-empty-box">
+        <div className="anivom-wishlist-empty-box reveal">
           <h2 className="anivom-wishlist-empty-head">YOUR WISHLIST IS EMPTY</h2>
           <p className="anivom-wishlist-empty-sub">
             Save your favorite T-shirts and bespoke garments by clicking the heart icon while browsing our collection.
@@ -167,12 +167,13 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
         </div>
       ) : (
         <div className="anivom-wishlist-grid">
-          {wishlistItems.map((product) => {
+          {wishlistItems.map((product, idx) => {
             const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
             return (
               <div
                 key={product._id}
-                className="anivom-wishlist-card"
+                className="anivom-wishlist-card reveal"
+                style={{ '--reveal-delay': `${(idx % 4) * 60}ms` }}
                 onClick={() => {
                   if (onSelectProduct) {
                     onSelectProduct(product)

@@ -73,7 +73,7 @@ function Faq({ onNavigateToContact, onNavigateToCatalog }) {
 
   return (
     <div className="info-page-container">
-      <div className="info-page-inner">
+      <div className="info-page-inner reveal">
         <span className="info-header-badge">CLIENT CARE</span>
         <h1 className="info-page-title">FREQUENTLY ASKED QUESTIONS</h1>
         <p className="info-page-subtitle">
@@ -83,10 +83,14 @@ function Faq({ onNavigateToContact, onNavigateToCatalog }) {
         <div className="info-hero-divider" />
 
         <div className="faq-accordion-list">
-          {FAQ_DATA.map((item) => {
+          {FAQ_DATA.map((item, idx) => {
             const isOpen = openId === item.id
             return (
-              <div key={item.id} className={`faq-item ${isOpen ? 'active' : ''}`}>
+              <div
+                key={item.id}
+                className={`faq-item reveal ${isOpen ? 'active' : ''}`}
+                style={{ '--reveal-delay': `${(idx % 10) * 40}ms` }}
+              >
                 <button className="faq-question-btn" onClick={() => toggleItem(item.id)}>
                   <span>{item.question}</span>
                   <span className="faq-toggle-icon">{isOpen ? '−' : '+'}</span>
@@ -97,7 +101,7 @@ function Faq({ onNavigateToContact, onNavigateToCatalog }) {
           })}
         </div>
 
-        <div className="info-banner-box">
+        <div className="info-banner-box reveal">
           <div>
             <h3 className="info-banner-title">Still Have Questions?</h3>
             <p className="info-banner-desc">

@@ -4,7 +4,7 @@ import './InfoPages.css'
 function Shipping({ onNavigateToOrders, onNavigateToContact }) {
   return (
     <div className="info-page-container">
-      <div className="info-page-inner">
+      <div className="info-page-inner reveal">
         <span className="info-header-badge">CLIENT CARE</span>
         <h1 className="info-page-title">SHIPPING & DELIVERY</h1>
         <p className="info-page-subtitle">
@@ -14,48 +14,22 @@ function Shipping({ onNavigateToOrders, onNavigateToContact }) {
         <div className="info-hero-divider" />
 
         <div className="info-cards-grid">
-          <div className="info-card">
-            <span className="info-card-num">01 / PAYMENT & PROCESSING</span>
-            <h3 className="info-card-title">Order Processing</h3>
-            <p className="info-card-body">
-              Orders are placed into fulfillment processing immediately following successful payment verification. You will receive an order confirmation status in your account dashboard.
-            </p>
-          </div>
-
-          <div className="info-card">
-            <span className="info-card-num">02 / ESTIMATED TIMELINES</span>
-            <h3 className="info-card-title">Delivery Duration</h3>
-            <p className="info-card-body">
-              Standard domestic delivery generally takes 4 to 8 business days. Estimated delivery windows reflect general logistics timelines rather than guaranteed dates.
-            </p>
-          </div>
-
-          <div className="info-card">
-            <span className="info-card-num">03 / BESPOKE CRAFTSMANSHIP</span>
-            <h3 className="info-card-title">Customized Products</h3>
-            <p className="info-card-body">
-              Garments created in ANIVOM Studio undergo high-definition digital prepress rendering, print curing, and quality inspection, requiring additional handling prior to dispatch.
-            </p>
-          </div>
-
-          <div className="info-card">
-            <span className="info-card-num">04 / SHIPMENT TRACKING</span>
-            <h3 className="info-card-title">Tracking Your Order</h3>
-            <p className="info-card-body">
-              Logistics tracking numbers are updated under your Account &gt; Orders history as soon as logistics partners scan your parcel for transit.
-            </p>
-          </div>
-
-          <div className="info-card">
-            <span className="info-card-num">05 / ADDRESS ACCURACY</span>
-            <h3 className="info-card-title">Shipping Address</h3>
-            <p className="info-card-body">
-              Please verify your full street address, landmark, postal pincode, and mobile phone number during checkout to ensure smooth delivery without carrier delays.
-            </p>
-          </div>
+          {[
+            { num: '01 / PAYMENT & PROCESSING', title: 'Order Processing', body: 'Orders are placed into fulfillment processing immediately following successful payment verification. You will receive an order confirmation status in your account dashboard.' },
+            { num: '02 / ESTIMATED TIMELINES', title: 'Delivery Duration', body: 'Standard domestic delivery generally takes 4 to 8 business days. Estimated delivery windows reflect general logistics timelines rather than guaranteed dates.' },
+            { num: '03 / BESPOKE CRAFTSMANSHIP', title: 'Customized Products', body: 'Garments created in ANIVOM Studio undergo high-definition digital prepress rendering, print curing, and quality inspection, requiring additional handling prior to dispatch.' },
+            { num: '04 / SHIPMENT TRACKING', title: 'Tracking Your Order', body: 'Logistics tracking numbers are updated under your Account > Orders history as soon as logistics partners scan your parcel for transit.' },
+            { num: '05 / ADDRESS ACCURACY', title: 'Shipping Address', body: 'Please verify your full street address, landmark, postal pincode, and mobile phone number during checkout to ensure smooth delivery without carrier delays.' },
+          ].map((item, idx) => (
+            <div key={item.num} className="info-card reveal" style={{ '--reveal-delay': `${(idx % 5) * 60}ms` }}>
+              <span className="info-card-num">{item.num}</span>
+              <h3 className="info-card-title">{item.title}</h3>
+              <p className="info-card-body">{item.body}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="info-banner-box">
+        <div className="info-banner-box reveal">
           <div>
             <h3 className="info-banner-title">Need Help Tracking an Existing Order?</h3>
             <p className="info-banner-desc">

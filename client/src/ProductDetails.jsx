@@ -240,7 +240,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
         </nav>
 
         <div className="anivom-pdp-grid">
-          <div className="anivom-pdp-gallery-col">
+          <div className="anivom-pdp-gallery-col reveal">
             <div className="anivom-pdp-main-frame">
               {images.length > 0 ? (
                 <img
@@ -290,7 +290,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
             )}
           </div>
 
-          <div className="anivom-pdp-details-col">
+          <div className="anivom-pdp-details-col reveal" style={{ '--reveal-delay': '100ms' }}>
             <span className="anivom-pdp-cat-badge">{product.category || 'Collection'}</span>
             <h1 className="anivom-pdp-title">{product.name}</h1>
             <div className="anivom-pdp-price">&#8377;{product.basePrice}</div>

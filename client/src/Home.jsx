@@ -61,7 +61,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
     <div className="anivom-home-root">
       <section className="anivom-hero-editorial">
         <div className="anivom-hero-grid">
-          <div className="anivom-hero-text-col">
+          <div className="anivom-hero-text-col reveal">
             <span className="anivom-hero-kicker">
               {activeHeroBanner?.title || 'AUTUMN / WINTER COUTURE'}
             </span>
@@ -98,7 +98,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
             </div>
           </div>
 
-          <div className="anivom-hero-visual-col">
+          <div className="anivom-hero-visual-col reveal" style={{ '--reveal-delay': '120ms' }}>
             <div className="anivom-hero-img-frame">
               <img
                 src={
@@ -115,7 +115,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
       </section>
 
       <section className="anivom-intro-section">
-        <div className="anivom-intro-container">
+        <div className="anivom-intro-container reveal">
           <h2 className="anivom-intro-title">REDEFINING CUSTOM STREETWEAR COUTURE</h2>
           <p className="anivom-intro-text">
             ANIVOM merges contemporary oversized fits with custom digital design. Choose from our signature ready-to-wear drops or personalize every layer with your custom graphics, artwork, and text.
@@ -127,16 +127,17 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
       </section>
 
       <section className="anivom-styles-section">
-        <div className="anivom-section-header">
+        <div className="anivom-section-header reveal">
           <h2 className="anivom-section-title">SHOP BY STYLE</h2>
           <span className="anivom-section-sub">CURATED CATEGORIES & FITS</span>
         </div>
 
         <div className="anivom-styles-grid">
-          {stylesCategories.map((style) => (
+          {stylesCategories.map((style, idx) => (
             <div
               key={style.title}
-              className="anivom-style-tile"
+              className="anivom-style-tile reveal"
+              style={{ '--reveal-delay': `${(idx % 4) * 60}ms` }}
               onClick={() => {
                 if (style.cat === 'Custom') {
                   onNavigateToStudio(null)
@@ -157,30 +158,22 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
       </section>
 
       <section className="anivom-custom-banner">
-        <div className="anivom-custom-banner-content">
+        <div className="anivom-custom-banner-content reveal">
           <span className="anivom-custom-badge">ANIVOM STUDIO ENGINE</span>
           <h2 className="anivom-custom-heading">MAKE IT YOURS.</h2>
           <div className="anivom-custom-steps">
-            <div className="anivom-step">
-              <span className="anivom-step-num">01</span>
-              <h4>Select Apparel</h4>
-              <p>Choose your garment fit & shade</p>
-            </div>
-            <div className="anivom-step">
-              <span className="anivom-step-num">02</span>
-              <h4>Add Artwork</h4>
-              <p>Upload graphics or select vector art</p>
-            </div>
-            <div className="anivom-step">
-              <span className="anivom-step-num">03</span>
-              <h4>Position & Preview</h4>
-              <p>Scale, rotate, and align on canvas</p>
-            </div>
-            <div className="anivom-step">
-              <span className="anivom-step-num">04</span>
-              <h4>Wear It</h4>
-              <p>Tailored & printed to perfection</p>
-            </div>
+            {[
+              { num: '01', title: 'Select Apparel', desc: 'Choose your garment fit & shade' },
+              { num: '02', title: 'Add Artwork', desc: 'Upload graphics or select vector art' },
+              { num: '03', title: 'Position & Preview', desc: 'Scale, rotate, and align on canvas' },
+              { num: '04', title: 'Wear It', desc: 'Tailored & printed to perfection' },
+            ].map((step, idx) => (
+              <div key={step.num} className="anivom-step reveal" style={{ '--reveal-delay': `${(idx % 4) * 70}ms` }}>
+                <span className="anivom-step-num">{step.num}</span>
+                <h4>{step.title}</h4>
+                <p>{step.desc}</p>
+              </div>
+            ))}
           </div>
           <button className="anivom-btn-primary" onClick={() => onNavigateToStudio(null)}>
             Customize in Studio &rarr;
@@ -189,7 +182,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
       </section>
 
       <section className="anivom-statement-section">
-        <div className="anivom-statement-box">
+        <div className="anivom-statement-box reveal">
           <h2 className="anivom-statement-text">
             &ldquo;DON&rsquo;T JUST WEAR A T-SHIRT. MAKE IT YOURS.&rdquo;
           </h2>
@@ -197,7 +190,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
         </div>
       </section>
 
-      <section className="anivom-final-cta-section">
+      <section className="anivom-final-cta-section reveal">
         <h2 className="anivom-cta-title">READY TO WEAR IT YOUR WAY?</h2>
         <p className="anivom-cta-sub">Discover our latest collection or craft your own bespoke design in seconds.</p>
         <div className="anivom-hero-cta-group" style={{ justifyContent: 'center' }}>

@@ -18,6 +18,7 @@ const couponRoutes = require('./routes/couponRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const referralRoutes = require('./routes/referralRoutes');
 const helmet = require('helmet');
 
 const app = express();
@@ -90,6 +91,7 @@ app.get('/api/v1/health', (req, res) => {
 
 app.use('/api/v1/auth/login', authLimiter);
 app.use('/api/v1/auth/register', authLimiter);
+app.use('/api/v1/auth/google', authLimiter);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/customizations', customizationRoutes);
@@ -106,6 +108,7 @@ app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/banners', bannerRoutes);
 app.use('/api/v1/wishlist', wishlistRoutes);
 app.use('/api/v1/contact', contactLimiter, contactRoutes);
+app.use('/api/v1/referrals', referralRoutes);
 
 app.use(errorMiddleware);
 

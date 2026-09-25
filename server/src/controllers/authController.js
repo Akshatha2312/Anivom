@@ -1,10 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Referral = require('../models/Referral');
 
 const registerCustomer = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, referralCode, ref } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -30,6 +31,18 @@ const registerCustomer = async (req, res, next) => {
       });
     }
 
+    const cleanRefCode = (referralCode || ref || '').trim().toUpperCase();
+    let referrerUser = null;
+    if (cleanRefCode) {
+      referrerUser = await User.findOne({ referralCode: cleanRefCode });
+      if (!referrerUser) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Invalid or non-existent referral code',
+        });
+      }
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -39,6 +52,27 @@ const registerCustomer = async (req, res, next) => {
       password: hashedPassword,
       role: 'customer',
     });
+
+    if (referrerUser) {
+      if (referrerUser._id.equals(user._id)) {
+        await User.findByIdAndDelete(user._id);
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Self-referral is not allowed',
+        });
+      }
+      try {
+        await Referral.create({
+          referrer: referrerUser._id,
+          referred: user._id,
+          referralCode: cleanRefCode,
+          status: 'completed',
+          rewardStatus: 'pending',
+        });
+      } catch (refErr) {
+        // Safe fallback if referral record creation fails
+      }
+    }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -65,6 +99,7 @@ const registerCustomer = async (req, res, next) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          referralCode: user.referralCode,
           createdAt: user.createdAt,
         },
       },
@@ -103,6 +138,10 @@ const loginCustomer = async (req, res, next) => {
       });
     }
 
+    if (!user.referralCode) {
+      await user.save();
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -128,6 +167,7 @@ const loginCustomer = async (req, res, next) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          referralCode: user.referralCode,
           createdAt: user.createdAt,
         },
       },
@@ -160,6 +200,9 @@ const logoutCustomer = async (req, res, next) => {
 
 const getCurrentUser = async (req, res, next) => {
   try {
+    if (!req.user.referralCode) {
+      await req.user.save();
+    }
     res.status(200).json({
       status: 'success',
       data: {
@@ -168,6 +211,7 @@ const getCurrentUser = async (req, res, next) => {
           name: req.user.name,
           email: req.user.email,
           role: req.user.role,
+          referralCode: req.user.referralCode,
         },
       },
     });
@@ -228,11 +272,165 @@ const getAdminUsers = async (req, res, next) => {
   }
 };
 
+const googleAuth = async (req, res, next) => {
+  try {
+    const { credential, referralCode, ref } = req.body;
+
+    if (!credential || typeof credential !== 'string' || !credential.trim()) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Google credential is required',
+      });
+    }
+
+    const { OAuth2Client } = require('google-auth-library');
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    let payload;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential.trim(),
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch (err) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid Google ID token',
+      });
+    }
+
+    if (!payload || !payload.email || !payload.sub) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid Google account payload',
+      });
+    }
+
+    if (!payload.email_verified) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Google account email is not verified',
+      });
+    }
+
+    const googleSub = payload.sub;
+    const googleEmail = payload.email.trim().toLowerCase();
+    const googleName = (payload.name || googleEmail.split('@')[0]).trim();
+
+    let user = await User.findOne({
+      $or: [{ googleId: googleSub }, { email: googleEmail }],
+    });
+
+    if (user) {
+      if (user.googleId && user.googleId !== googleSub) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Account is associated with a different Google account',
+        });
+      }
+
+      if (!user.googleId) {
+        const existingGoogleUser = await User.findOne({ googleId: googleSub });
+        if (existingGoogleUser && !existingGoogleUser._id.equals(user._id)) {
+          return res.status(400).json({
+            status: 'fail',
+            message: 'Google identity is associated with another account',
+          });
+        }
+        user.googleId = googleSub;
+        await user.save();
+      }
+    } else {
+      const cleanRefCode = (referralCode || ref || '').trim().toUpperCase();
+      let referrerUser = null;
+
+      if (cleanRefCode) {
+        referrerUser = await User.findOne({ referralCode: cleanRefCode });
+        if (!referrerUser) {
+          return res.status(400).json({
+            status: 'fail',
+            message: 'Invalid or non-existent referral code',
+          });
+        }
+      }
+
+      const crypto = require('crypto');
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      user = await User.create({
+        name: googleName,
+        email: googleEmail,
+        password: hashedPassword,
+        googleId: googleSub,
+        role: 'customer',
+      });
+
+      if (referrerUser) {
+        if (referrerUser._id.equals(user._id)) {
+          await User.findByIdAndDelete(user._id);
+          return res.status(400).json({
+            status: 'fail',
+            message: 'Self-referral is not allowed',
+          });
+        }
+        try {
+          await Referral.create({
+            referrer: referrerUser._id,
+            referred: user._id,
+            referralCode: cleanRefCode,
+            status: 'completed',
+            rewardStatus: 'pending',
+          });
+        } catch (refErr) {
+          // safe fallback
+        }
+      }
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Google authentication successful',
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          referralCode: user.referralCode,
+          createdAt: user.createdAt,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerCustomer,
   loginCustomer,
   logoutCustomer,
   getCurrentUser,
   getAdminUsers,
+  googleAuth,
 };
 
