@@ -147,6 +147,19 @@ function Sizes() {
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredSizes.length / itemsPerPage) || 1;
+  const paginatedSizes = filteredSizes.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="admin-page-container">
       <div className="admin-page-header">
@@ -168,7 +181,7 @@ function Sizes() {
             type="text"
             placeholder="Search sizes..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
       </div>
@@ -184,45 +197,67 @@ function Sizes() {
           <button className="secondary-action-btn" onClick={openCreateModal}>Create Size</button>
         </div>
       ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>SIZE NAME</th>
-                <th>STATUS</th>
-                <th>CREATED AT</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSizes.map((s) => (
-                <tr key={s._id}>
-                  <td>
-                    <strong style={{ color: '#FFFDF8', fontSize: '1rem' }}>{s.name}</strong>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${s.isActive ? 'active' : 'inactive'}`}>
-                      {s.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>{new Date(s.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="icon-btn edit" onClick={() => openEditModal(s)}>Edit</button>
-                      <button
-                        className={`icon-btn toggle ${s.isActive ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleStatus(s)}
-                      >
-                        {s.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="icon-btn delete" onClick={() => handleDelete(s)}>Delete</button>
-                    </div>
-                  </td>
+        <>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>SIZE NAME</th>
+                  <th>STATUS</th>
+                  <th>CREATED AT</th>
+                  <th>ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedSizes.map((s) => (
+                  <tr key={s._id}>
+                    <td>
+                      <strong style={{ color: '#111111', fontSize: '1rem' }}>{s.name}</strong>
+                    </td>
+                    <td>
+                      <span className={`status-pill ${s.isActive ? 'active' : 'inactive'}`}>
+                        {s.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>{new Date(s.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="icon-btn edit" onClick={() => openEditModal(s)}>Edit</button>
+                        <button
+                          className={`icon-btn toggle ${s.isActive ? 'deactivate' : 'activate'}`}
+                          onClick={() => handleToggleStatus(s)}
+                        >
+                          {s.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="icon-btn delete" onClick={() => handleDelete(s)}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredSizes.length} total sizes)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (

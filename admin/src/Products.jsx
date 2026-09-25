@@ -91,6 +91,24 @@ const Products = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="admin-page-container">
       <div className="admin-page-header">
@@ -115,13 +133,13 @@ const Products = () => {
             type="text"
             placeholder="Search by product name..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
 
         <div className="admin-filter-group">
           <label>Category Filter:</label>
-          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+          <select value={selectedCategory} onChange={handleCategoryChange}>
             {categories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
@@ -148,79 +166,101 @@ const Products = () => {
           <p>No products match your search or filter criteria.</p>
         </div>
       ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>GARMENT</th>
-                <th>CATEGORY</th>
-                <th>BASE PRICE</th>
-                <th>VARIANTS</th>
-                <th>TOTAL STOCK</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map((prod) => {
-                const totalStock = prod.variants
-                  ? prod.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
-                  : 0;
-                const thumbnail = prod.images && prod.images.length > 0 ? prod.images[0] : null;
+        <>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>GARMENT</th>
+                  <th>CATEGORY</th>
+                  <th>BASE PRICE</th>
+                  <th>VARIANTS</th>
+                  <th>TOTAL STOCK</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedProducts.map((prod) => {
+                  const totalStock = prod.variants
+                    ? prod.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+                    : 0;
+                  const thumbnail = prod.images && prod.images.length > 0 ? prod.images[0] : null;
 
-                return (
-                  <tr key={prod._id}>
-                    <td>
-                      <div className="product-table-cell">
-                        {thumbnail ? (
-                          <img src={thumbnail} alt={prod.name} className="product-thumb" />
-                        ) : (
-                          <div className="product-thumb-placeholder">NO IMG</div>
-                        )}
-                        <div className="product-cell-info">
-                          <span className="product-cell-name">{prod.name}</span>
-                          <span className="product-cell-id mono-text">ID: {prod._id.slice(-6)}</span>
+                  return (
+                    <tr key={prod._id}>
+                      <td>
+                        <div className="product-table-cell">
+                          {thumbnail ? (
+                            <img src={thumbnail} alt={prod.name} className="product-thumb" />
+                          ) : (
+                            <div className="product-thumb-placeholder">NO IMG</div>
+                          )}
+                          <div className="product-cell-info">
+                            <span className="product-cell-name">{prod.name}</span>
+                            <span className="product-cell-id mono-text">ID: {prod._id.slice(-6)}</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td><span className="admin-tag-pill">{prod.category}</span></td>
-                    <td><strong>&#8377;{prod.basePrice}</strong></td>
-                    <td>{prod.variants ? prod.variants.length : 0} variants</td>
-                    <td>
-                      <span className={totalStock <= 10 ? 'stock-low-tag' : 'stock-ok-tag'}>
-                        {totalStock} units
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`status-pill ${prod.isActive ? 'active' : 'inactive'}`}>
-                        {prod.isActive ? 'ACTIVE' : 'INACTIVE'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons-group">
-                        <button
-                          className="admin-btn-secondary sm"
-                          onClick={() => {
-                            setEditingProduct(prod);
-                            setModalOpen(true);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={`admin-status-toggle-btn ${prod.isActive ? 'deactivate' : 'activate'}`}
-                          onClick={() => handleToggleStatus(prod)}
-                        >
-                          {prod.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                      <td><span className="admin-tag-pill">{prod.category}</span></td>
+                      <td><strong>&#8377;{prod.basePrice}</strong></td>
+                      <td>{prod.variants ? prod.variants.length : 0} variants</td>
+                      <td>
+                        <span className={totalStock <= 10 ? 'stock-low-tag' : 'stock-ok-tag'}>
+                          {totalStock} units
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`status-pill ${prod.isActive ? 'active' : 'inactive'}`}>
+                          {prod.isActive ? 'ACTIVE' : 'INACTIVE'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="action-buttons-group">
+                          <button
+                            className="admin-btn-secondary sm"
+                            onClick={() => {
+                              setEditingProduct(prod);
+                              setModalOpen(true);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className={`admin-status-toggle-btn ${prod.isActive ? 'deactivate' : 'activate'}`}
+                            onClick={() => handleToggleStatus(prod)}
+                          >
+                            {prod.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredProducts.length} total products)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (

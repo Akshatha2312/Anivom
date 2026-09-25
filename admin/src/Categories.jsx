@@ -147,6 +147,19 @@ function Categories() {
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage) || 1;
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="admin-page-container">
       <div className="admin-page-header">
@@ -168,7 +181,7 @@ function Categories() {
             type="text"
             placeholder="Search categories..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
       </div>
@@ -184,45 +197,67 @@ function Categories() {
           <button className="secondary-action-btn" onClick={openCreateModal}>Create Category</button>
         </div>
       ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>CATEGORY NAME</th>
-                <th>STATUS</th>
-                <th>CREATED AT</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCategories.map((cat) => (
-                <tr key={cat._id}>
-                  <td>
-                    <strong style={{ color: '#FFFDF8', fontSize: '1rem' }}>{cat.name}</strong>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${cat.isActive ? 'active' : 'inactive'}`}>
-                      {cat.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>{new Date(cat.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="icon-btn edit" onClick={() => openEditModal(cat)}>Edit</button>
-                      <button
-                        className={`icon-btn toggle ${cat.isActive ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleStatus(cat)}
-                      >
-                        {cat.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="icon-btn delete" onClick={() => handleDelete(cat)}>Delete</button>
-                    </div>
-                  </td>
+        <>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>CATEGORY NAME</th>
+                  <th>STATUS</th>
+                  <th>CREATED AT</th>
+                  <th>ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedCategories.map((cat) => (
+                  <tr key={cat._id}>
+                    <td>
+                      <strong style={{ color: '#111111', fontSize: '1rem' }}>{cat.name}</strong>
+                    </td>
+                    <td>
+                      <span className={`status-pill ${cat.isActive ? 'active' : 'inactive'}`}>
+                        {cat.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>{new Date(cat.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="icon-btn edit" onClick={() => openEditModal(cat)}>Edit</button>
+                        <button
+                          className={`icon-btn toggle ${cat.isActive ? 'deactivate' : 'activate'}`}
+                          onClick={() => handleToggleStatus(cat)}
+                        >
+                          {cat.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="icon-btn delete" onClick={() => handleDelete(cat)}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredCategories.length} total categories)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (

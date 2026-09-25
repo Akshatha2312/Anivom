@@ -147,6 +147,19 @@ function Colours() {
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredColours.length / itemsPerPage) || 1;
+  const paginatedColours = filteredColours.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="admin-page-container">
       <div className="admin-page-header">
@@ -168,7 +181,7 @@ function Colours() {
             type="text"
             placeholder="Search colours..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
       </div>
@@ -184,45 +197,67 @@ function Colours() {
           <button className="secondary-action-btn" onClick={openCreateModal}>Create Colour</button>
         </div>
       ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>COLOUR NAME</th>
-                <th>STATUS</th>
-                <th>CREATED AT</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredColours.map((c) => (
-                <tr key={c._id}>
-                  <td>
-                    <strong style={{ color: '#FFFDF8', fontSize: '1rem' }}>{c.name}</strong>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${c.isActive ? 'active' : 'inactive'}`}>
-                      {c.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="icon-btn edit" onClick={() => openEditModal(c)}>Edit</button>
-                      <button
-                        className={`icon-btn toggle ${c.isActive ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleStatus(c)}
-                      >
-                        {c.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="icon-btn delete" onClick={() => handleDelete(c)}>Delete</button>
-                    </div>
-                  </td>
+        <>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>COLOUR NAME</th>
+                  <th>STATUS</th>
+                  <th>CREATED AT</th>
+                  <th>ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedColours.map((c) => (
+                  <tr key={c._id}>
+                    <td>
+                      <strong style={{ color: '#111111', fontSize: '1rem' }}>{c.name}</strong>
+                    </td>
+                    <td>
+                      <span className={`status-pill ${c.isActive ? 'active' : 'inactive'}`}>
+                        {c.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="icon-btn edit" onClick={() => openEditModal(c)}>Edit</button>
+                        <button
+                          className={`icon-btn toggle ${c.isActive ? 'deactivate' : 'activate'}`}
+                          onClick={() => handleToggleStatus(c)}
+                        >
+                          {c.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="icon-btn delete" onClick={() => handleDelete(c)}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredColours.length} total colours)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (

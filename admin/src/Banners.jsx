@@ -231,6 +231,19 @@ function Banners() {
       (b.subtitle && b.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredBanners.length / itemsPerPage) || 1;
+  const paginatedBanners = filteredBanners.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="admin-page-container">
       <div className="admin-page-header">
@@ -252,7 +265,7 @@ function Banners() {
             type="text"
             placeholder="Search banners..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
       </div>
@@ -268,86 +281,108 @@ function Banners() {
           <button className="secondary-action-btn" onClick={openCreateModal}>Create Banner</button>
         </div>
       ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>PREVIEW</th>
-                <th>TITLE / SUBTITLE</th>
-                <th>LINK & BUTTON</th>
-                <th>SORT ORDER</th>
-                <th>VALIDITY</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBanners.map((b) => (
-                <tr key={b._id}>
-                  <td>
-                    {b.image ? (
-                      <img
-                        src={b.image}
-                        alt={b.title}
-                        style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: '0.75rem', color: '#888' }}>No Image</span>
-                    )}
-                  </td>
-                  <td>
-                    <strong style={{ color: '#FFFDF8', fontSize: '0.95rem', display: 'block' }}>{b.title}</strong>
-                    {b.subtitle && <span style={{ fontSize: '0.8rem', color: '#AAA' }}>{b.subtitle}</span>}
-                  </td>
-                  <td>
-                    {b.buttonText && <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{b.buttonText}</div>}
-                    {b.buttonLink && <div style={{ fontSize: '0.75rem', color: '#888' }}>{b.buttonLink}</div>}
-                  </td>
-                  <td>
-                    <span style={{ fontWeight: 'bold', color: '#E5C158' }}>{b.sortOrder}</span>
-                  </td>
-                  <td>
-                    <div style={{ fontSize: '0.8rem' }}>
-                      {b.startDate ? new Date(b.startDate).toLocaleDateString() : 'Immediate'}
-                      {' - '}
-                      {b.endDate ? new Date(b.endDate).toLocaleDateString() : 'No expiry'}
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${b.isActive ? 'active' : 'inactive'}`}>
-                      {b.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="icon-btn edit" onClick={() => openEditModal(b)}>Edit</button>
-                      <button
-                        className={`icon-btn toggle ${b.isActive ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleStatus(b)}
-                      >
-                        {b.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="icon-btn delete" onClick={() => handleDelete(b)}>Delete</button>
-                    </div>
-                  </td>
+        <>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>PREVIEW</th>
+                  <th>TITLE / SUBTITLE</th>
+                  <th>LINK & BUTTON</th>
+                  <th>SORT ORDER</th>
+                  <th>VALIDITY</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedBanners.map((b) => (
+                  <tr key={b._id}>
+                    <td>
+                      {b.image ? (
+                        <img
+                          src={b.image}
+                          alt={b.title}
+                          style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(0,0,0,0.1)' }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: '#888' }}>No Image</span>
+                      )}
+                    </td>
+                    <td>
+                      <strong style={{ color: '#111111', fontSize: '0.95rem', display: 'block' }}>{b.title}</strong>
+                      {b.subtitle && <span style={{ fontSize: '0.8rem', color: '#666' }}>{b.subtitle}</span>}
+                    </td>
+                    <td>
+                      {b.buttonText && <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{b.buttonText}</div>}
+                      {b.buttonLink && <div style={{ fontSize: '0.75rem', color: '#888' }}>{b.buttonLink}</div>}
+                    </td>
+                    <td>
+                      <span style={{ fontWeight: 'bold', color: '#7A1F3D' }}>{b.sortOrder}</span>
+                    </td>
+                    <td>
+                      <div style={{ fontSize: '0.8rem' }}>
+                        {b.startDate ? new Date(b.startDate).toLocaleDateString() : 'Immediate'}
+                        {' - '}
+                        {b.endDate ? new Date(b.endDate).toLocaleDateString() : 'No expiry'}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-pill ${b.isActive ? 'active' : 'inactive'}`}>
+                        {b.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="icon-btn edit" onClick={() => openEditModal(b)}>Edit</button>
+                        <button
+                          className={`icon-btn toggle ${b.isActive ? 'deactivate' : 'activate'}`}
+                          onClick={() => handleToggleStatus(b)}
+                        >
+                          {b.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="icon-btn delete" onClick={() => handleDelete(b)}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredBanners.length} total banners)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-container design-modal" style={{ maxWidth: '650px' }}>
-            <div className="modal-header">
-              <h2>{editingBanner ? 'Edit Banner' : 'Create Banner'}</h2>
-              <button className="close-modal-btn" onClick={() => setModalOpen(false)}>×</button>
+        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px' }}>
+            <div className="admin-modal-header">
+              <h2>{editingBanner ? 'EDIT BANNER' : 'CREATE NEW BANNER'}</h2>
+              <button className="admin-modal-close" onClick={() => setModalOpen(false)}>✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-form">
+            <form onSubmit={handleSubmit} className="admin-form-stack">
               {formError && <div className="admin-error-banner">{formError}</div>}
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Banner Title *</label>
                 <input
                   type="text"
@@ -358,7 +393,7 @@ function Banners() {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Subtitle / Description</label>
                 <input
                   type="text"
@@ -368,7 +403,7 @@ function Banners() {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Banner Image (Cloudinary)</label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input
@@ -378,11 +413,11 @@ function Banners() {
                     disabled={uploadingImage}
                     style={{ flex: 1 }}
                   />
-                  {uploadingImage && <span style={{ fontSize: '0.85rem', color: '#E5C158' }}>Uploading...</span>}
+                  {uploadingImage && <span style={{ fontSize: '0.85rem', color: '#7A1F3D' }}>Uploading...</span>}
                 </div>
                 {image && (
                   <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <img src={image} alt="Preview" style={{ height: '60px', borderRadius: '4px', border: '1px solid #444' }} />
+                    <img src={image} alt="Preview" style={{ height: '60px', borderRadius: '4px', border: '1px solid #ccc' }} />
                     <button type="button" className="icon-btn delete" onClick={() => { setImage(''); setImagePublicId(''); }}>
                       Remove Image
                     </button>
@@ -390,8 +425,8 @@ function Banners() {
                 )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
+              <div className="admin-form-row">
+                <div className="admin-input-group flex-1">
                   <label>Button Text</label>
                   <input
                     type="text"
@@ -401,7 +436,7 @@ function Banners() {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="admin-input-group flex-1">
                   <label>Button Link</label>
                   <input
                     type="text"
@@ -412,8 +447,8 @@ function Banners() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
+              <div className="admin-form-row">
+                <div className="admin-input-group flex-1">
                   <label>Sort Order (Ascending)</label>
                   <input
                     type="number"
@@ -423,8 +458,8 @@ function Banners() {
                   />
                 </div>
 
-                <div className="form-group checkbox-group" style={{ marginTop: '1.8rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <div className="admin-input-group flex-1 checkbox-group" style={{ justifyContent: 'center' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem', marginTop: '1.5rem' }}>
                     <input
                       type="checkbox"
                       checked={isActive}
@@ -435,8 +470,8 @@ function Banners() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
+              <div className="admin-form-row">
+                <div className="admin-input-group flex-1">
                   <label>Start Date & Time</label>
                   <input
                     type="datetime-local"
@@ -445,7 +480,7 @@ function Banners() {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="admin-input-group flex-1">
                   <label>End Date & Time</label>
                   <input
                     type="datetime-local"
@@ -455,11 +490,11 @@ function Banners() {
                 </div>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="secondary-action-btn" onClick={() => setModalOpen(false)}>
+              <div className="admin-modal-actions">
+                <button type="button" className="admin-btn-secondary" onClick={() => setModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="primary-action-btn" disabled={submitting || uploadingImage}>
+                <button type="submit" className="admin-submit-btn" disabled={submitting || uploadingImage}>
                   {submitting ? 'Saving...' : editingBanner ? 'Update Banner' : 'Create Banner'}
                 </button>
               </div>

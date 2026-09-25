@@ -65,20 +65,6 @@ function Designs() {
     setModalOpen(true);
   };
 
-  const openEditModal = (design) => {
-    setEditingDesign(design);
-    setFormData({
-      name: design.name || '',
-      category: design.category || 'General',
-      type: design.svg ? 'svg' : 'image',
-      svg: design.svg || '',
-      url: design.url || '',
-      isActive: design.isActive !== undefined ? design.isActive : true,
-    });
-    setFormError(null);
-    setModalOpen(true);
-  };
-
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -217,6 +203,24 @@ function Designs() {
     return matchesCategory && matchesSearch;
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredDesigns.length / itemsPerPage) || 1;
+  const paginatedDesigns = filteredDesigns.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (cat) => {
+    setSelectedCategory(cat);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="designs-management-page">
       <div className="admin-page-header">
@@ -238,7 +242,7 @@ function Designs() {
             type="text"
             placeholder="Search designs..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
         <div className="category-tabs">
@@ -246,7 +250,7 @@ function Designs() {
             <button
               key={cat}
               className={`category-tab ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
             >
               {cat}
             </button>
@@ -265,38 +269,59 @@ function Designs() {
           <button className="secondary-action-btn" onClick={openCreateModal}>Create First Design</button>
         </div>
       ) : (
-        <div className="designs-grid">
-          {filteredDesigns.map((design) => (
-            <div key={design._id} className={`design-card ${!design.isActive ? 'inactive' : ''}`}>
-              <div className="design-preview-box">
-                {design.svg ? (
-                  <div className="svg-render-container" dangerouslySetInnerHTML={{ __html: design.svg }} />
-                ) : design.url ? (
-                  <img src={design.url} alt={design.name} className="design-img-preview" />
-                ) : (
-                  <div className="no-preview">No Preview</div>
-                )}
-                <span className={`status-pill ${design.isActive ? 'active' : 'inactive'}`}>
-                  {design.isActive ? 'Active' : 'Inactive'}
-                </span>
-              </div>
-              <div className="design-card-body">
-                <span className="design-category-tag">{design.category}</span>
-                <h3 className="design-title">{design.name}</h3>
-                <div className="design-actions">
-                  <button className="icon-btn edit" onClick={() => openEditModal(design)}>Edit</button>
-                  <button
-                    className={`icon-btn toggle ${design.isActive ? 'deactivate' : 'activate'}`}
-                    onClick={() => handleToggleStatus(design)}
-                  >
-                    {design.isActive ? 'Deactivate' : 'Activate'}
-                  </button>
-                  <button className="icon-btn delete" onClick={() => handleDelete(design._id)}>Delete</button>
+        <>
+          <div className="designs-grid">
+            {paginatedDesigns.map((design) => (
+              <div key={design._id} className={`design-card ${!design.isActive ? 'inactive' : ''}`}>
+                <div className="design-preview-box">
+                  {design.svg ? (
+                    <div className="svg-render-container" dangerouslySetInnerHTML={{ __html: design.svg }} />
+                  ) : design.url ? (
+                    <img src={design.url} alt={design.name} className="design-img-preview" />
+                  ) : (
+                    <div className="no-preview">No Preview</div>
+                  )}
+                  <span className={`status-pill ${design.isActive ? 'active' : 'inactive'}`}>
+                    {design.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div className="design-card-body">
+                  <span className="design-category-tag">{design.category}</span>
+                  <h3 className="design-title">{design.name}</h3>
+                  <div className="design-actions">
+                    <button
+                      className={`icon-btn toggle ${design.isActive ? 'deactivate' : 'activate'}`}
+                      onClick={() => handleToggleStatus(design)}
+                    >
+                      {design.isActive ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button className="icon-btn delete" onClick={() => handleDelete(design._id)}>Delete</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredDesigns.length} total designs)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (

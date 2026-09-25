@@ -219,6 +219,19 @@ function Coupons() {
     c.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredCoupons.length / itemsPerPage) || 1;
+  const paginatedCoupons = filteredCoupons.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="admin-page-container">
       <div className="admin-page-header">
@@ -240,7 +253,7 @@ function Coupons() {
             type="text"
             placeholder="Search coupon codes..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
       </div>
@@ -256,76 +269,98 @@ function Coupons() {
           <button className="secondary-action-btn" onClick={openCreateModal}>Create Coupon</button>
         </div>
       ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>CODE</th>
-                <th>DISCOUNT</th>
-                <th>MIN ORDER</th>
-                <th>MAX DISCOUNT</th>
-                <th>USAGE</th>
-                <th>VALIDITY</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCoupons.map((c) => (
-                <tr key={c._id}>
-                  <td>
-                    <strong style={{ color: '#FFFDF8', fontSize: '1rem', letterSpacing: '0.05em' }}>{c.code}</strong>
-                  </td>
-                  <td>
-                    {c.discountType === 'percentage' ? `${c.discountValue}%` : `₹${c.discountValue}`}
-                  </td>
-                  <td>₹{c.minimumOrderAmount || 0}</td>
-                  <td>{c.discountType === 'percentage' && c.maximumDiscountAmount ? `₹${c.maximumDiscountAmount}` : '—'}</td>
-                  <td>
-                    {c.usedCount} / {c.usageLimit > 0 ? c.usageLimit : '∞'}
-                  </td>
-                  <td>
-                    <div style={{ fontSize: '0.85rem' }}>
-                      {c.startDate ? new Date(c.startDate).toLocaleDateString() : 'Immediate'}
-                      {' - '}
-                      {c.endDate ? new Date(c.endDate).toLocaleDateString() : 'No expiry'}
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${c.isActive ? 'active' : 'inactive'}`}>
-                      {c.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="icon-btn edit" onClick={() => openEditModal(c)}>Edit</button>
-                      <button
-                        className={`icon-btn toggle ${c.isActive ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleStatus(c)}
-                      >
-                        {c.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button className="icon-btn delete" onClick={() => handleDelete(c)}>Delete</button>
-                    </div>
-                  </td>
+        <>
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>CODE</th>
+                  <th>DISCOUNT</th>
+                  <th>MIN ORDER</th>
+                  <th>MAX DISCOUNT</th>
+                  <th>USAGE</th>
+                  <th>VALIDITY</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedCoupons.map((c) => (
+                  <tr key={c._id}>
+                    <td>
+                      <strong style={{ color: '#111111', fontSize: '1rem', letterSpacing: '0.05em' }}>{c.code}</strong>
+                    </td>
+                    <td>
+                      {c.discountType === 'percentage' ? `${c.discountValue}%` : `₹${c.discountValue}`}
+                    </td>
+                    <td>₹{c.minimumOrderAmount || 0}</td>
+                    <td>{c.discountType === 'percentage' && c.maximumDiscountAmount ? `₹${c.maximumDiscountAmount}` : '—'}</td>
+                    <td>
+                      {c.usedCount} / {c.usageLimit > 0 ? c.usageLimit : '∞'}
+                    </td>
+                    <td>
+                      <div style={{ fontSize: '0.85rem' }}>
+                        {c.startDate ? new Date(c.startDate).toLocaleDateString() : 'Immediate'}
+                        {' - '}
+                        {c.endDate ? new Date(c.endDate).toLocaleDateString() : 'No expiry'}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-pill ${c.isActive ? 'active' : 'inactive'}`}>
+                        {c.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="icon-btn edit" onClick={() => openEditModal(c)}>Edit</button>
+                        <button
+                          className={`icon-btn toggle ${c.isActive ? 'deactivate' : 'activate'}`}
+                          onClick={() => handleToggleStatus(c)}
+                        >
+                          {c.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button className="icon-btn delete" onClick={() => handleDelete(c)}>Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredCoupons.length} total coupons)
+            </span>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
+        </>
       )}
 
       {modalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-container design-modal" style={{ maxWidth: '650px' }}>
-            <div className="modal-header">
-              <h2>{editingCoupon ? 'Edit Coupon' : 'Create Coupon'}</h2>
-              <button className="close-modal-btn" onClick={() => setModalOpen(false)}>×</button>
+        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px' }}>
+            <div className="admin-modal-header">
+              <h2>{editingCoupon ? 'EDIT COUPON' : 'CREATE NEW COUPON'}</h2>
+              <button className="admin-modal-close" onClick={() => setModalOpen(false)}>✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-form">
+            <form onSubmit={handleSubmit} className="admin-form-stack">
               {formError && <div className="admin-error-banner">{formError}</div>}
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Coupon Code *</label>
                 <input
                   type="text"
@@ -337,8 +372,8 @@ function Coupons() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
+              <div className="admin-form-row">
+                <div className="admin-input-group flex-1">
                   <label>Discount Type *</label>
                   <select value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
                     <option value="percentage">Percentage (%)</option>
@@ -346,7 +381,7 @@ function Coupons() {
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className="admin-input-group flex-1">
                   <label>Discount Value *</label>
                   <input
                     type="number"
@@ -359,8 +394,8 @@ function Coupons() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
+              <div className="admin-form-row">
+                <div className="admin-input-group flex-1">
                   <label>Minimum Order Amount (₹)</label>
                   <input
                     type="number"
@@ -372,7 +407,7 @@ function Coupons() {
                 </div>
 
                 {discountType === 'percentage' && (
-                  <div className="form-group">
+                  <div className="admin-input-group flex-1">
                     <label>Maximum Discount Cap (₹)</label>
                     <input
                       type="number"
@@ -385,8 +420,8 @@ function Coupons() {
                 )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
+              <div className="admin-form-row">
+                <div className="admin-input-group flex-1">
                   <label>Start Date & Time</label>
                   <input
                     type="datetime-local"
@@ -395,7 +430,7 @@ function Coupons() {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="admin-input-group flex-1">
                   <label>End Date & Time</label>
                   <input
                     type="datetime-local"
@@ -405,7 +440,7 @@ function Coupons() {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Usage Limit (Total Max Uses)</label>
                 <input
                   type="number"
@@ -415,8 +450,8 @@ function Coupons() {
                 />
               </div>
 
-              <div className="form-group checkbox-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <div className="admin-input-group checkbox-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                   <input
                     type="checkbox"
                     checked={isActive}
@@ -426,11 +461,11 @@ function Coupons() {
                 </label>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="secondary-action-btn" onClick={() => setModalOpen(false)}>
+              <div className="admin-modal-actions">
+                <button type="button" className="admin-btn-secondary" onClick={() => setModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="primary-action-btn" disabled={submitting}>
+                <button type="submit" className="admin-submit-btn" disabled={submitting}>
                   {submitting ? 'Saving...' : editingCoupon ? 'Update Coupon' : 'Create Coupon'}
                 </button>
               </div>
