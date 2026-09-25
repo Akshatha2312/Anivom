@@ -814,7 +814,7 @@
   height: min(100%, calc(100vh - 170px));
   max-height: 520px;
   aspect-ratio: 3 / 4;
-  background-color: #FFFDF8;
+  background-color: #111111;
   position: relative;
   overflow: hidden;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
@@ -828,18 +828,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease;
+  background-color: #111111;
 }
 
 .product-image-overlay {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   position: absolute;
   top: 0;
   left: 0;
   pointer-events: none;
-  mix-blend-mode: multiply;
 }
 
 .tshirt-silhouette-fallback {
@@ -972,80 +971,89 @@
 .studio-selector-page {
   background-color: #111111;
   min-height: calc(100vh - 68px);
-  height: auto;
-  max-height: none;
-  overflow-y: auto;
+  height: calc(100vh - 68px);
+  max-height: calc(100vh - 68px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
   color: #FFFDF8;
-  padding-bottom: 40px;
 }
 
 .studio-selector-hero {
   text-align: center;
-  padding: 24px 20px 16px;
-  max-width: 720px;
+  padding: 16px 20px 8px;
+  max-width: 680px;
   margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .studio-selector-badge {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.22em;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
   color: #C65D3B;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .studio-selector-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #FFFDF8;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   letter-spacing: 0.05em;
+  line-height: 1.1;
 }
 
 .studio-selector-subtitle {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 0.92rem;
   font-style: italic;
   color: #C6A15B;
-  margin: 0 0 10px 0;
+  margin: 0 0 4px 0;
 }
 
 .studio-selector-desc {
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: #a0a0a0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #aaaaaa;
   max-width: 580px;
   margin: 0 auto;
 }
 
 .studio-selector-container {
-  max-width: 1720px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 8px 24px 20px;
   box-sizing: border-box;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
 }
 
 .studio-selector-loading,
 .studio-selector-error,
 .studio-selector-empty {
   text-align: center;
-  padding: 40px 20px;
+  padding: 30px 20px;
   background: #181818;
   border: 1px solid rgba(255, 253, 248, 0.08);
-  max-width: 460px;
-  margin: 24px auto;
+  max-width: 420px;
+  margin: 16px auto;
 }
 
 .studio-spinner {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 3px solid rgba(255, 253, 248, 0.1);
   border-top-color: #C65D3B;
   border-radius: 50%;
-  margin: 0 auto 12px;
+  margin: 0 auto 10px;
   animation: studioSpin 0.8s linear infinite;
 }
 
@@ -1057,9 +1065,10 @@
 
 .studio-selector-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 28px;
-  margin-top: 20px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  width: 100%;
+  align-items: stretch;
 }
 
 .studio-product-card {
@@ -1070,6 +1079,7 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .studio-product-card:hover {
@@ -1081,9 +1091,10 @@
 .studio-product-img-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  height: clamp(140px, 28vh, 260px);
   background: #1f1f1f;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .studio-product-img {
@@ -1104,51 +1115,52 @@
   align-items: center;
   justify-content: center;
   color: #888;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-family: 'Playfair Display', serif;
 }
 
 .studio-product-category-tag {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   background: rgba(17, 17, 17, 0.85);
   backdrop-filter: blur(4px);
   color: #FFFDF8;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  padding: 3px 7px;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  padding: 2px 6px;
   text-transform: uppercase;
   border: 1px solid rgba(255, 253, 248, 0.1);
 }
 
 .studio-product-card-body {
-  padding: 16px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 10px;
+  gap: 6px;
+  justify-content: space-between;
 }
 
 .studio-product-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .studio-product-card-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: #FFFDF8;
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .studio-product-card-price {
   font-weight: 700;
-  font-size: 0.98rem;
+  font-size: 0.88rem;
   color: #C6A15B;
   white-space: nowrap;
 }
@@ -1157,22 +1169,23 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 3px;
 }
 
 .studio-tag-label {
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
   color: #777777;
   font-weight: 600;
 }
 
 .studio-pill {
-  font-size: 0.65rem;
-  padding: 2px 6px;
+  font-size: 0.58rem;
+  padding: 1px 5px;
   background: rgba(255, 253, 248, 0.06);
   border: 1px solid rgba(255, 253, 248, 0.12);
   color: #dddddd;
+  border-radius: 1px;
 }
 
 .studio-pill-color {
@@ -1182,15 +1195,15 @@
 }
 
 .studio-customize-action-btn {
-  margin-top: auto;
+  margin-top: 4px;
   width: 100%;
-  padding: 10px;
+  padding: 7px 10px;
   background: #7A1F3D;
   color: #FFFDF8;
   border: 1px solid #7A1F3D;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1359,6 +1372,21 @@
     overflow-y: auto;
   }
 
+  .studio-selector-page {
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .studio-selector-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .studio-product-img-wrapper {
+    height: 200px;
+  }
+
   .studio-app-workspace {
     flex-direction: column-reverse;
     min-height: auto;
@@ -1435,15 +1463,15 @@
   }
 
   .studio-selector-title {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
   }
 
   .studio-selector-subtitle {
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 
   .studio-selector-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
     gap: 14px;
   }
 }

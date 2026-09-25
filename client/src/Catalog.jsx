@@ -42,8 +42,29 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
 
   const isWishlisted = wishlistIds.includes(product._id)
 
-  const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
-  const secondaryImage = product.images && product.images.length > 1 ? product.images[1] : primaryImage
+  const getCardGarmentImage = (view) => {
+    if (selectedColour && product?.garmentImages?.byColour) {
+      const byColourObj = product.garmentImages.byColour
+      const colourMapObj = byColourObj instanceof Map ? Object.fromEntries(byColourObj) : byColourObj
+      const colourData = colourMapObj?.[selectedColour]
+      if (colourData && colourData[view]) {
+        return colourData[view]
+      }
+    }
+    return product?.garmentImages?.[view] || null
+  }
+
+  const colourFrontGarmentImage = getCardGarmentImage('front')
+  const defaultModelImage = product?.images && product.images.length > 0 ? product.images[0] : null
+
+  const primaryImage =
+    (selectedColour ? colourFrontGarmentImage : null) ||
+    defaultModelImage ||
+    colourFrontGarmentImage
+
+  const secondaryImage =
+    getCardGarmentImage('back') ||
+    (product?.images && product.images.length > 1 ? product.images[1] : primaryImage)
 
   const handleCardClick = () => {
     if (onSelectProduct) {
@@ -107,6 +128,25 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
   }
 
   const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>"
+  const allSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+
+  const getHexForColour = (colName) => {
+    const map = {
+      'Black': '#111111',
+      'White': '#FFFFFF',
+      'Navy Blue': '#1B2A4A',
+      'Sky Blue': '#87CEEB',
+      'Maroon': '#500B13',
+      'Grey': '#808080',
+      'Olive Green': '#556B2F',
+      'Soft Pink': '#FFB6C1',
+      'Cream': '#FDFBF7',
+      'Mustard': '#E1AD01',
+      'Wine': '#722F37',
+      'Purple': '#4B0082',
+    }
+    return map[colName] || '#CCCCCC'
+  }
 
   return (
     <div className="anivom-fashion-card">
@@ -167,33 +207,60 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
           <h4 className="anivom-card-title">{product.name}</h4>
           <div className="anivom-card-price">&#8377;{product.basePrice}</div>
 
-          <div className="anivom-variant-selectors">
-            <div>
-              <label className="anivom-filter-label">Colour</label>
-              <select
-                value={selectedColour}
-                onChange={(e) => setSelectedColour(e.target.value)}
-                className="anivom-filter-select"
-                style={{ width: '100%' }}
-              >
-                {availableColours.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+          <div className="anivom-card-variant-section">
+            <div className="anivom-swatch-group">
+              <span className="anivom-variant-label">
+                COLOUR: <span className="anivom-variant-val">{selectedColour || 'None'}</span>
+              </span>
+              <div className="anivom-swatches-wrap">
+                {availableColours.map((c) => {
+                  const isSelected = selectedColour === c
+                  const hex = getHexForColour(c)
+                  const isLight = c === 'White' || c === 'Cream'
+
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      title={c}
+                      className={`anivom-swatch-btn ${isSelected ? 'active' : ''}`}
+                      onClick={() => setSelectedColour(c)}
+                    >
+                      <span
+                        className="anivom-swatch-circle"
+                        style={{
+                          backgroundColor: hex,
+                          border: isLight ? '1px solid #D8D2C6' : 'none',
+                        }}
+                      />
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
-            <div>
-              <label className="anivom-filter-label">Size</label>
-              <select
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                className="anivom-filter-select"
-                style={{ width: '100%' }}
-              >
-                {availableSizes.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+            <div className="anivom-size-group">
+              <span className="anivom-variant-label">SIZE</span>
+              <div className="anivom-sizes-wrap">
+                {allSizesList.map((sz) => {
+                  const isAvailable = availableSizes.includes(sz)
+                  const isSelected = selectedSize === sz
+
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      disabled={!isAvailable}
+                      className={`anivom-size-pill ${isSelected ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
+                      onClick={() => {
+                        if (isAvailable) setSelectedSize(sz)
+                      }}
+                    >
+                      {sz}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
@@ -278,6 +345,12 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const [maxPrice, setMaxPrice] = useState('')
   const [sortOption, setSortOption] = useState('newest')
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [tempSize, setTempSize] = useState('All')
+  const [tempColour, setTempColour] = useState('All')
+  const [tempMinPrice, setTempMinPrice] = useState('')
+  const [tempMaxPrice, setTempMaxPrice] = useState('')
+
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
@@ -319,7 +392,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const defaultSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
   const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
 
-  const categories = ['All', ...Array.from(new Set([...(dbCategories.length > 0 ? dbCategories : defaultCategories), initialCategory]))].filter(Boolean)
+  const categories = ['All', 'Cropped', 'Oversized', 'Polo', 'Slim Fit', 'V-Neck']
   const sizes = ['All', ...(dbSizes.length > 0 ? dbSizes : defaultSizes)]
   const colours = ['All', ...(dbColours.length > 0 ? dbColours : defaultColours)]
 
@@ -373,6 +446,23 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     setActiveCategory(cat)
   }
 
+  const handleOpenFilters = () => {
+    setTempSize(selectedSize)
+    setTempColour(selectedColour)
+    setTempMinPrice(minPrice)
+    setTempMaxPrice(maxPrice)
+    setIsFilterOpen((prev) => !prev)
+  }
+
+  const handleApplyFilters = () => {
+    setPage(1)
+    setSelectedSize(tempSize)
+    setSelectedColour(tempColour)
+    setMinPrice(tempMinPrice)
+    setMaxPrice(tempMaxPrice)
+    setIsFilterOpen(false)
+  }
+
   const handleResetFilters = () => {
     setSearch('')
     setSearchQuery('')
@@ -381,9 +471,15 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     setSelectedColour('All')
     setMinPrice('')
     setMaxPrice('')
+    setTempSize('All')
+    setTempColour('All')
+    setTempMinPrice('')
+    setTempMaxPrice('')
     setSortOption('newest')
     setPage(1)
   }
+
+  const hasActiveFilters = selectedSize !== 'All' || selectedColour !== 'All' || minPrice !== '' || maxPrice !== ''
 
   const startItemNum = totalProducts > 0 ? (page - 1) * 12 + 1 : 0
   const endItemNum = Math.min(page * 12, totalProducts)
@@ -406,7 +502,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search oversized tees, minimal cuts, graphics..."
+              placeholder="Search oversized, slim fit, v-neck, cropped..."
               className="anivom-search-input"
             />
             <button type="submit" className="anivom-search-btn">
@@ -417,14 +513,12 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
 
         <div className="anivom-trending-tags">
           <span className="anivom-trending-label">Trending:</span>
-          {['Oversized', 'Graphic', 'Minimal', 'Custom', 'Black Tees', 'New Drops'].map((tag) => (
+          {['Cropped', 'Oversized', 'Polo', 'Slim Fit', 'V-Neck', 'New Drops'].map((tag) => (
             <span
               key={tag}
               className="anivom-tag-pill"
               onClick={() => {
-                if (tag === 'Black Tees') {
-                  setActiveCategory('Minimal')
-                } else if (tag === 'New Drops') {
+                if (tag === 'New Drops') {
                   setSortOption('newest')
                 } else {
                   setActiveCategory(tag)
@@ -451,63 +545,40 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           ))}
         </div>
 
-        <div className="anivom-filter-toolbar">
-          <div className="anivom-filter-group">
-            <label className="anivom-filter-label">Size</label>
-            <select
-              value={selectedSize}
-              onChange={(e) => { setPage(1); setSelectedSize(e.target.value); }}
-              className="anivom-filter-select"
+        <div className="anivom-compact-toolbar">
+          <div className="anivom-toolbar-left">
+            <button
+              type="button"
+              className={`anivom-filter-toggle-btn ${isFilterOpen || hasActiveFilters ? 'active' : ''}`}
+              onClick={handleOpenFilters}
             >
-              {sizes.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14" />
+                <line x1="4" y1="10" x2="4" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12" y2="3" />
+                <line x1="20" y1="21" x2="20" y2="16" />
+                <line x1="20" y1="12" x2="20" y2="3" />
+                <line x1="1" y1="14" x2="7" y2="14" />
+                <line x1="9" y1="8" x2="15" y2="8" />
+                <line x1="17" y1="16" x2="23" y2="16" />
+              </svg>
+              <span>FILTER {hasActiveFilters ? '•' : ''}</span>
+            </button>
+
+            {hasActiveFilters && (
+              <button onClick={handleResetFilters} className="anivom-toolbar-clear-btn">
+                CLEAR
+              </button>
+            )}
           </div>
 
-          <div className="anivom-filter-group">
-            <label className="anivom-filter-label">Colour</label>
-            <select
-              value={selectedColour}
-              onChange={(e) => { setPage(1); setSelectedColour(e.target.value); }}
-              className="anivom-filter-select"
-            >
-              {colours.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="anivom-filter-group">
-            <label className="anivom-filter-label">Min Price (₹)</label>
-            <input
-              type="number"
-              value={minPrice}
-              onChange={(e) => { setPage(1); setMinPrice(e.target.value); }}
-              placeholder="0"
-              className="anivom-filter-input"
-              style={{ width: '80px' }}
-            />
-          </div>
-
-          <div className="anivom-filter-group">
-            <label className="anivom-filter-label">Max Price (₹)</label>
-            <input
-              type="number"
-              value={maxPrice}
-              onChange={(e) => { setPage(1); setMaxPrice(e.target.value); }}
-              placeholder="3000"
-              className="anivom-filter-input"
-              style={{ width: '80px' }}
-            />
-          </div>
-
-          <div className="anivom-filter-group">
-            <label className="anivom-filter-label">Sort By</label>
+          <div className="anivom-toolbar-right">
+            <label className="anivom-sort-label">SORT:</label>
             <select
               value={sortOption}
               onChange={(e) => { setPage(1); setSortOption(e.target.value); }}
-              className="anivom-filter-select"
+              className="anivom-sort-select"
             >
               <option value="newest">Newest Arrivals</option>
               <option value="price-asc">Price: Low to High</option>
@@ -515,11 +586,70 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
               <option value="oldest">Oldest First</option>
             </select>
           </div>
-
-          <button onClick={handleResetFilters} className="anivom-filter-reset-btn">
-            Clear Filters
-          </button>
         </div>
+
+        {isFilterOpen && (
+          <div className="anivom-filter-panel">
+            <div className="anivom-filter-panel-grid">
+              <div className="anivom-filter-field">
+                <label className="anivom-filter-field-label">Size</label>
+                <select
+                  value={tempSize}
+                  onChange={(e) => setTempSize(e.target.value)}
+                  className="anivom-filter-field-select"
+                >
+                  {sizes.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="anivom-filter-field">
+                <label className="anivom-filter-field-label">Colour</label>
+                <select
+                  value={tempColour}
+                  onChange={(e) => setTempColour(e.target.value)}
+                  className="anivom-filter-field-select"
+                >
+                  {colours.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="anivom-filter-field">
+                <label className="anivom-filter-field-label">Min Price (₹)</label>
+                <input
+                  type="number"
+                  value={tempMinPrice}
+                  onChange={(e) => setTempMinPrice(e.target.value)}
+                  placeholder="0"
+                  className="anivom-filter-field-input"
+                />
+              </div>
+
+              <div className="anivom-filter-field">
+                <label className="anivom-filter-field-label">Max Price (₹)</label>
+                <input
+                  type="number"
+                  value={tempMaxPrice}
+                  onChange={(e) => setTempMaxPrice(e.target.value)}
+                  placeholder="3000"
+                  className="anivom-filter-field-input"
+                />
+              </div>
+            </div>
+
+            <div className="anivom-filter-panel-actions">
+              <button type="button" onClick={handleResetFilters} className="anivom-filter-panel-clear">
+                Clear Filters
+              </button>
+              <button type="button" onClick={handleApplyFilters} className="anivom-filter-panel-apply">
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="anivom-catalog-error-box">

@@ -30,6 +30,9 @@ const variantSchema = new mongoose.Schema({
       'Olive',
       'Sky Blue',
       'Wine',
+      'Navy Blue',
+      'Olive Green',
+      'Soft Pink',
     ],
   },
   stock: {
@@ -71,6 +74,15 @@ const productSchema = new mongoose.Schema(
       back: { type: String, default: "" },
       left: { type: String, default: "" },
       right: { type: String, default: "" },
+      byColour: {
+        type: Map,
+        of: {
+          front: { type: String, default: "" },
+          back: { type: String, default: "" },
+          left: { type: String, default: "" },
+          right: { type: String, default: "" },
+        },
+      },
     },
     variants: [variantSchema],
     isActive: {

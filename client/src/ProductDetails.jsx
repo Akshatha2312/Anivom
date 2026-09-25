@@ -151,6 +151,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
 
   const handleColourChange = (colour) => {
     setSelectedColour(colour)
+    setSelectedImgIndex(0)
     const validSizes = Array.from(
       new Set(variants.filter((v) => v.colour === colour).map((v) => v.size))
     )
@@ -203,7 +204,31 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
 
   const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>"
 
-  const images = product.images && product.images.length > 0 ? product.images : []
+  const getProductDetailsImages = () => {
+    if (selectedColour && product?.garmentImages?.byColour) {
+      const byColourObj = product.garmentImages.byColour
+      const colourMapObj = byColourObj instanceof Map ? Object.fromEntries(byColourObj) : byColourObj
+      const colourData = colourMapObj?.[selectedColour]
+      if (colourData) {
+        const list = []
+        if (colourData.front) list.push(colourData.front)
+        if (colourData.back) list.push(colourData.back)
+        if (colourData.left) list.push(colourData.left)
+        if (colourData.right) list.push(colourData.right)
+        if (list.length > 0) return list
+      }
+    }
+    const garmentImagesList = []
+    if (product?.garmentImages) {
+      if (product.garmentImages.front) garmentImagesList.push(product.garmentImages.front)
+      if (product.garmentImages.back) garmentImagesList.push(product.garmentImages.back)
+      if (product.garmentImages.left) garmentImagesList.push(product.garmentImages.left)
+      if (product.garmentImages.right) garmentImagesList.push(product.garmentImages.right)
+    }
+    return garmentImagesList.length > 0 ? garmentImagesList : (product?.images && product.images.length > 0 ? product.images : [])
+  }
+
+  const images = getProductDetailsImages()
 
   return (
     <div className="anivom-pdp-root">

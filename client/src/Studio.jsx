@@ -5,11 +5,6 @@ import { PREDEFINED_DESIGNS } from './designsData';
 import AuthModal from './AuthModal';
 import StudioOnboardingModal from './StudioOnboardingModal';
 
-const ALL_STUDIO_COLOURS = [
-  'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Pink', 'Purple',
-  'Grey', 'Navy', 'Maroon', 'Beige', 'Cream', 'Olive', 'Teal', 'Mustard', 'Wine'
-];
-
 const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
   const [productsList, setProductsList] = useState([]);
@@ -28,11 +23,9 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     ? Array.from(new Set(activeProduct.variants.map((v) => v.size)))
     : ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-  const productVariantColours = activeProduct && activeProduct.variants && activeProduct.variants.length > 0
+  const availableColours = activeProduct && activeProduct.variants && activeProduct.variants.length > 0
     ? Array.from(new Set(activeProduct.variants.map((v) => v.colour)))
-    : [];
-
-  const availableColours = Array.from(new Set([...productVariantColours, ...ALL_STUDIO_COLOURS]));
+    : (activeProduct && activeProduct.colours && activeProduct.colours.length > 0 ? activeProduct.colours : []);
 
 
   const [selectedSize, setSelectedSize] = useState('M');
@@ -261,7 +254,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           ) : (
             <div className="studio-selector-grid">
               {productsList.map((prod) => {
-                const img = prod.images && prod.images.length > 0 ? prod.images[0] : null;
+                const img = (prod.images && prod.images.length > 0 ? prod.images[0] : null) || prod.garmentImages?.front;
                 const sizes = prod.variants ? Array.from(new Set(prod.variants.map((v) => v.size))) : [];
                 const colors = prod.variants ? Array.from(new Set(prod.variants.map((v) => v.colour))) : [];
 
@@ -331,16 +324,30 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     );
   }
 
+  const getGarmentViewImage = (view) => {
+    if (selectedColour && activeProduct?.garmentImages?.byColour) {
+      const byColourObj = activeProduct.garmentImages.byColour;
+      const colourMapObj = byColourObj instanceof Map ? Object.fromEntries(byColourObj) : byColourObj;
+      const colourData = colourMapObj?.[selectedColour];
+      if (colourData && colourData[view]) {
+        return colourData[view];
+      }
+    }
+    return activeProduct?.garmentImages?.[view] || null;
+  };
+
+  const hasColourGarmentImages = !!(selectedColour && activeProduct?.garmentImages?.byColour);
+
   const frontImage =
-    activeProduct?.garmentImages?.front ||
+    getGarmentViewImage('front') ||
     (activeProduct?.images && activeProduct.images.length > 0 ? activeProduct.images[0] : null);
 
   const backImage =
-    activeProduct?.garmentImages?.back ||
+    getGarmentViewImage('back') ||
     (activeProduct?.images && activeProduct.images.length > 1 ? activeProduct.images[1] : frontImage);
 
-  const leftImage = activeProduct?.garmentImages?.left || null;
-  const rightImage = activeProduct?.garmentImages?.right || null;
+  const leftImage = getGarmentViewImage('left');
+  const rightImage = getGarmentViewImage('right');
 
   let currentGarmentImage = frontImage;
   if (activeView === 'back') {
@@ -363,15 +370,18 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     Purple: '#9333ea',
     Maroon: '#7A1F3D',
     Navy: '#1e3a8a',
+    'Navy Blue': '#1e3a8a',
     Grey: '#64748b',
     Brown: '#78350f',
     Beige: '#f5f5dc',
     Cream: '#fffdd0',
     Olive: '#65a30d',
+    'Olive Green': '#65a30d',
     Teal: '#0d9488',
     Mustard: '#d97706',
     Wine: '#701a75',
     'Sky Blue': '#0284c7',
+    'Soft Pink': '#f472b6',
   };
 
   const garmentColor = colourMap[selectedColour] || '#18181b';
@@ -876,7 +886,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               </button>
             </div>
 
-            <div className="garment-base garment-base-large" style={{ backgroundColor: garmentColor }}>
+            <div className="garment-base garment-base-large" style={hasColourGarmentImages ? {} : { backgroundColor: garmentColor }}>
               {currentGarmentImage ? (
                 <img
                   src={currentGarmentImage}
@@ -1591,7 +1601,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
           <div className="studio-preview-section">
             <div className="studio-canvas-container">
-              <div className="garment-base" style={{ backgroundColor: garmentColor }}>
+              <div className="garment-base">
                 {currentGarmentImage ? (
                   <img
                     src={currentGarmentImage}

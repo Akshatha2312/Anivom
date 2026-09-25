@@ -46,11 +46,11 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
   }
 
   const stylesCategories = [
-    { title: 'Oversized', desc: 'Relaxed heavy silhouettes with dropped shoulders', image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80', cat: 'Oversized' },
-    { title: 'Regular Fit', desc: 'Timeless classic cut built from premium combed cotton', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80', cat: 'Regular Fit' },
-    { title: 'Graphic Tees', desc: 'Bespoke artistic graphics and statement typography', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80', cat: 'Graphic' },
-    { title: 'Minimalist', desc: 'Subtle couture details, refined aesthetic cuts', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80', cat: 'Minimal' },
-    { title: 'Custom Studio', desc: 'Designed by you on ANIVOM interactive studio', image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80', cat: 'Custom' },
+    { title: 'Cropped', desc: 'Modern cropped silhouette with raw hem trim', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348208/anivom/products/display/cropped_display_model.jpg', cat: 'Cropped' },
+    { title: 'Oversized', desc: 'Relaxed heavy silhouettes with dropped shoulders', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348211/anivom/products/display/oversized_display_model.jpg', cat: 'Oversized' },
+    { title: 'Polo', desc: 'Refined pique knit cotton with structured collar', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790355362/polo-black-front_y82xzd.png', cat: 'Polo' },
+    { title: 'Slim Fit', desc: 'Form-fitting tailored cut with flexible comfort', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348213/anivom/products/display/slimfit_display_model.jpg', cat: 'Slim Fit' },
+    { title: 'V-Neck', desc: 'Sleek V-neck cut for modern layering', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348215/anivom/products/display/vneck_display_model.jpg', cat: 'V-Neck' },
   ]
 
   const activeHeroBanner = banners.length > 0 ? banners[0] : null
