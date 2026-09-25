@@ -2,6 +2,20 @@ import React from 'react';
 
 const StatusBadge = ({ status, type = 'order' }) => {
   const getBadgeStyle = () => {
+    if (type === 'refund') {
+      switch (status) {
+        case 'PENDING':
+          return { bg: 'rgba(234, 179, 8, 0.15)', border: '#eab308', color: '#ca8a04', label: 'Refund processing' };
+        case 'REFUNDED':
+          return { bg: 'rgba(34, 197, 94, 0.15)', border: '#22c55e', color: '#16a34a', label: 'Refund completed' };
+        case 'FAILED':
+          return { bg: 'rgba(239, 68, 68, 0.15)', border: '#ef4444', color: '#dc2626', label: 'Refund failed — review required' };
+        case 'NONE':
+        default:
+          return { bg: 'rgba(100, 116, 139, 0.15)', border: '#64748b', color: '#475569', label: status || 'NONE' };
+      }
+    }
+
     if (type === 'payment') {
       switch (status) {
         case 'PAID':
@@ -26,6 +40,12 @@ const StatusBadge = ({ status, type = 'order' }) => {
         return { bg: 'rgba(198, 161, 91, 0.2)', border: '#C6A15B', color: '#b48a3c' };
       case 'DELIVERED':
         return { bg: 'rgba(34, 197, 94, 0.15)', border: '#22c55e', color: '#16a34a' };
+      case 'RETURN_REQUESTED':
+        return { bg: 'rgba(122, 31, 61, 0.18)', border: '#7A1F3D', color: '#7A1F3D', label: 'RETURN REQUESTED' };
+      case 'RETURN_APPROVED':
+        return { bg: 'rgba(34, 197, 94, 0.15)', border: '#22c55e', color: '#16a34a', label: 'RETURN APPROVED' };
+      case 'RETURN_REJECTED':
+        return { bg: 'rgba(198, 93, 59, 0.2)', border: '#C65D3B', color: '#C65D3B', label: 'RETURN REJECTED' };
       case 'CANCELLED':
       case 'FAILED':
         return { bg: 'rgba(198, 93, 59, 0.2)', border: '#C65D3B', color: '#C65D3B' };
@@ -52,7 +72,7 @@ const StatusBadge = ({ status, type = 'order' }) => {
         color: style.color,
       }}
     >
-      {status || 'UNKNOWN'}
+      {style.label || status || 'UNKNOWN'}
     </span>
   );
 };

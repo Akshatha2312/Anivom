@@ -726,7 +726,7 @@ function App() {
         )}
 
         {view === 'contact' && (
-          <Contact />
+          <Contact user={user} />
         )}
       </main>
 

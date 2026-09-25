@@ -95,6 +95,9 @@ const Orders = () => {
             <option value="PROCESSING">PROCESSING</option>
             <option value="SHIPPED">SHIPPED</option>
             <option value="DELIVERED">DELIVERED</option>
+            <option value="RETURN_REQUESTED">RETURN_REQUESTED</option>
+            <option value="RETURN_APPROVED">RETURN_APPROVED</option>
+            <option value="RETURN_REJECTED">RETURN_REJECTED</option>
             <option value="CANCELLED">CANCELLED</option>
             <option value="FAILED">FAILED</option>
           </select>
@@ -161,7 +164,14 @@ const Orders = () => {
                     </td>
                     <td>{ord.items ? ord.items.length : 0} items</td>
                     <td><strong>&#8377;{ord.totalAmount}</strong></td>
-                    <td><StatusBadge status={ord.paymentStatus} type="payment" /></td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <StatusBadge status={ord.paymentStatus} type="payment" />
+                        {ord.refundStatus && ord.refundStatus !== 'NONE' && (
+                          <StatusBadge status={ord.refundStatus} type="refund" />
+                        )}
+                      </div>
+                    </td>
                     <td><StatusBadge status={ord.orderStatus} type="order" /></td>
                     <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
                     <td>

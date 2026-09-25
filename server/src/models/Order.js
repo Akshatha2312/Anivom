@@ -102,7 +102,7 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'FAILED'],
+      enum: ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_REJECTED', 'FAILED'],
       default: 'PLACED',
     },
     razorpayOrderId: {
@@ -115,6 +115,68 @@ const orderSchema = new mongoose.Schema(
     },
     razorpaySignature: {
       type: String,
+      default: null,
+    },
+    cancellationReason: {
+      type: String,
+      default: null,
+      maxlength: 500,
+    },
+    cancelledAt: {
+      type: Date,
+      default: null,
+    },
+    stockRestored: {
+      type: Boolean,
+      default: false,
+    },
+    deliveredAt: {
+      type: Date,
+      default: null,
+    },
+    returnReason: {
+      type: String,
+      default: null,
+      maxlength: 200,
+    },
+    returnDetails: {
+      type: String,
+      default: null,
+      maxlength: 1000,
+    },
+    isDefectiveOrDamaged: {
+      type: Boolean,
+      default: false,
+    },
+    returnRequestedAt: {
+      type: Date,
+      default: null,
+    },
+    returnProcessedAt: {
+      type: Date,
+      default: null,
+    },
+    returnAdminNotes: {
+      type: String,
+      default: null,
+      maxlength: 1000,
+    },
+    refundStatus: {
+      type: String,
+      enum: ['NONE', 'PENDING', 'REFUNDED', 'FAILED'],
+      default: 'NONE',
+    },
+    razorpayRefundId: {
+      type: String,
+      default: null,
+    },
+    refundedAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    refundedAt: {
+      type: Date,
       default: null,
     },
   },

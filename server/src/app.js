@@ -17,6 +17,7 @@ const colourRoutes = require('./routes/colourRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const helmet = require('helmet');
 
 const app = express();
@@ -31,6 +32,17 @@ const authLimiter = rateLimit({
   message: {
     status: 'fail',
     message: 'Too many requests from this IP, please try again after 15 minutes',
+  },
+});
+
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    status: 'fail',
+    message: 'Too many support messages sent from this IP, please try again after 15 minutes',
   },
 });
 
@@ -93,6 +105,7 @@ app.use('/api/v1/colours', colourRoutes);
 app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/banners', bannerRoutes);
 app.use('/api/v1/wishlist', wishlistRoutes);
+app.use('/api/v1/contact', contactLimiter, contactRoutes);
 
 app.use(errorMiddleware);
 

@@ -701,3 +701,333 @@
     padding-top: 12px;
   }
 }
+
+.anivom-status-badge.refund-pending {
+  background-color: #FFFDF8;
+  color: #C6A15B;
+  border-color: #C6A15B;
+}
+
+.anivom-status-badge.refund-completed {
+  background-color: #F7F2E8;
+  color: #2e7d32;
+  border-color: #2e7d32;
+}
+
+.anivom-status-badge.refund-failed {
+  background-color: #FFFDF8;
+  color: #C65D3B;
+  border-color: #C65D3B;
+}
+
+.anivom-status-badge.status-return_requested,
+.anivom-status-badge.status-return_approved {
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  border-color: #7A1F3D;
+}
+
+.anivom-status-badge.status-return_rejected {
+  background-color: #FFFDF8;
+  color: #C65D3B;
+  border-color: #C65D3B;
+}
+
+.anivom-section-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.anivom-section-header-flex .anivom-orders-section-title {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.anivom-action-button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.anivom-btn-action-cancel {
+  background: transparent;
+  color: #C65D3B;
+  border: 1px solid #C65D3B;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-action-cancel:hover {
+  background: #C65D3B;
+  color: #FFFDF8;
+}
+
+.anivom-btn-action-return {
+  background: transparent;
+  color: #7A1F3D;
+  border: 1px solid #7A1F3D;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-btn-action-return:hover {
+  background: #7A1F3D;
+  color: #FFFDF8;
+}
+
+.anivom-card-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.anivom-card-delivered-note,
+.anivom-delivery-date-note {
+  font-size: 0.8rem;
+  color: #2e7d32;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin: 8px 0 12px 0;
+}
+
+.anivom-cancelled-reason {
+  font-size: 0.85rem;
+  color: #111111;
+  margin-top: 8px;
+}
+
+.anivom-refund-info-box {
+  margin-top: 12px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-left: 3px solid #111111;
+}
+
+.anivom-refund-info-box.info-pending {
+  background: #F7F2E8;
+  border-color: #C6A15B;
+  color: #111111;
+}
+
+.anivom-refund-info-box.info-completed {
+  background: #f0f7f0;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.anivom-refund-info-box.info-failed {
+  background: #fff5f5;
+  border-color: #C65D3B;
+  color: #C65D3B;
+}
+
+.anivom-return-status-banner {
+  margin-top: 20px;
+  padding: 16px 20px;
+  border: 1px solid #111111;
+  background: #FFFDF8;
+}
+
+.anivom-return-status-banner.banner-requested {
+  border-color: #7A1F3D;
+  background: #FFFDF8;
+}
+
+.anivom-return-status-banner.banner-approved {
+  border-color: #2e7d32;
+  background: #f0f7f0;
+}
+
+.anivom-return-status-banner.banner-rejected {
+  border-color: #C65D3B;
+  background: #fff5f5;
+}
+
+.anivom-return-banner-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.05em;
+}
+
+.anivom-return-banner-text {
+  font-size: 0.85rem;
+  color: #444444;
+  margin: 0;
+}
+
+.anivom-return-banner-meta {
+  font-size: 0.8rem;
+  color: #111111;
+  margin-top: 8px;
+}
+
+.anivom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(17, 17, 17, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.anivom-modal-box {
+  background: #FFFDF8;
+  border: 2px solid #111111;
+  width: 100%;
+  max-width: 520px;
+  padding: 32px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.anivom-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: #111111;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.anivom-modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.anivom-modal-sub {
+  font-size: 0.88rem;
+  color: #666666;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.anivom-modal-notice {
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin-bottom: 20px;
+  border-left: 3px solid #7A1F3D;
+  background: #F7F2E8;
+  color: #111111;
+}
+
+.anivom-modal-error {
+  background: #fff5f5;
+  color: #C65D3B;
+  border: 1px solid #C65D3B;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.anivom-modal-success {
+  background: #f0f7f0;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.anivom-form-group {
+  margin-bottom: 18px;
+}
+
+.anivom-form-group.checkbox-group {
+  margin-top: 10px;
+}
+
+.anivom-form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #111111;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.anivom-form-textarea,
+.anivom-form-select {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  border: 1px solid #e5e0d8;
+  background: #FFFDF8;
+  color: #111111;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.anivom-form-textarea:focus,
+.anivom-form-select:focus {
+  border-color: #111111;
+}
+
+.anivom-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #111111;
+  cursor: pointer;
+  user-select: none;
+}
+
+.anivom-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #7A1F3D;
+  cursor: pointer;
+}
+
+.anivom-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.anivom-btn-orders-primary.danger {
+  background-color: #C65D3B;
+  border-color: #C65D3B;
+}
+
+.anivom-btn-orders-primary.danger:hover {
+  background-color: #111111;
+  border-color: #111111;
+}

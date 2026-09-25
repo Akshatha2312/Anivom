@@ -8,8 +8,14 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
   const [error, setError] = useState(null);
 
   const [selectedNextStatus, setSelectedNextStatus] = useState('');
-  const [updating, setUpdating] = useState(false);
-  const [updateMessage, setUpdateMessage] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const [activeAction, setActiveAction] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState(null);
+  const [actionSuccess, setActionSuccess] = useState(null);
+
+  const [adminNotes, setAdminNotes] = useState('');
 
   const fetchOrderDetails = async () => {
     setLoading(true);
@@ -52,9 +58,10 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
   }, [orderId]);
 
   const handleUpdateStatus = async () => {
-    if (!selectedNextStatus) return;
-    setUpdating(true);
-    setUpdateMessage(null);
+    if (!selectedNextStatus || updatingStatus) return;
+    setUpdatingStatus(true);
+    setActionError(null);
+    setActionSuccess(null);
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/orders/admin/${orderId}/status`, {
         method: 'PATCH',
@@ -66,24 +73,95 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to update order status.');
       }
-      setUpdateMessage(`Order status updated to ${selectedNextStatus}`);
-      fetchOrderDetails();
+      setActionSuccess(`Order status updated to ${selectedNextStatus}`);
+      await fetchOrderDetails();
       if (onUpdated) onUpdated();
     } catch (err) {
-      alert(err.message || 'Error updating order status.');
+      setActionError(err.message || 'Error updating order status.');
     } finally {
-      setUpdating(false);
+      setUpdatingStatus(false);
+    }
+  };
+
+  const handleProcessReturn = async (decision) => {
+    if (actionLoading) return;
+    setActionLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/orders/admin/${orderId}/return`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          decision,
+          adminNotes: adminNotes.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setActionSuccess(`Return request ${decision === 'RETURN_APPROVED' ? 'approved' : 'rejected'} successfully.`);
+        setActiveAction(null);
+        setAdminNotes('');
+        await fetchOrderDetails();
+        if (onUpdated) onUpdated();
+      } else {
+        setActionError(data.message || 'Failed to process return request.');
+      }
+    } catch (err) {
+      setActionError('Network error while processing return request.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleProcessRefund = async () => {
+    if (actionLoading) return;
+    setActionLoading(true);
+    setActionError(null);
+    setActionSuccess(null);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/orders/admin/${orderId}/refund`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setActionSuccess('Refund processed successfully via Razorpay.');
+        setActiveAction(null);
+        await fetchOrderDetails();
+        if (onUpdated) onUpdated();
+      } else {
+        setActionError(data.message || 'Failed to process refund.');
+      }
+    } catch (err) {
+      setActionError('Network error while processing refund.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   if (!orderId) return null;
+
+  const isEligibleForRefund =
+    order &&
+    order.paymentStatus === 'PAID' &&
+    ['CANCELLED', 'RETURN_APPROVED'].includes(order.orderStatus) &&
+    (!order.refundStatus || ['NONE', 'FAILED'].includes(order.refundStatus));
 
   return (
     <div className="admin-modal-overlay" onClick={onClose}>
       <div className="admin-modal-content large-modal" onClick={(e) => e.stopPropagation()}>
         <div className="admin-modal-header">
           <div>
-            <h2>ORDER DETAILS #{orderId.slice(-8).toUpperCase()}</h2>
+            <h2>ORDER DOSSIER #{orderId.slice(-8).toUpperCase()}</h2>
             <span className="mono-text">ID: {orderId}</span>
           </div>
           <button className="admin-modal-close" onClick={onClose}>
@@ -105,7 +183,8 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
           </div>
         ) : !order ? null : (
           <div className="order-detail-stack">
-            {updateMessage && <div className="admin-success-banner">{updateMessage}</div>}
+            {actionError && <div className="admin-error-banner">{actionError}</div>}
+            {actionSuccess && <div className="admin-success-banner">{actionSuccess}</div>}
 
             <div className="order-summary-top-grid">
               <div className="summary-block">
@@ -116,6 +195,12 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                 <span className="summary-block-label">ORDER STATUS</span>
                 <StatusBadge status={order.orderStatus} type="order" />
               </div>
+              {order.refundStatus && order.refundStatus !== 'NONE' && (
+                <div className="summary-block">
+                  <span className="summary-block-label">REFUND STATUS</span>
+                  <StatusBadge status={order.refundStatus} type="refund" />
+                </div>
+              )}
               <div className="summary-block">
                 <span className="summary-block-label">TOTAL AMOUNT</span>
                 <span className="summary-block-val">&#8377;{order.totalAmount}</span>
@@ -124,6 +209,12 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                 <span className="summary-block-label">DATE PLACED</span>
                 <span className="summary-block-val">{new Date(order.createdAt).toLocaleString()}</span>
               </div>
+              {order.deliveredAt && (
+                <div className="summary-block">
+                  <span className="summary-block-label">DELIVERED AT</span>
+                  <span className="summary-block-val">{new Date(order.deliveredAt).toLocaleString()}</span>
+                </div>
+              )}
             </div>
 
             <div className="order-columns-grid">
@@ -161,11 +252,35 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
               </div>
 
               <div className="order-col-card">
-                <h3>PAYMENT GATEWAY INFORMATION</h3>
+                <h3>PAYMENT & REFUND GATEWAY</h3>
                 <div className="info-key-val">
                   <span>Payment Status:</span>
                   <StatusBadge status={order.paymentStatus} type="payment" />
                 </div>
+                {order.refundStatus && order.refundStatus !== 'NONE' && (
+                  <div className="info-key-val">
+                    <span>Refund Status:</span>
+                    <StatusBadge status={order.refundStatus} type="refund" />
+                  </div>
+                )}
+                {order.refundedAmount !== undefined && order.refundedAmount > 0 && (
+                  <div className="info-key-val">
+                    <span>Refunded Amount:</span>
+                    <strong>&#8377;{order.refundedAmount}</strong>
+                  </div>
+                )}
+                {order.refundedAt && (
+                  <div className="info-key-val">
+                    <span>Refunded Date:</span>
+                    <span>{new Date(order.refundedAt).toLocaleString()}</span>
+                  </div>
+                )}
+                {order.razorpayRefundId && (
+                  <div className="info-key-val">
+                    <span>Razorpay Refund ID:</span>
+                    <span className="mono-text">{order.razorpayRefundId}</span>
+                  </div>
+                )}
                 <div className="info-key-val">
                   <span>Razorpay Order ID:</span>
                   <span className="mono-text">{order.razorpayOrderId || 'N/A'}</span>
@@ -174,14 +289,121 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                   <span>Razorpay Payment ID:</span>
                   <span className="mono-text">{order.razorpayPaymentId || 'N/A'}</span>
                 </div>
+
+                {isEligibleForRefund && (
+                  <div style={{ marginTop: '16px' }}>
+                    <button
+                      className="admin-submit-btn sm"
+                      onClick={() => setActiveAction('refund')}
+                    >
+                      Process Refund (&#8377;{order.totalAmount}) ✦
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
+            {order.orderStatus === 'CANCELLED' && (
+              <div className="admin-variants-section" style={{ borderLeft: '4px solid #C65D3B' }}>
+                <h3>ORDER CANCELLATION DETAILS</h3>
+                <div className="info-key-val">
+                  <span>Cancellation Reason:</span>
+                  <strong>{order.cancellationReason || 'Cancelled by customer'}</strong>
+                </div>
+                <div className="info-key-val">
+                  <span>Cancelled At:</span>
+                  <span>{order.cancelledAt ? new Date(order.cancelledAt).toLocaleString() : 'N/A'}</span>
+                </div>
+                <div className="info-key-val">
+                  <span>Payment Status:</span>
+                  <StatusBadge status={order.paymentStatus} type="payment" />
+                </div>
+                {order.refundStatus && order.refundStatus !== 'NONE' && (
+                  <div className="info-key-val">
+                    <span>Refund State:</span>
+                    <StatusBadge status={order.refundStatus} type="refund" />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {order.orderStatus === 'RETURN_REQUESTED' && (
+              <div className="admin-variants-section" style={{ borderLeft: '4px solid #7A1F3D' }}>
+                <h3>RETURN REQUEST DOSSIER — ADMIN REVIEW</h3>
+                <div className="info-key-val">
+                  <span>Return Reason:</span>
+                  <strong>{order.returnReason || 'Item return requested'}</strong>
+                </div>
+                {order.returnDetails && (
+                  <div className="info-key-val">
+                    <span>Return Details:</span>
+                    <p style={{ margin: '4px 0', fontSize: '0.85rem', whiteSpace: 'pre-wrap' }}>
+                      {order.returnDetails}
+                    </p>
+                  </div>
+                )}
+                <div className="info-key-val">
+                  <span>Garment Condition:</span>
+                  <span className={order.isDefectiveOrDamaged ? 'stock-low-tag' : 'stock-ok-tag'}>
+                    {order.isDefectiveOrDamaged ? '⚠️ Defective or Damaged Garment Reported' : '✓ Standard Garment Return'}
+                  </span>
+                </div>
+                <div className="info-key-val">
+                  <span>Requested Date:</span>
+                  <span>{order.returnRequestedAt ? new Date(order.returnRequestedAt).toLocaleString() : 'N/A'}</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                  <button
+                    className="admin-submit-btn sm"
+                    onClick={() => setActiveAction('approve_return')}
+                  >
+                    Approve Return ✦
+                  </button>
+                  <button
+                    className="admin-btn-secondary sm"
+                    style={{ color: '#C65D3B', borderColor: '#C65D3B' }}
+                    onClick={() => {
+                      setAdminNotes('');
+                      setActiveAction('reject_return');
+                    }}
+                  >
+                    Reject Return Request
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {['RETURN_APPROVED', 'RETURN_REJECTED'].includes(order.orderStatus) && (
+              <div
+                className="admin-variants-section"
+                style={{
+                  borderLeft: order.orderStatus === 'RETURN_APPROVED' ? '4px solid #16a34a' : '4px solid #C65D3B',
+                }}
+              >
+                <h3>RETURN REQUEST DECISION RECORD</h3>
+                <div className="info-key-val">
+                  <span>Decision:</span>
+                  <StatusBadge status={order.orderStatus} type="order" />
+                </div>
+                <div className="info-key-val">
+                  <span>Processed At:</span>
+                  <span>{order.returnProcessedAt ? new Date(order.returnProcessedAt).toLocaleString() : 'N/A'}</span>
+                </div>
+                {order.returnAdminNotes && (
+                  <div className="info-key-val">
+                    <span>Admin Notes:</span>
+                    <p style={{ margin: '4px 0', fontSize: '0.85rem' }}>{order.returnAdminNotes}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="order-status-update-box">
               <h3>ORDER STATUS TRANSITION CONTROL</h3>
-              {['DELIVERED', 'CANCELLED', 'FAILED'].includes(order.orderStatus) ? (
+              {['DELIVERED', 'CANCELLED', 'FAILED', 'RETURN_APPROVED', 'RETURN_REJECTED'].includes(order.orderStatus) ? (
                 <p className="status-terminal-note">
-                  This order is in terminal state <strong>{order.orderStatus}</strong>. No further status changes are permitted.
+                  This order is in terminal or return-processed state <strong>{order.orderStatus}</strong>.
                 </p>
               ) : (
                 <div className="status-transition-controls">
@@ -209,10 +431,10 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                   </select>
                   <button
                     className="admin-submit-btn sm"
-                    disabled={updating || !selectedNextStatus}
+                    disabled={updatingStatus || !selectedNextStatus}
                     onClick={handleUpdateStatus}
                   >
-                    {updating ? 'UPDATING...' : 'APPLY TRANSITION ✦'}
+                    {updatingStatus ? 'UPDATING...' : 'APPLY TRANSITION ✦'}
                   </button>
                 </div>
               )}
@@ -284,6 +506,150 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
           </button>
         </div>
       </div>
+
+      {activeAction === 'approve_return' && (
+        <div className="admin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setActiveAction(null)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h2>APPROVE RETURN REQUEST</h2>
+              <button className="admin-modal-close" onClick={() => setActiveAction(null)} disabled={actionLoading}>
+                ✕
+              </button>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#333', marginBottom: '16px' }}>
+              Approving this request allows the order to proceed to refund processing.
+            </p>
+
+            <div className="admin-variants-section" style={{ marginBottom: '20px' }}>
+              <div className="info-key-val">
+                <span>Order Reference:</span>
+                <strong>#{orderId.slice(-8).toUpperCase()}</strong>
+              </div>
+              <div className="info-key-val">
+                <span>Customer:</span>
+                <strong>{order?.user?.name} ({order?.user?.email})</strong>
+              </div>
+              <div className="info-key-val">
+                <span>Return Reason:</span>
+                <span>{order?.returnReason}</span>
+              </div>
+              {order?.returnDetails && (
+                <div className="info-key-val">
+                  <span>Return Details:</span>
+                  <span>{order?.returnDetails}</span>
+                </div>
+              )}
+              <div className="info-key-val">
+                <span>Garment Condition:</span>
+                <strong>{order?.isDefectiveOrDamaged ? 'Defective or Damaged Garment' : 'Standard Garment Return'}</strong>
+              </div>
+            </div>
+
+            <div className="admin-modal-actions" style={{ justifyContent: 'flex-end', gap: '12px' }}>
+              <button className="admin-btn-secondary" onClick={() => setActiveAction(null)} disabled={actionLoading}>
+                Cancel
+              </button>
+              <button
+                className="admin-submit-btn"
+                disabled={actionLoading}
+                onClick={() => handleProcessReturn('RETURN_APPROVED')}
+              >
+                {actionLoading ? 'Approving...' : 'Confirm Approve Return ✦'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeAction === 'reject_return' && (
+        <div className="admin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setActiveAction(null)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h2>REJECT RETURN REQUEST</h2>
+              <button className="admin-modal-close" onClick={() => setActiveAction(null)} disabled={actionLoading}>
+                ✕
+              </button>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#333', marginBottom: '16px' }}>
+              Are you sure you wish to reject this return request?
+            </p>
+
+            <div className="admin-input-group" style={{ marginBottom: '20px' }}>
+              <label>ADMIN NOTES / REASON FOR REJECTION (OPTIONAL)</label>
+              <textarea
+                rows={3}
+                placeholder="Provide notes or explanation for the customer/record..."
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                disabled={actionLoading}
+              />
+            </div>
+
+            <div className="admin-modal-actions" style={{ justifyContent: 'flex-end', gap: '12px' }}>
+              <button className="admin-btn-secondary" onClick={() => setActiveAction(null)} disabled={actionLoading}>
+                Cancel
+              </button>
+              <button
+                className="admin-submit-btn"
+                style={{ backgroundColor: '#C65D3B', borderColor: '#C65D3B' }}
+                disabled={actionLoading}
+                onClick={() => handleProcessReturn('RETURN_REJECTED')}
+              >
+                {actionLoading ? 'Rejecting...' : 'Confirm Reject Return'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeAction === 'refund' && (
+        <div className="admin-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setActiveAction(null)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h2>PROCESS RAZORPAY REFUND</h2>
+              <button className="admin-modal-close" onClick={() => setActiveAction(null)} disabled={actionLoading}>
+                ✕
+              </button>
+            </div>
+
+            <div className="admin-variants-section" style={{ marginBottom: '20px' }}>
+              <div className="info-key-val">
+                <span>Order Reference:</span>
+                <strong>#{orderId.slice(-8).toUpperCase()}</strong>
+              </div>
+              <div className="info-key-val">
+                <span>Customer:</span>
+                <strong>{order?.user?.name} ({order?.user?.email})</strong>
+              </div>
+              <div className="info-key-val">
+                <span>Refund Context:</span>
+                <span>{order?.orderStatus === 'CANCELLED' ? 'Order Cancellation Refund' : 'Return Approved Refund'}</span>
+              </div>
+              <div className="info-key-val">
+                <span>Amount to be Refunded:</span>
+                <strong style={{ fontSize: '1.2rem', color: '#16a34a' }}>&#8377;{order?.totalAmount}</strong>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.82rem', color: '#666', marginBottom: '20px' }}>
+              ✦ The refund amount is strictly bound to the order total (&#8377;{order?.totalAmount}) returned by the server and will be issued automatically via Razorpay gateway.
+            </p>
+
+            <div className="admin-modal-actions" style={{ justifyContent: 'flex-end', gap: '12px' }}>
+              <button className="admin-btn-secondary" onClick={() => setActiveAction(null)} disabled={actionLoading}>
+                Cancel
+              </button>
+              <button
+                className="admin-submit-btn"
+                disabled={actionLoading}
+                onClick={handleProcessRefund}
+              >
+                {actionLoading ? 'Processing Refund...' : 'Confirm & Execute Refund ✦'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

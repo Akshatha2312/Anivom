@@ -452,7 +452,7 @@ const updateAdminOrderStatus = async (req, res, next) => {
 
     const currentStatus = order.orderStatus;
 
-    if (['DELIVERED', 'CANCELLED', 'FAILED'].includes(currentStatus)) {
+    if (['DELIVERED', 'CANCELLED', 'FAILED', 'RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_REJECTED'].includes(currentStatus)) {
       return res.status(400).json({
         success: false,
         message: `Cannot update status for an order that is already ${currentStatus}`,
@@ -463,7 +463,7 @@ const updateAdminOrderStatus = async (req, res, next) => {
       PLACED: ['CONFIRMED', 'CANCELLED', 'FAILED'],
       CONFIRMED: ['PROCESSING', 'SHIPPED', 'CANCELLED'],
       PROCESSING: ['SHIPPED', 'CANCELLED'],
-      SHIPPED: ['DELIVERED', 'CANCELLED'],
+      SHIPPED: ['DELIVERED'],
     };
 
     const allowedNext = allowedTransitions[currentStatus] || [];
@@ -472,6 +472,10 @@ const updateAdminOrderStatus = async (req, res, next) => {
         success: false,
         message: `Invalid status transition from ${currentStatus} to ${orderStatus}`,
       });
+    }
+
+    if (orderStatus === 'DELIVERED' && !order.deliveredAt) {
+      order.deliveredAt = new Date();
     }
 
     order.orderStatus = orderStatus;
@@ -568,6 +572,350 @@ const getAdminStats = async (req, res, next) => {
   }
 };
 
+const restoreOrderStock = async (order) => {
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: order._id, stockRestored: { $ne: true } },
+    { $set: { stockRestored: true } },
+    { new: true }
+  );
+
+  if (!updatedOrder) {
+    return;
+  }
+
+  for (const item of order.items) {
+    await Product.updateOne(
+      { _id: item.product, 'variants.size': item.size, 'variants.colour': item.colour },
+      { $inc: { 'variants.$.stock': item.quantity } }
+    );
+  }
+  order.stockRestored = true;
+};
+
+const cancelCustomerOrder = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { cancellationReason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    const order = await Order.findOne({ _id: id, user: req.user._id });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found or unauthorized.' });
+    }
+
+    if (['SHIPPED', 'DELIVERED'].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order has already been shipped or delivered and cannot be cancelled.',
+      });
+    }
+
+    if (['CANCELLED', 'FAILED', 'RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_REJECTED'].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Order cannot be cancelled in its current state (${order.orderStatus}).`,
+      });
+    }
+
+    if (!['PLACED', 'CONFIRMED', 'PROCESSING'].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Order status ${order.orderStatus} is ineligible for cancellation.`,
+      });
+    }
+
+    const reason = cancellationReason ? String(cancellationReason).trim().substring(0, 500) : 'Cancelled by customer';
+
+    if (order.paymentStatus === 'PAID') {
+      if (['PENDING', 'REFUNDED'].includes(order.refundStatus)) {
+        return res.status(400).json({
+          success: false,
+          message: order.refundStatus === 'REFUNDED'
+            ? 'Order has already been refunded.'
+            : 'Refund processing is already in progress.',
+        });
+      }
+
+      if (!order.razorpayPaymentId) {
+        return res.status(400).json({ success: false, message: 'Payment reference missing for paid order.' });
+      }
+
+      const lockOrder = await Order.findOneAndUpdate(
+        { _id: id, refundStatus: { $nin: ['PENDING', 'REFUNDED'] } },
+        { $set: { refundStatus: 'PENDING' } },
+        { new: true }
+      );
+
+      if (!lockOrder) {
+        return res.status(400).json({
+          success: false,
+          message: 'Refund processing is already in progress or completed.',
+        });
+      }
+
+      const razorpay = getRazorpayInstance();
+      const refundAmountPaise = Math.round(order.totalAmount * 100);
+
+      let rzpRefund;
+      try {
+        if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('your_razorpay_key_id')) {
+          rzpRefund = {
+            id: 'rfnd_mock_' + Date.now(),
+            amount: refundAmountPaise,
+          };
+        } else {
+          rzpRefund = await razorpay.payments.refund(order.razorpayPaymentId, {
+            amount: refundAmountPaise,
+            notes: {
+              orderId: order._id.toString(),
+              reason: 'Customer Cancellation',
+            },
+          });
+        }
+      } catch (err) {
+        await Order.updateOne({ _id: id }, { $set: { refundStatus: 'FAILED' } });
+        return res.status(500).json({
+          success: false,
+          message: err.message || 'Razorpay refund processing failed. Please contact support.',
+        });
+      }
+
+      order.refundStatus = 'REFUNDED';
+      order.razorpayRefundId = rzpRefund.id;
+      order.refundedAmount = order.totalAmount;
+      order.refundedAt = new Date();
+      await restoreOrderStock(order);
+    }
+
+    order.orderStatus = 'CANCELLED';
+    order.cancellationReason = reason;
+    order.cancelledAt = new Date();
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Order cancelled successfully.',
+      data: { order },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const requestOrderReturn = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { returnReason, returnDetails, isDefectiveOrDamaged } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    const order = await Order.findOne({ _id: id, user: req.user._id });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found or unauthorized.' });
+    }
+
+    if (order.orderStatus !== 'DELIVERED') {
+      return res.status(400).json({
+        success: false,
+        message: 'Returns can only be requested for orders that have been DELIVERED.',
+      });
+    }
+
+    if (['RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_REJECTED'].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: 'A return request has already been submitted or processed for this order.',
+      });
+    }
+
+    const deliveryTime = order.deliveredAt || order.updatedAt;
+    const daysSinceDelivery = (new Date() - new Date(deliveryTime)) / (1000 * 60 * 60 * 24);
+    if (daysSinceDelivery > 7) {
+      return res.status(400).json({
+        success: false,
+        message: 'Return window expired. Returns must be requested within 7 days of delivery.',
+      });
+    }
+
+    const hasCustomized = order.items.some((item) => item.customized);
+    const isDefective = !!isDefectiveOrDamaged;
+
+    if (hasCustomized && !isDefective) {
+      return res.status(400).json({
+        success: false,
+        message: 'Customized Studio garments are non-returnable unless delivered defective or damaged.',
+      });
+    }
+
+    const reason = returnReason ? String(returnReason).trim().substring(0, 200) : 'Item return requested';
+    const details = returnDetails ? String(returnDetails).trim().substring(0, 1000) : '';
+
+    if (isDefective && !details) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide return details explaining the defect or damage.',
+      });
+    }
+
+    order.orderStatus = 'RETURN_REQUESTED';
+    order.returnReason = reason;
+    order.returnDetails = details;
+    order.isDefectiveOrDamaged = isDefective;
+    order.returnRequestedAt = new Date();
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Return request submitted successfully. Our Atelier team will review your request.',
+      data: { order },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const processAdminReturnRequest = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { decision, adminNotes } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    if (!['RETURN_APPROVED', 'RETURN_REJECTED'].includes(decision)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Decision must be either RETURN_APPROVED or RETURN_REJECTED.',
+      });
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    if (order.orderStatus !== 'RETURN_REQUESTED') {
+      return res.status(400).json({
+        success: false,
+        message: `Order must be in RETURN_REQUESTED status to process return. Current status: ${order.orderStatus}`,
+      });
+    }
+
+    order.orderStatus = decision;
+    order.returnProcessedAt = new Date();
+    order.returnAdminNotes = adminNotes ? String(adminNotes).trim().substring(0, 1000) : '';
+    await order.save();
+
+    const updatedOrder = await Order.findById(id).populate('user', 'name email role');
+
+    res.status(200).json({
+      success: true,
+      message: `Return request ${decision === 'RETURN_APPROVED' ? 'approved' : 'rejected'} successfully.`,
+      data: { order: updatedOrder },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const processAdminRefund = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    if (['PENDING', 'REFUNDED'].includes(order.refundStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: order.refundStatus === 'REFUNDED'
+          ? 'Order has already been refunded.'
+          : 'Refund processing is already in progress.',
+      });
+    }
+
+    if (order.paymentStatus !== 'PAID') {
+      return res.status(400).json({ success: false, message: 'Cannot refund an unpaid order.' });
+    }
+
+    if (!order.razorpayPaymentId) {
+      return res.status(400).json({ success: false, message: 'Missing Razorpay payment reference ID.' });
+    }
+
+    const lockOrder = await Order.findOneAndUpdate(
+      { _id: id, refundStatus: { $nin: ['PENDING', 'REFUNDED'] } },
+      { $set: { refundStatus: 'PENDING' } },
+      { new: true }
+    );
+
+    if (!lockOrder) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refund processing is already in progress or completed.',
+      });
+    }
+
+    const razorpay = getRazorpayInstance();
+    const refundAmountPaise = Math.round(order.totalAmount * 100);
+
+    let rzpRefund;
+    try {
+      if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('your_razorpay_key_id')) {
+        rzpRefund = {
+          id: 'rfnd_mock_' + Date.now(),
+          amount: refundAmountPaise,
+        };
+      } else {
+        rzpRefund = await razorpay.payments.refund(order.razorpayPaymentId, {
+          amount: refundAmountPaise,
+          notes: {
+            orderId: order._id.toString(),
+            reason: 'Admin Approved Refund',
+          },
+        });
+      }
+    } catch (err) {
+      await Order.updateOne({ _id: id }, { $set: { refundStatus: 'FAILED' } });
+      return res.status(500).json({
+        success: false,
+        message: err.message || 'Razorpay refund processing failed.',
+      });
+    }
+
+    order.refundStatus = 'REFUNDED';
+    order.razorpayRefundId = rzpRefund.id;
+    order.refundedAmount = order.totalAmount;
+    order.refundedAt = new Date();
+
+    if (['RETURN_APPROVED', 'CANCELLED'].includes(order.orderStatus)) {
+      await restoreOrderStock(order);
+    }
+
+    await order.save();
+    const updatedOrder = await Order.findById(id).populate('user', 'name email role');
+
+    res.status(200).json({
+      success: true,
+      message: 'Refund processed successfully via Razorpay.',
+      data: { order: updatedOrder },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
@@ -577,6 +925,10 @@ module.exports = {
   getAdminOrderById,
   updateAdminOrderStatus,
   getAdminStats,
+  cancelCustomerOrder,
+  requestOrderReturn,
+  processAdminReturnRequest,
+  processAdminRefund,
 };
 
 

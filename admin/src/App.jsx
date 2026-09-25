@@ -12,6 +12,7 @@ import Sizes from './Sizes';
 import Colours from './Colours';
 import Coupons from './Coupons';
 import Banners from './Banners';
+import SupportInbox from './SupportInbox';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -148,6 +149,16 @@ function App() {
           </button>
 
           <button
+            className={`nav-item ${activeTab === 'support' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('support');
+              setMobileMenuOpen(false);
+            }}
+          >
+            <span>Support Inbox</span>
+          </button>
+
+          <button
             className={`nav-item ${activeTab === 'banners' ? 'active' : ''}`}
             onClick={() => {
               setActiveTab('banners');
@@ -203,6 +214,7 @@ function App() {
           {activeTab === 'designs' && <Designs />}
           {activeTab === 'coupons' && <Coupons />}
           {activeTab === 'banners' && <Banners />}
+          {activeTab === 'support' && <SupportInbox />}
         </main>
       </div>
     </div>

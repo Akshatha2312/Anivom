@@ -1,35 +1,74 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './InfoPages.css'
+import { API_BASE_URL } from './config'
 
-function Contact() {
+function Contact({ user }) {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
     orderId: '',
     subject: '',
     message: '',
   })
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }, [user])
+
+  const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.name || !formData.email || !formData.message) return
-    setSubmitted(true)
-    setFormData({
-      name: '',
-      email: '',
-      orderId: '',
-      subject: '',
-      message: '',
-    })
-    setTimeout(() => {
-      setSubmitted(false)
-    }, 6000)
+    if (!formData.name || !formData.email || !formData.message) {
+      setError('Please fill in all required fields.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setSubmitted(true)
+        setFormData({
+          name: user?.name || '',
+          email: user?.email || '',
+          orderId: '',
+          subject: '',
+          message: '',
+        })
+      } else {
+        setError(data.message || 'Unable to submit your message. Please try again.')
+      }
+    } catch (err) {
+      setError('Network error sending your message. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -73,7 +112,13 @@ function Contact() {
           <div className="contact-form-panel">
             {submitted && (
               <div className="contact-success-banner">
-                Thank you for reaching out to ANIVOM Atelier. Our customer care team has received your message and will respond shortly.
+                Thank you for reaching out to ANIVOM Atelier. Your message has been received by ANIVOM Support and our team will get back to you shortly.
+              </div>
+            )}
+
+            {error && (
+              <div style={{ padding: '12px 16px', background: '#500B13', color: '#FDFBF7', borderLeft: '3px solid #C6A15B', fontSize: '0.85rem', marginBottom: '16px' }}>
+                {error}
               </div>
             )}
 
@@ -85,6 +130,7 @@ function Contact() {
                   type="text"
                   name="name"
                   required
+                  disabled={loading}
                   placeholder="Enter your full name"
                   value={formData.name}
                   onChange={handleChange}
@@ -98,6 +144,7 @@ function Contact() {
                   type="email"
                   name="email"
                   required
+                  disabled={loading || !!user}
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleChange}
@@ -110,6 +157,7 @@ function Contact() {
                   id="orderId"
                   type="text"
                   name="orderId"
+                  disabled={loading}
                   placeholder="e.g. 66f0a1b..."
                   value={formData.orderId}
                   onChange={handleChange}
@@ -122,6 +170,7 @@ function Contact() {
                   id="subject"
                   type="text"
                   name="subject"
+                  disabled={loading}
                   placeholder="e.g. Custom Studio Inquiry / Delivery Status"
                   value={formData.subject}
                   onChange={handleChange}
@@ -134,6 +183,7 @@ function Contact() {
                   id="message"
                   name="message"
                   required
+                  disabled={loading}
                   rows={4}
                   placeholder="How can our support team assist you?"
                   value={formData.message}
@@ -141,8 +191,8 @@ function Contact() {
                 />
               </div>
 
-              <button className="info-banner-btn" type="submit" style={{ width: '100%' }}>
-                Send Message &rarr;
+              <button className="info-banner-btn" type="submit" disabled={loading} style={{ width: '100%', opacity: loading ? 0.7 : 1 }}>
+                {loading ? 'Submitting Message...' : 'Send Message →'}
               </button>
             </form>
           </div>
