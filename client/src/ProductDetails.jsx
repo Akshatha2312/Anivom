@@ -248,8 +248,13 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                   alt={product.name}
                   className="anivom-pdp-main-img"
                   onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = DEFAULT_PLACEHOLDER
+                    const fallback = product?.images && product.images.length > 0 ? product.images[0] : null
+                    if (fallback && e.target.src !== fallback) {
+                      e.target.src = fallback
+                    } else {
+                      e.target.onerror = null
+                      e.target.src = DEFAULT_PLACEHOLDER
+                    }
                   }}
                 />
               ) : (
@@ -390,7 +395,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                 onClick={() => handleStudioNavigation(product)}
                 className="anivom-btn-studio-pdp"
               >
-                Customize in Studio 🎨
+                Customize in Studio ✦
               </button>
             </div>
 

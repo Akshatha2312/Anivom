@@ -62,7 +62,7 @@
 }
 
 .admin-login-title {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 1.5rem;
   color: #FFFDF8;
   margin: 0 0 8px 0;
@@ -239,8 +239,17 @@
 
 .admin-workspace-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: #F7F2E8;
+}
+
+@media (max-width: 900px) {
+  .admin-workspace-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
 }
 
 .admin-sidebar {
@@ -251,6 +260,8 @@
   flex-direction: column;
   border-right: 1px solid rgba(247, 242, 232, 0.08);
   flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
 
   @media (max-width: 900px) {
     position: fixed;
@@ -274,7 +285,7 @@
 }
 
 .sidebar-brand-title {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -373,6 +384,15 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .admin-main-stage {
+    height: auto;
+    overflow: visible;
+  }
 }
 
 .admin-top-bar {
@@ -382,6 +402,7 @@
   padding: 10px 24px;
   background-color: #FFFDF8;
   border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  flex-shrink: 0;
 }
 
 .mobile-menu-toggle {
@@ -448,7 +469,46 @@
 .admin-page-body {
   padding: 16px 24px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-sizing: border-box;
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .admin-page-body {
+    overflow: visible;
+    height: auto;
+    padding: 16px;
+  }
+}
+
+.admin-page-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .admin-page-container,
+  .dashboard-content {
+    height: auto;
+    overflow: visible;
+  }
 }
 
 .admin-page-header {
@@ -458,10 +518,11 @@
   margin-bottom: 12px;
   flex-wrap: wrap;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .admin-page-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-serif);
   font-size: 1.35rem;
   font-weight: 700;
   margin: 0 0 2px 0;
@@ -489,11 +550,14 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .stat-card.stat-alert {
-  border-left: 4px solid #C65D3B;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.stat-card.stat-alert .stat-label {
+  color: #7A1F3D;
 }
 
 .stat-label {
@@ -505,7 +569,7 @@
 }
 
 .stat-value {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 1.8rem;
   font-weight: 700;
   color: #111111;
@@ -534,7 +598,7 @@
 }
 
 .admin-card-title {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 1.2rem;
   margin: 0;
   color: #111111;
@@ -570,6 +634,7 @@
   background-color: #FFFDF8;
   padding: 8px 16px;
   border: 1px solid rgba(17, 17, 17, 0.08);
+  flex-shrink: 0;
 }
 
 .admin-search-box {
@@ -612,7 +677,9 @@
 }
 
 .admin-table-wrapper {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
   background-color: #FFFDF8;
   border: 1px solid rgba(17, 17, 17, 0.08);
 }
@@ -625,6 +692,9 @@
 }
 
 .admin-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   background-color: #111111;
   color: #FFFDF8;
   padding: 8px 12px;
@@ -763,7 +833,8 @@
   background-color: #FFFDF8;
   padding: 8px 16px;
   border: 1px solid rgba(17, 17, 17, 0.08);
-  margin-top: 10px;
+  border-top: none;
+  flex-shrink: 0;
 }
 
 .pagination-info {
@@ -807,7 +878,7 @@
 }
 
 .admin-modal-header h2 {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 1.4rem;
   margin: 0;
   color: #111111;
@@ -966,7 +1037,7 @@
   padding: 20px;
 
   & h3 {
-    font-family: serif;
+    font-family: var(--font-serif);
     font-size: 1.1rem;
     margin: 0 0 12px 0;
     color: #C6A15B;
@@ -1068,7 +1139,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
-  margin-top: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+  padding: 2px;
 }
 
 .design-card {
@@ -1152,7 +1227,7 @@
 }
 
 .design-title {
-  font-family: serif;
+  font-family: var(--font-serif);
   font-size: 1.05rem;
   color: #111111;
   margin: 0;

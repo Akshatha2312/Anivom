@@ -186,8 +186,13 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
                       alt={product.name}
                       className="anivom-wishlist-card-img"
                       onError={(e) => {
-                        e.target.onerror = null
-                        e.target.src = DEFAULT_PLACEHOLDER
+                        const fallback = product?.images && product.images.length > 0 ? product.images[0] : null
+                        if (fallback && e.target.src !== fallback) {
+                          e.target.src = fallback
+                        } else {
+                          e.target.onerror = null
+                          e.target.src = DEFAULT_PLACEHOLDER
+                        }
                       }}
                     />
                   ) : (

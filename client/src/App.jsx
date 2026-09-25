@@ -13,6 +13,10 @@ import Account from './Account'
 import Orders from './Orders'
 import WelcomeModal from './WelcomeModal'
 import BagToast from './BagToast'
+import Faq from './Faq'
+import Shipping from './Shipping'
+import Returns from './Returns'
+import Contact from './Contact'
 import { API_BASE_URL } from './config'
 
 const TICKER_MESSAGES = [
@@ -23,12 +27,76 @@ const TICKER_MESSAGES = [
   'DESIGNED BY YOU. MADE FOR YOU.',
 ]
 
+const PATH_MAP = {
+  '/': 'home',
+  '/home': 'home',
+  '/catalog': 'catalog',
+  '/shop': 'catalog',
+  '/studio': 'studio',
+  '/cart': 'cart',
+  '/bag': 'cart',
+  '/checkout': 'checkout',
+  '/account': 'account',
+  '/orders': 'orders',
+  '/creations': 'creations',
+  '/wishlist': 'wishlist',
+  '/product': 'product',
+  '/faq': 'faq',
+  '/shipping': 'shipping',
+  '/returns': 'returns',
+  '/contact': 'contact',
+}
+
+const VIEW_MAP = {
+  home: '/',
+  catalog: '/catalog',
+  studio: '/studio',
+  cart: '/cart',
+  checkout: '/checkout',
+  account: '/account',
+  orders: '/orders',
+  creations: '/creations',
+  wishlist: '/wishlist',
+  product: '/product',
+  faq: '/faq',
+  shipping: '/shipping',
+  returns: '/returns',
+  contact: '/contact',
+}
+
+function getViewFromLocation() {
+  const path = window.location.pathname.toLowerCase()
+  return PATH_MAP[path] || 'home'
+}
+
 function App() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [mode, setMode] = useState('login')
 
-  const [view, setView] = useState('home')
+  const [viewState, setViewState] = useState(getViewFromLocation)
+
+  const setView = (nextView, options = {}) => {
+    setViewState(nextView)
+    const targetPath = VIEW_MAP[nextView] || '/'
+    if (window.location.pathname !== targetPath && !options?.skipPush) {
+      window.history.pushState({}, '', targetPath)
+    }
+    if (!options?.skipScroll) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const view = viewState
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentView = getViewFromLocation()
+      setViewState(currentView)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [initialCustomization, setInitialCustomization] = useState(null)
@@ -636,6 +704,30 @@ function App() {
             }}
           />
         )}
+
+        {view === 'faq' && (
+          <Faq
+            onNavigateToContact={() => setView('contact')}
+            onNavigateToCatalog={() => setView('catalog')}
+          />
+        )}
+
+        {view === 'shipping' && (
+          <Shipping
+            onNavigateToOrders={openOrders}
+            onNavigateToContact={() => setView('contact')}
+          />
+        )}
+
+        {view === 'returns' && (
+          <Returns
+            onNavigateToContact={() => setView('contact')}
+          />
+        )}
+
+        {view === 'contact' && (
+          <Contact />
+        )}
       </main>
 
       <footer className="anivom-shell-footer">
@@ -661,10 +753,10 @@ function App() {
           <div>
             <h4 className="anivom-footer-col-title">Customer Care</h4>
             <ul className="anivom-footer-links">
-              <li className="anivom-footer-link">Order Status</li>
-              <li className="anivom-footer-link">Shipping & Returns</li>
-              <li className="anivom-footer-link">Size Guide</li>
-              <li className="anivom-footer-link">Care Instructions</li>
+              <li className="anivom-footer-link" onClick={() => setView('faq')}>FAQs</li>
+              <li className="anivom-footer-link" onClick={() => setView('shipping')}>Shipping &amp; Delivery</li>
+              <li className="anivom-footer-link" onClick={() => setView('returns')}>Returns &amp; Refunds</li>
+              <li className="anivom-footer-link" onClick={() => setView('contact')}>Contact Us</li>
             </ul>
           </div>
 

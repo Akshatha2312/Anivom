@@ -144,6 +144,10 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
       'Mustard': '#E1AD01',
       'Wine': '#722F37',
       'Purple': '#4B0082',
+      'Blue': '#1E40AF',
+      'Green': '#15803D',
+      'Pink': '#EC4899',
+      'Yellow': '#EAB308',
     }
     return map[colName] || '#CCCCCC'
   }
@@ -158,8 +162,12 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
               alt={product.name}
               className="anivom-card-img-primary"
               onError={(e) => {
-                e.target.onerror = null
-                e.target.src = DEFAULT_PLACEHOLDER
+                if (defaultModelImage && e.target.src !== defaultModelImage) {
+                  e.target.src = defaultModelImage
+                } else {
+                  e.target.onerror = null
+                  e.target.src = DEFAULT_PLACEHOLDER
+                }
               }}
             />
             {secondaryImage && (
@@ -168,8 +176,12 @@ function CatalogProductCard({ product, user, openStudio, onCartUpdated, onSelect
                 alt={`${product.name} hover`}
                 className="anivom-card-img-secondary"
                 onError={(e) => {
-                  e.target.onerror = null
-                  e.target.src = DEFAULT_PLACEHOLDER
+                  if (defaultModelImage && e.target.src !== defaultModelImage) {
+                    e.target.src = defaultModelImage
+                  } else {
+                    e.target.onerror = null
+                    e.target.src = DEFAULT_PLACEHOLDER
+                  }
                 }}
               />
             )}

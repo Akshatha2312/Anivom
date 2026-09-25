@@ -185,7 +185,6 @@ function App() {
           </div>
 
           <div className="top-bar-user-group">
-            <span className="admin-role-tag">ADMINISTRATOR</span>
             <span className="admin-user-display">{user.name}</span>
             <button className="top-logout-btn" onClick={handleLogout}>
               Logout
