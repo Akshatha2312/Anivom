@@ -2,13 +2,16 @@
 .studio-root {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 68px);
-  min-height: 0;
-  max-height: calc(100vh - 68px);
   background-color: #111111;
   color: #FFFDF8;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   box-sizing: border-box;
+}
+
+.studio-root:not(.studio-selector-page) {
+  height: calc(100vh - 68px);
+  min-height: 0;
+  max-height: calc(100vh - 68px);
   overflow: hidden;
 }
 
@@ -972,12 +975,15 @@
 /* Studio Landing Selector Page */
 .studio-selector-page {
   background-color: #111111;
-  min-height: calc(100vh - 70px);
+  min-height: auto;
+  height: auto;
+  max-height: none;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   color: #FFFDF8;
-  padding-bottom: 40px;
+  padding-bottom: 60px;
 }
 
 .studio-selector-hero {

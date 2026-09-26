@@ -461,36 +461,6 @@ function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [accountDropdownOpen])
 
-  if (view === 'studio') {
-    return (
-      <>
-        <Studio
-          product={selectedProduct}
-          user={user}
-          initialCustomization={initialCustomization}
-          onBack={() => setView('catalog')}
-          onCartUpdated={handleCartItemAdded}
-          onNavigateToCart={() => {
-            fetchCartCount()
-            setView('cart')
-          }}
-          onAuthSuccess={(userData) => {
-            setUser(userData)
-            fetchCartCount()
-          }}
-        />
-        {showBagToast && (
-          <BagToast
-            onClick={() => {
-              setShowBagToast(false)
-              setView('cart')
-            }}
-            onClose={() => setShowBagToast(false)}
-          />
-        )}
-      </>
-    )
-  }
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#FFFDF8', display: 'flex', flexDirection: 'column' }}>
@@ -858,6 +828,24 @@ function App() {
 
         {view === 'contact' && (
           <Contact user={user} />
+        )}
+
+        {view === 'studio' && (
+          <Studio
+            product={selectedProduct}
+            user={user}
+            initialCustomization={initialCustomization}
+            onBack={() => setView('catalog')}
+            onCartUpdated={handleCartItemAdded}
+            onNavigateToCart={() => {
+              fetchCartCount()
+              setView('cart')
+            }}
+            onAuthSuccess={(userData) => {
+              setUser(userData)
+              fetchCartCount()
+            }}
+          />
         )}
       </main>
 
