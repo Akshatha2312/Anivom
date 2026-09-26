@@ -7,6 +7,11 @@ const layerSchema = new mongoose.Schema(
       required: true,
       enum: ['text', 'predefined_design', 'uploaded_image'],
     },
+    view: {
+      type: String,
+      enum: ['front', 'back', 'left', 'right'],
+      default: 'front',
+    },
     order: {
       type: Number,
       required: true,

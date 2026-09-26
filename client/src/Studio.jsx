@@ -7,6 +7,13 @@ import StudioOnboardingModal from './StudioOnboardingModal';
 
 let cachedStudioDesigns = null;
 
+const getLayerScale = (layer) => {
+  if (!layer || layer.scale === undefined || layer.scale === null) return 1;
+  if (typeof layer.scale === 'number') return layer.scale;
+  if (typeof layer.scale.x === 'number') return layer.scale.x;
+  return 1;
+};
+
 const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
   const [productsList, setProductsList] = useState([]);
@@ -145,15 +152,24 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
       if (initialCustomization.layers) {
         const restoredLayers = initialCustomization.layers.map((l, index) => {
           const layerId = l._id ? l._id.toString() : l.id || `layer_${Date.now()}_${index}`;
+          const scaleVal = getLayerScale(l);
+          const basePos = l.position && typeof l.position.x === 'number' ? l.position : { x: 120, y: 120 };
+
+          const baseLayer = {
+            ...l,
+            id: layerId,
+            view: l.view || 'front',
+            position: basePos,
+            scale: { x: scaleVal, y: scaleVal },
+            rotation: typeof l.rotation === 'number' ? l.rotation : 0,
+          };
 
           if (l.type === 'predefined_design' && l.design) {
             const matchedDesign = libraryDesigns.find(
               (d) => d.id === l.design.designId || d._id === l.design.designId
             );
             return {
-              ...l,
-              id: layerId,
-              view: l.view || 'front',
+              ...baseLayer,
               design: {
                 ...l.design,
                 svg: l.design.svg || (matchedDesign ? matchedDesign.svg : '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="currentColor"/></svg>'),
@@ -164,9 +180,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
           if (l.type === 'uploaded_image' && l.image) {
             return {
-              ...l,
-              id: layerId,
-              view: l.view || 'front',
+              ...baseLayer,
               image: {
                 ...l.image,
                 name: l.image.name || 'Uploaded Image',
@@ -174,11 +188,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             };
           }
 
-          return {
-            ...l,
-            id: layerId,
-            view: l.view || 'front',
-          };
+          return baseLayer;
         });
 
         setLayers(restoredLayers);
@@ -538,6 +548,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
       setLayers((prev) => [...prev, newLayer]);
       setSelectedLayerId(newLayer.id);
+      setActiveToolTab('upload');
     } catch (err) {
       setUploadError(err.message || 'Failed to upload custom image.');
     } finally {
@@ -656,6 +667,61 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     setLayers(reordered);
   };
 
+  const handleResizeHandlePointerDown = (e, layer) => {
+    e.stopPropagation();
+    if (e.preventDefault) e.preventDefault();
+    setSelectedLayerId(layer.id);
+    if (layer.type === 'text') {
+      setActiveToolTab('text');
+    } else if (layer.type === 'predefined_design') {
+      setActiveToolTab('artwork');
+    } else if (layer.type === 'uploaded_image') {
+      setActiveToolTab('upload');
+    }
+
+    if (!printAreaRef.current) return;
+    const bounds = printAreaRef.current.getBoundingClientRect();
+
+    const layerCenterX = bounds.left + layer.position.x;
+    const layerCenterY = bounds.top + layer.position.y;
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialScale = getLayerScale(layer);
+
+    const initialDist = Math.hypot(startX - layerCenterX, startY - layerCenterY);
+
+    const handlePointerMove = (moveEvent) => {
+      if (initialDist < 5) return;
+      const currentDist = Math.hypot(moveEvent.clientX - layerCenterX, moveEvent.clientY - layerCenterY);
+      const scaleFactor = currentDist / initialDist;
+      let newScale = initialScale * scaleFactor;
+
+      newScale = Math.max(0.1, Math.min(3.0, newScale));
+      newScale = Math.round(newScale * 100) / 100;
+
+      setLayers((prevLayers) =>
+        prevLayers.map((l) => {
+          if (l.id === layer.id) {
+            return {
+              ...l,
+              scale: { x: newScale, y: newScale },
+            };
+          }
+          return l;
+        })
+      );
+    };
+
+    const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+  };
+
   const handlePointerDown = (e, layer) => {
     e.stopPropagation();
     setSelectedLayerId(layer.id);
@@ -681,8 +747,8 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
       let newX = initialPos.x + deltaX;
       let newY = initialPos.y + deltaY;
 
-      newX = Math.max(15, Math.min(bounds.width - 15, newX));
-      newY = Math.max(15, Math.min(bounds.height - 15, newY));
+      newX = Math.max(10, Math.min(bounds.width - 10, newX));
+      newY = Math.max(10, Math.min(bounds.height - 10, newY));
 
       setLayers((prevLayers) =>
         prevLayers.map((l) => {
@@ -939,7 +1005,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
               <div className="design-print-area preview-clean-print-area">
                 {activeViewLayers.map((layer) => {
-                  const scaleVal = layer.scale ? layer.scale.x : 1;
+                  const scaleVal = getLayerScale(layer);
                   const rotVal = layer.rotation || 0;
 
                   return (
@@ -1325,14 +1391,14 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                   </div>
 
                   <div className="control-group">
-                    <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
+                    <label>Scale ({getLayerScale(selectedLayer).toFixed(1)}x)</label>
                     <input
                       type="range"
-                      min="0.5"
+                      min="0.1"
                       max="3"
-                      step="0.1"
+                      step="0.05"
                       className="range-input"
-                      value={selectedLayer.scale ? selectedLayer.scale.x : 1}
+                      value={getLayerScale(selectedLayer)}
                       onChange={(e) =>
                         updateSelectedLayerTransform('scale', {
                           x: parseFloat(e.target.value),
@@ -1414,14 +1480,14 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                   </div>
 
                   <div className="control-group">
-                    <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
+                    <label>Scale ({getLayerScale(selectedLayer).toFixed(2)}x)</label>
                     <input
                       type="range"
-                      min="0.5"
+                      min="0.1"
                       max="3"
-                      step="0.1"
+                      step="0.05"
                       className="range-input"
-                      value={selectedLayer.scale ? selectedLayer.scale.x : 1}
+                      value={getLayerScale(selectedLayer)}
                       onChange={(e) =>
                         updateSelectedLayerTransform('scale', {
                           x: parseFloat(e.target.value),
@@ -1500,14 +1566,14 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                   </div>
 
                   <div className="control-group">
-                    <label>Scale ({selectedLayer.scale ? selectedLayer.scale.x.toFixed(1) : 1}x)</label>
+                    <label>Scale ({getLayerScale(selectedLayer).toFixed(1)}x)</label>
                     <input
                       type="range"
-                      min="0.5"
+                      min="0.1"
                       max="3"
-                      step="0.1"
+                      step="0.05"
                       className="range-input"
-                      value={selectedLayer.scale ? selectedLayer.scale.x : 1}
+                      value={getLayerScale(selectedLayer)}
                       onChange={(e) =>
                         updateSelectedLayerTransform('scale', {
                           x: parseFloat(e.target.value),
@@ -1677,7 +1743,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
                   {activeViewLayers.map((layer) => {
                     const isSelected = layer.id === selectedLayerId;
-                    const scaleVal = layer.scale ? layer.scale.x : 1;
+                    const scaleVal = getLayerScale(layer);
                     const rotVal = layer.rotation || 0;
 
                     return (
@@ -1725,10 +1791,22 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
                         {isSelected && (
                           <div className="layer-selection-box">
-                            <span className="selection-handle top-left"></span>
-                            <span className="selection-handle top-right"></span>
-                            <span className="selection-handle bottom-left"></span>
-                            <span className="selection-handle bottom-right"></span>
+                            <span
+                              className="selection-handle top-left"
+                              onPointerDown={(e) => handleResizeHandlePointerDown(e, layer)}
+                            ></span>
+                            <span
+                              className="selection-handle top-right"
+                              onPointerDown={(e) => handleResizeHandlePointerDown(e, layer)}
+                            ></span>
+                            <span
+                              className="selection-handle bottom-left"
+                              onPointerDown={(e) => handleResizeHandlePointerDown(e, layer)}
+                            ></span>
+                            <span
+                              className="selection-handle bottom-right"
+                              onPointerDown={(e) => handleResizeHandlePointerDown(e, layer)}
+                            ></span>
                           </div>
                         )}
                       </div>
