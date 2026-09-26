@@ -262,60 +262,82 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
         {error && <div className="anivom-auth-notice error">{error}</div>}
         {successMsg && <div className="anivom-auth-notice success">{successMsg}</div>}
 
-        <div className="anivom-google-auth-container">
-          <div
-            ref={googleButtonRef}
-            className={`anivom-google-btn-wrapper ${loading ? 'disabled' : ''}`}
-          />
-          {loading && <div className="anivom-google-loading">Authenticating with Google...</div>}
-        </div>
-
-        <div className="anivom-auth-divider">
-          <span>OR CONTINUE WITH EMAIL</span>
-        </div>
+        {import.meta.env.DEV && mode === 'login' && (
+          <div className="anivom-auth-dev-helper">
+            <span className="anivom-dev-helper-title">✦ Demo Login (Development Only)</span>
+            <div className="anivom-dev-helper-credentials">
+              <span>Email: <strong>customer@anivom.com</strong></span>
+              <span>Password: <strong>Customer@123</strong></span>
+            </div>
+            <button
+              type="button"
+              className="anivom-dev-fill-btn"
+              onClick={() => {
+                setEmail('customer@anivom.com')
+                setPassword('Customer@123')
+              }}
+            >
+              Fill Test Credentials
+            </button>
+          </div>
+        )}
 
         {mode === 'login' ? (
-          <form onSubmit={handleLoginSubmit} className="anivom-auth-form">
-            <h2 className="anivom-auth-form-title">WELCOME BACK</h2>
-            <p className="anivom-auth-form-sub">Sign in with your email and password.</p>
+          <>
+            <form onSubmit={handleLoginSubmit} className="anivom-auth-form">
+              <h2 className="anivom-auth-form-title">WELCOME BACK</h2>
+              <p className="anivom-auth-form-sub">Sign in with your email and password.</p>
 
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Email Address</label>
-              <input
-                type="email"
-                className="anivom-auth-input"
-                placeholder="name@domain.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Password</label>
-              <div className="anivom-password-wrap">
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Email Address</label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type="email"
                   className="anivom-auth-input"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="name@domain.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <button
-                  type="button"
-                  className="anivom-pwd-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
               </div>
+
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Password</label>
+                <div className="anivom-password-wrap">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className="anivom-auth-input"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="anivom-pwd-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" className="anivom-auth-submit" disabled={loading}>
+                {loading ? 'Signing In...' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="anivom-auth-divider">
+              <span>OR CONTINUE WITH</span>
             </div>
 
-            <button type="submit" className="anivom-auth-submit" disabled={loading}>
-              {loading ? 'Signing In...' : 'Sign In'}
-            </button>
+            <div className="anivom-google-auth-container">
+              <div
+                ref={googleButtonRef}
+                className={`anivom-google-btn-wrapper ${loading ? 'disabled' : ''}`}
+              />
+              {loading && <div className="anivom-google-loading">Authenticating with Google...</div>}
+            </div>
 
             <p className="anivom-auth-switch-text">
               Don't have an account?{' '}
@@ -327,84 +349,98 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
                 Create one now
               </button>
             </p>
-          </form>
+          </>
         ) : (
-          <form onSubmit={handleRegisterSubmit} className="anivom-auth-form">
-            <h2 className="anivom-auth-form-title">JOIN ANIVOM</h2>
-            <p className="anivom-auth-form-sub">Create your account to start designing and ordering.</p>
+          <>
+            <form onSubmit={handleRegisterSubmit} className="anivom-auth-form">
+              <h2 className="anivom-auth-form-title">JOIN ANIVOM</h2>
+              <p className="anivom-auth-form-sub">Create your account to start designing and ordering.</p>
 
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Full Name</label>
-              <input
-                type="text"
-                className="anivom-auth-input"
-                placeholder="Your Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Full Name</label>
+                <input
+                  type="text"
+                  className="anivom-auth-input"
+                  placeholder="Your Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
 
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Email Address</label>
-              <input
-                type="email"
-                className="anivom-auth-input"
-                placeholder="name@domain.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Email Address</label>
+                <input
+                  type="email"
+                  className="anivom-auth-input"
+                  placeholder="name@domain.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Password</label>
-              <div className="anivom-password-wrap">
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Password</label>
+                <div className="anivom-password-wrap">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className="anivom-auth-input"
+                    placeholder="At least 8 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="anivom-pwd-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Confirm Password</label>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="anivom-auth-input"
-                  placeholder="At least 8 characters"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Re-enter password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
-                <button
-                  type="button"
-                  className="anivom-pwd-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
               </div>
+
+              <div className="anivom-auth-field">
+                <label className="anivom-auth-label">Referral Code (Optional)</label>
+                <input
+                  type="text"
+                  className="anivom-auth-input"
+                  placeholder="e.g. ANIVOM7X9K2P"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                />
+              </div>
+
+              <button type="submit" className="anivom-auth-submit" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </button>
+            </form>
+
+            <div className="anivom-auth-divider">
+              <span>OR CONTINUE WITH</span>
             </div>
 
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Confirm Password</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                className="anivom-auth-input"
-                placeholder="Re-enter password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
+            <div className="anivom-google-auth-container">
+              <div
+                ref={googleButtonRef}
+                className={`anivom-google-btn-wrapper ${loading ? 'disabled' : ''}`}
               />
+              {loading && <div className="anivom-google-loading">Authenticating with Google...</div>}
             </div>
-
-            <div className="anivom-auth-field">
-              <label className="anivom-auth-label">Referral Code (Optional)</label>
-              <input
-                type="text"
-                className="anivom-auth-input"
-                placeholder="e.g. ANIVOM7X9K2P"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-              />
-            </div>
-
-            <button type="submit" className="anivom-auth-submit" disabled={loading}>
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
 
             <p className="anivom-auth-switch-text">
               Already have an account?{' '}
@@ -416,7 +452,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
                 Sign in here
               </button>
             </p>
-          </form>
+          </>
         )}
       </div>
     </div>

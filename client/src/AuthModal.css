@@ -335,3 +335,50 @@
     padding: 40px 28px;
   }
 }
+
+.anivom-auth-dev-helper {
+  background: #F7F2E8;
+  border: 1px solid #C6A15B;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.anivom-dev-helper-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #7A1F3D;
+  text-transform: uppercase;
+}
+
+.anivom-dev-helper-credentials {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: #333333;
+}
+
+.anivom-dev-fill-btn {
+  align-self: flex-start;
+  margin-top: 4px;
+  background: #7A1F3D;
+  color: #FFFDF8;
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+
+.anivom-dev-fill-btn:hover {
+  background: #111111;
+}
