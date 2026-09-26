@@ -38,19 +38,7 @@
   text-transform: uppercase;
 }
 
-.anivom-checkout-trust-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #7A1F3D;
-  background: #F7F2E8;
-  padding: 6px 14px;
-  border: 1px solid #e5e0d8;
-}
+
 
 .anivom-checkout-stepper {
   display: flex;

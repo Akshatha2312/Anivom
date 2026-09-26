@@ -390,9 +390,6 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
           <h1 className="anivom-checkout-brand">ANIVOM</h1>
           <span className="anivom-checkout-tagline">Wear It Your Way.</span>
         </div>
-        <div className="anivom-checkout-trust-badge">
-          🔒 Secure 256-Bit SSL Checkout
-        </div>
       </header>
 
       <nav className="anivom-checkout-stepper">
