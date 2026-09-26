@@ -181,42 +181,7 @@
   font-style: italic;
 }
 
-/* Compact Trending Tags */
-.anivom-trending-tags {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  flex-wrap: wrap;
-  font-size: 11px;
-}
 
-.anivom-trending-label {
-  color: #888888;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-size: 10px;
-}
-
-.anivom-tag-pill {
-  background: transparent;
-  color: #D8D2C6;
-  padding: 3px 10px;
-  border-radius: 2px;
-  cursor: pointer;
-  border: 1px solid #333333;
-  font-size: 11px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.anivom-tag-pill:hover {
-  background: rgba(198, 161, 91, 0.15);
-  border-color: #C6A15B;
-  color: #FFFDF8;
-}
 
 /* Catalog Main Layout */
 .anivom-catalog-content {

@@ -418,7 +418,8 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     if (!query) return []
 
     const results = []
-    const seenLabels = new Set()
+    const seenNames = new Set()
+    const normalize = (str) => (str || '').toString().trim().toLowerCase().replace(/\s+/g, ' ')
 
     const allCategoryNames = Array.from(
       new Set([
@@ -439,11 +440,11 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     )
 
     matchedCategories.forEach((cat) => {
-      const key = `cat-${cat.toLowerCase()}`
-      if (!seenLabels.has(key)) {
-        seenLabels.add(key)
+      const norm = normalize(cat)
+      if (norm && !seenNames.has(norm)) {
+        seenNames.add(norm)
         results.push({
-          id: key,
+          id: `cat-${norm}`,
           type: 'category',
           label: cat,
           categoryName: cat,
@@ -459,11 +460,12 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     })
 
     matchedProducts.forEach((p) => {
-      const key = `prod-${p._id}`
-      if (!seenLabels.has(key)) {
-        seenLabels.add(key)
+      if (!p.name) return
+      const norm = normalize(p.name)
+      if (norm && !seenNames.has(norm)) {
+        seenNames.add(norm)
         results.push({
-          id: key,
+          id: `prod-${p._id}`,
           type: 'product',
           label: p.name,
           category: p.category,
@@ -665,26 +667,6 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
             </div>
           )}
         </form>
-
-        <div className="anivom-trending-tags">
-          <span className="anivom-trending-label">Trending:</span>
-          {['Cropped', 'Full Sleeve', 'Oversized', 'Polo', 'Sleeveless', 'Slim Fit', 'V-Neck', 'New Drops'].map((tag) => (
-            <span
-              key={tag}
-              className="anivom-tag-pill"
-              onClick={() => {
-                if (tag === 'New Drops') {
-                  setSortOption('newest')
-                } else {
-                  setActiveCategory(tag)
-                }
-                setPage(1)
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
       </div>
 
       <div className="anivom-catalog-content">
