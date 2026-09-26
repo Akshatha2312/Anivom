@@ -474,7 +474,6 @@ function App() {
             <h1 className="anivom-wordmark">ANIVOM</h1>
             <div className="anivom-brand-sub">
               <span className="anivom-tagline">Wear It Your Way.</span>
-              <span className="anivom-tamil-accent">அணிவோம் · தமிழ் அடையாளம்</span>
             </div>
           </div>
 
@@ -884,8 +883,7 @@ function App() {
             <h4 className="anivom-footer-col-title">Identity</h4>
             <div style={{ fontSize: '13px', color: '#b3b3b3', lineHeight: '1.6' }}>
               ANIVOM Custom Studio<br />
-              High Couture Apparel<br />
-              <span style={{ color: '#C6A15B', fontSize: '12px' }}>அணிவோம் · தமிழ் அடையாளம்</span>
+              High Couture Apparel
             </div>
           </div>
         </div>

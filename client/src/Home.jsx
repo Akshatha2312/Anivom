@@ -122,9 +122,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
           <p className="anivom-intro-text">
             ANIVOM merges contemporary oversized fits with custom digital design. Choose from our signature ready-to-wear drops or personalize every layer with your custom graphics, artwork, and text.
           </p>
-          <div className="anivom-intro-tamil-accent">
-            <span>அணிவோம் · தமிழ் அடையாளம்</span>
-          </div>
         </div>
       </section>
 

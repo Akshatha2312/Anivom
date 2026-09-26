@@ -78,13 +78,6 @@
   font-style: italic;
 }
 
-.anivom-tamil-accent {
-  font-size: 10px;
-  color: #C65D3B;
-  letter-spacing: 0.05em;
-  opacity: 0.9;
-}
-
 /* Center Editorial Navigation */
 .anivom-center-nav {
   display: flex;

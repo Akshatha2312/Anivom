@@ -232,9 +232,6 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
           <p className="anivom-auth-manifesto">
             Join the bespoke fashion movement. Create custom streetwear, order classic heavyweight basics, and manage your saved creations.
           </p>
-          <div className="anivom-auth-tamil-accent">
-            அணிவோம் · தமிழ் அடையாளம்
-          </div>
         </div>
 
         <button className="anivom-auth-back-link" onClick={onNavigateToCatalog || onClose}>
