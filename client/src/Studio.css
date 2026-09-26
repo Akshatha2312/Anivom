@@ -45,23 +45,23 @@
 }
 
 .studio-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 372px 1fr;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 24px;
+  padding: 0 24px 0 16px;
   background: #111111;
   border-bottom: 1px solid rgba(247, 242, 232, 0.1);
-  flex-wrap: nowrap;
-  gap: 12px;
-  height: 48px;
+  height: 54px;
   box-sizing: border-box;
   flex-shrink: 0;
+  width: 100%;
 }
 
 .studio-header-left {
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
 }
 
 .studio-brand-group {
@@ -88,13 +88,19 @@
   background: transparent;
   color: #FFFDF8;
   border: 1px solid rgba(255, 253, 248, 0.2);
-  padding: 5px 12px;
+  padding: 0 12px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
+  line-height: 1;
 }
 
 .studio-back-btn:hover {
@@ -102,28 +108,36 @@
   border-color: #FFFDF8;
 }
 
+.studio-header-workspace-area {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+
 .studio-header-center {
+  grid-column: 2;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
 }
 
 .studio-product-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   margin: 0;
   color: #FFFDF8;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.studio-price {
-  font-size: 0.95rem;
   font-weight: 700;
-  color: #C6A15B;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .studio-header-actions {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -133,13 +147,19 @@
   background: transparent;
   color: #FFFDF8;
   border: 1px solid #C6A15B;
-  padding: 6px 14px;
+  padding: 0 14px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
+  line-height: 1;
 }
 
 .save-customization-btn:hover:not(:disabled) {
@@ -156,13 +176,19 @@
   background: #7A1F3D;
   color: #FFFDF8;
   border: 1px solid #7A1F3D;
-  padding: 6px 16px;
+  padding: 0 16px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
+  line-height: 1;
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
@@ -763,12 +789,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 20px;
+  padding: 0 20px;
   background: #111111;
   border-bottom: 1px solid rgba(247, 242, 232, 0.06);
   flex-shrink: 0;
-  height: 40px;
+  height: 44px;
   box-sizing: border-box;
+}
+
+.stage-top-left {
+  display: flex;
+  align-items: center;
 }
 
 .view-switcher-group {
@@ -801,6 +832,8 @@
   color: #C6A15B;
   text-transform: uppercase;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
 }
 
 .studio-preview-section {
@@ -1482,24 +1515,49 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1100px) {
   .studio-header {
-    height: auto;
+    grid-template-columns: 300px 1fr;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 860px) {
+  .studio-header {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding: 10px 16px;
+    height: auto;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .studio-header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .studio-header-workspace-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
   }
 
   .studio-header-center {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
   }
 
   .studio-header-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
+}
 
+@media (max-width: 600px) {
   .studio-selector-title {
     font-size: 1.4rem;
   }
