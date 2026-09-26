@@ -30,4 +30,22 @@ const wishlistSchema = new mongoose.Schema(
   }
 );
 
+wishlistSchema.pre('init', function (doc) {
+  if (doc && Array.isArray(doc.products)) {
+    doc.products = doc.products.map((item) => {
+      if (!item) return item;
+      // Convert legacy plain ObjectId string/ref to subdocument structure { product: ObjectId, colour: '' }
+      if (
+        item instanceof mongoose.Types.ObjectId ||
+        typeof item === 'string' ||
+        (typeof item === 'object' && !item.product && (item._id || mongoose.Types.ObjectId.isValid(item)))
+      ) {
+        const productId = item._id || item;
+        return { product: productId, colour: '' };
+      }
+      return item;
+    });
+  }
+});
+
 module.exports = mongoose.model('Wishlist', wishlistSchema);
