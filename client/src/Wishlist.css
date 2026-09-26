@@ -2,7 +2,7 @@
   max-width: 1600px;
   width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 40px 20px 80px 20px;
+  padding: 32px 20px 48px 20px;
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;
@@ -12,8 +12,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 36px;
-  padding-bottom: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #e5e0d8;
   flex-wrap: wrap;
   gap: 12px;
@@ -64,13 +64,13 @@
 }
 
 .anivom-wishlist-empty-box {
-  min-height: 45vh;
+  min-height: 35vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 60px 24px;
+  padding: 48px 24px;
   background: #F7F2E8;
   border: 1px solid #e5e0d8;
 }
@@ -147,8 +147,8 @@
 
 .anivom-wishlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
+  gap: 24px;
 }
 
 .anivom-wishlist-card {
@@ -169,7 +169,7 @@
 
 .anivom-wishlist-card-img-wrap {
   width: 100%;
-  height: 340px;
+  height: 280px;
   background: #F7F2E8;
   position: relative;
   overflow: hidden;
