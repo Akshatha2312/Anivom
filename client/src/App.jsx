@@ -686,20 +686,6 @@ function App() {
         </div>
       </header>
 
-      {view === 'auth' && (
-        <AuthModal
-          user={user}
-          mode={mode}
-          onClose={() => setView('catalog')}
-          onNavigateToCatalog={() => setView('catalog')}
-          onAuthSuccess={(userData) => {
-            setUser(userData)
-            fetchCartCount()
-            setView('account')
-          }}
-        />
-      )}
-
       <WelcomeModal
         isOpen={showWelcomeModal && (view === 'home' || view === 'catalog')}
         user={user}
@@ -715,6 +701,20 @@ function App() {
       />
 
       <main className="anivom-shell-main">
+        {view === 'auth' && (
+          <AuthModal
+            user={user}
+            mode={mode}
+            onClose={() => setView('catalog')}
+            onNavigateToCatalog={() => setView('catalog')}
+            onAuthSuccess={(userData) => {
+              setUser(userData)
+              fetchCartCount()
+              setView('account')
+            }}
+          />
+        )}
+
         {view === 'home' && (
           <Home
             openStudio={openStudio}
