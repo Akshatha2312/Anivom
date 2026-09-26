@@ -228,9 +228,6 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           <div className="studio-selector-badge">BESPOKE STUDIO ATELIER</div>
           <h1 className="studio-selector-title">ANIVOM STUDIO</h1>
           <p className="studio-selector-subtitle">Make it yours. Choose a piece and start creating.</p>
-          <p className="studio-selector-desc">
-            Select a luxury base garment from our collection below to begin crafting your bespoke design with custom artwork, typography, and signature motifs.
-          </p>
         </div>
 
         <div className="studio-selector-container">
