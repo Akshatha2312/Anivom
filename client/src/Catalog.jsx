@@ -229,37 +229,6 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
           <div className="anivom-card-price">&#8377;{product.basePrice}</div>
 
           <div className="anivom-card-variant-section">
-            <div className="anivom-swatch-group">
-              <span className="anivom-variant-label">
-                COLOUR: <span className="anivom-variant-val">{selectedColour || 'None'}</span>
-              </span>
-              <div className="anivom-swatches-wrap">
-                {availableColours.map((c) => {
-                  const isSelected = selectedColour === c
-                  const hex = getHexForColour(c)
-                  const isLight = c === 'White' || c === 'Cream'
-
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      title={c}
-                      className={`anivom-swatch-btn ${isSelected ? 'active' : ''}`}
-                      onClick={() => setSelectedColour(c)}
-                    >
-                      <span
-                        className="anivom-swatch-circle"
-                        style={{
-                          backgroundColor: hex,
-                          border: isLight ? '1px solid #D8D2C6' : 'none',
-                        }}
-                      />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
             <div className="anivom-size-group">
               <span className="anivom-variant-label">SIZE</span>
               <div className="anivom-sizes-wrap">
