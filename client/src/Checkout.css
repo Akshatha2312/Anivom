@@ -73,23 +73,29 @@
 
 .anivom-checkout-layout {
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 50px;
+  grid-template-columns: 1fr 420px;
+  gap: 40px;
   align-items: start;
+}
+
+.anivom-checkout-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
 .anivom-checkout-section {
   background: #FFFDF8;
   border: 1px solid #e5e0d8;
-  padding: 28px;
-  margin-bottom: 32px;
+  padding: 24px 28px;
+  margin-bottom: 0;
 }
 
 .anivom-section-heading {
   font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   color: #111111;
   display: flex;
   align-items: center;
@@ -120,12 +126,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .anivom-address-card {
   border: 1px solid #e5e0d8;
-  padding: 20px;
+  padding: 18px;
   background: #FFFDF8;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -145,12 +151,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .anivom-address-name {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: #111111;
 }
 
@@ -165,10 +171,10 @@
 }
 
 .anivom-address-body {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: #555555;
-  line-height: 1.6;
-  margin-bottom: 14px;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
 
 .anivom-address-actions {
@@ -197,7 +203,7 @@
   background: #F7F2E8;
   border: 1px solid #e5e0d8;
   padding: 24px;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .anivom-form-grid {
@@ -257,13 +263,18 @@
 .anivom-checkout-item-mini {
   display: flex;
   gap: 16px;
-  padding: 16px 0;
+  padding: 14px 0;
   border-bottom: 1px solid #e5e0d8;
   align-items: center;
 }
 
+.anivom-checkout-item-mini:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
 .anivom-checkout-item-img {
-  width: 60px;
+  width: 54px;
   aspect-ratio: 3 / 4;
   object-fit: cover;
   background: #F7F2E8;
@@ -275,19 +286,19 @@
 
 .anivom-checkout-item-name {
   font-family: 'Playfair Display', serif;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #111111;
-  margin-bottom: 4px;
+  margin: 0 0 4px 0;
 }
 
 .anivom-checkout-item-meta {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #666666;
 }
 
 .anivom-checkout-item-price {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #7A1F3D;
   text-align: right;
@@ -296,28 +307,28 @@
 .anivom-checkout-summary-card {
   background: #F7F2E8;
   border: 1px solid #e5e0d8;
-  padding: 32px 28px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   position: sticky;
-  top: 100px;
+  top: 90px;
 }
 
 .anivom-summary-line {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #555555;
 }
 
 .anivom-summary-line.total {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #111111;
-  padding-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid #e5e0d8;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .anivom-summary-line.total span:last-child {
@@ -326,17 +337,17 @@
 
 .anivom-btn-pay {
   width: 100%;
-  padding: 16px 24px;
+  padding: 15px 20px;
   background-color: #111111;
   color: #FFFDF8;
   border: 1px solid #111111;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.25s ease;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .anivom-btn-pay:hover:not(:disabled) {
@@ -351,11 +362,11 @@
 
 .anivom-btn-return-bag {
   width: 100%;
-  padding: 14px 24px;
+  padding: 12px 20px;
   background-color: transparent;
   color: #111111;
   border: 1px solid #111111;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -370,17 +381,24 @@
 }
 
 .anivom-security-note {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #777777;
   text-align: center;
-  margin-top: 8px;
+  margin-top: 4px;
   line-height: 1.4;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
+  .anivom-checkout-layout {
+    grid-template-columns: 1fr 360px;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 868px) {
   .anivom-checkout-layout {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
   }
 
   .anivom-checkout-summary-card {

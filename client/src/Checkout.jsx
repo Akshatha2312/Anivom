@@ -417,7 +417,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
       )}
 
       <div className="anivom-checkout-layout">
-        <div>
+        <div className="anivom-checkout-left-col">
           <div className="anivom-checkout-section">
             <div className="anivom-section-heading">
               <span>01. Delivery Address</span>
@@ -518,7 +518,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
             )}
           </div>
 
-          <div className="anivom-checkout-section">
+          <div className="anivom-checkout-section" style={{ marginBottom: 0 }}>
             <div className="anivom-section-heading">
               <span>02. Order Review ({summary.totalItemCount} {summary.totalItemCount === 1 ? 'Item' : 'Items'})</span>
             </div>
@@ -556,7 +556,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
           </div>
         </div>
 
-        <div className="anivom-checkout-summary-card">
+        <aside className="anivom-checkout-summary-card">
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: '600', margin: '0 0 14px 0', paddingBottom: '10px', borderBottom: '1px solid #e5e0d8' }}>
             03. Payment Summary
           </h3>
@@ -676,7 +676,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
             Payment handled securely via Razorpay Test Mode.<br />
             256-bit encrypted checkout transaction.
           </p>
-        </div>
+        </aside>
       </div>
     </div>
   )
