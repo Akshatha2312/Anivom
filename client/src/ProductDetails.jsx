@@ -19,8 +19,9 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
 
   const handleStudioNavigation = openStudio || onNavigateToStudio || (() => {})
 
+  const wishKey = product && selectedColour ? `${product._id}_${selectedColour}` : product?._id
   const isWishlisted = Array.isArray(wishlistIds) && product
-    ? wishlistIds.includes(product._id)
+    ? (wishlistIds.includes(wishKey) || wishlistIds.includes(product._id))
     : internalIsWishlisted
 
   useEffect(() => {
@@ -75,7 +76,12 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
         if (res.ok) {
           const data = await res.json()
           const prods = data.data.wishlist?.products || []
-          const found = prods.some((p) => (p._id || p) === product._id)
+          const found = prods.some((p) => {
+            const pId = p._id || p
+            const pCol = p.selectedColour || p.initialColor || ''
+            if (pId !== product._id) return false
+            return !selectedColour || !pCol || pCol === selectedColour
+          })
           setInternalIsWishlisted(found)
         }
       } catch (e) {
@@ -83,7 +89,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
       }
     }
     fetchWishlistStatus()
-  }, [user, product, wishlistIds])
+  }, [user, product, selectedColour, wishlistIds])
 
   const handleWishlistToggle = async () => {
     if (!user) {
@@ -92,14 +98,15 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
     }
 
     if (onWishlistToggle && product) {
-      onWishlistToggle(product._id)
+      onWishlistToggle(product._id, selectedColour)
       return
     }
 
     try {
-      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${product._id}` : ''}`
+      const queryParam = selectedColour ? `?colour=${encodeURIComponent(selectedColour)}` : ''
+      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${product._id}${queryParam}` : ''}`
       const method = isWishlisted ? 'DELETE' : 'POST'
-      const body = isWishlisted ? null : JSON.stringify({ productId: product._id })
+      const body = isWishlisted ? null : JSON.stringify({ productId: product._id, colour: selectedColour })
 
       const res = await fetch(url, {
         method,
@@ -111,7 +118,12 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
       if (res.ok) {
         const data = await res.json()
         const prods = data.data.wishlist?.products || []
-        const found = prods.some((p) => (p._id || p) === product._id)
+        const found = prods.some((p) => {
+          const pId = p._id || p
+          const pCol = p.selectedColour || p.initialColor || ''
+          if (pId !== product._id) return false
+          return !selectedColour || !pCol || pCol === selectedColour
+        })
         setInternalIsWishlisted(found)
       } else {
         const data = await res.json()

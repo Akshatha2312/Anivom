@@ -327,10 +327,12 @@ function App() {
     }
   }, [user, setLoadingCreations, setCreationsError, setCreations])
 
+  const [wishlistItems, setWishlistItems] = useState([])
   const [wishlistIds, setWishlistIds] = useState([])
 
   const fetchWishlist = useCallback(async () => {
     if (!user) {
+      setWishlistItems([])
       setWishlistIds([])
       return
     }
@@ -341,20 +343,29 @@ function App() {
       if (res.ok) {
         const data = await res.json()
         const prods = data.data.wishlist?.products || []
-        setWishlistIds(prods.map((p) => p._id || p))
+        setWishlistItems(prods)
+        const keys = prods.map((p) => {
+          const id = p._id || p
+          const col = p.selectedColour || p.initialColor || ''
+          return col ? `${id}_${col}` : id
+        })
+        setWishlistIds(keys)
       }
     } catch (err) {
+      setWishlistItems([])
       setWishlistIds([])
     }
-  }, [user, setWishlistIds])
+  }, [user, setWishlistItems, setWishlistIds])
 
-  const handleWishlistToggle = async (productId) => {
+  const handleWishlistToggle = async (productId, colour = '') => {
     if (!user) return
-    const isWishlisted = wishlistIds.includes(productId)
+    const key = colour ? `${productId}_${colour}` : productId
+    const isWishlisted = wishlistIds.includes(key) || wishlistIds.includes(productId)
     try {
-      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}` : ''}`
+      const queryParam = colour ? `?colour=${encodeURIComponent(colour)}` : ''
+      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}${queryParam}` : ''}`
       const method = isWishlisted ? 'DELETE' : 'POST'
-      const body = isWishlisted ? null : JSON.stringify({ productId })
+      const body = isWishlisted ? null : JSON.stringify({ productId, colour })
 
       const res = await fetch(url, {
         method,
@@ -366,7 +377,13 @@ function App() {
       if (res.ok) {
         const data = await res.json()
         const prods = data.data.wishlist?.products || []
-        setWishlistIds(prods.map((p) => p._id || p))
+        setWishlistItems(prods)
+        const keys = prods.map((p) => {
+          const id = p._id || p
+          const col = p.selectedColour || p.initialColor || ''
+          return col ? `${id}_${col}` : id
+        })
+        setWishlistIds(keys)
       }
     } catch (err) {
       console.error('Wishlist error', err)

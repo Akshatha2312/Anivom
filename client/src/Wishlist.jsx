@@ -38,15 +38,33 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
     fetchWishlist()
   }, [user])
 
-  const handleRemoveFromWishlist = async (productId, e) => {
+  const getWishlistGarmentImage = (product, selectedColour) => {
+    if (selectedColour && product?.garmentImages?.byColour) {
+      const byColourObj = product.garmentImages.byColour
+      const colourMapObj = byColourObj instanceof Map ? Object.fromEntries(byColourObj) : byColourObj
+      const colourData = colourMapObj?.[selectedColour]
+      if (colourData && colourData.front) {
+        return colourData.front
+      }
+    }
+    return product?.garmentImages?.front || (product?.images && product.images.length > 0 ? product.images[0] : null)
+  }
+
+  const handleRemoveFromWishlist = async (product, e) => {
     if (e) e.stopPropagation()
+    const productId = product._id
+    const selectedColour = product.selectedColour || product.initialColor || ''
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/wishlist/${productId}`, {
+      const queryParam = selectedColour ? `?colour=${encodeURIComponent(selectedColour)}` : ''
+      const res = await fetch(`${API_BASE_URL}/api/v1/wishlist/${productId}${queryParam}`, {
         method: 'DELETE',
         credentials: 'include',
       })
       if (res.ok) {
-        setWishlistItems((prev) => prev.filter((p) => p._id !== productId))
+        setWishlistItems((prev) => prev.filter((item) => {
+          const itemCol = item.selectedColour || item.initialColor || ''
+          return !(item._id === productId && itemCol === selectedColour)
+        }))
       }
     } catch (err) {
       console.error('Failed to remove item from wishlist', err)
@@ -60,8 +78,12 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
       return
     }
 
-    const defaultVariant = product.variants && product.variants.length > 0 ? product.variants[0] : { size: 'M', colour: 'Black' }
-    setAddingId(product._id)
+    const selectedColour = product.selectedColour || product.initialColor || (product.variants && product.variants.length > 0 ? product.variants[0].colour : 'Black')
+    const matchingVariant = product.variants ? product.variants.find((v) => v.colour === selectedColour && v.stock > 0) || product.variants[0] : null
+    const selectedSize = matchingVariant ? matchingVariant.size : 'M'
+
+    const itemKey = `${product._id}_${selectedColour}`
+    setAddingId(itemKey)
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/cart`, {
@@ -70,15 +92,15 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
         credentials: 'include',
         body: JSON.stringify({
           product: product._id,
-          size: defaultVariant.size,
-          colour: defaultVariant.colour,
+          size: selectedSize,
+          colour: selectedColour,
           quantity: 1,
           customized: false,
         }),
       })
 
       if (res.ok) {
-        setCardMsg((prev) => ({ ...prev, [product._id]: 'Added to Bag!' }))
+        setCardMsg((prev) => ({ ...prev, [itemKey]: 'Added to Bag!' }))
         if (onCartUpdated) onCartUpdated()
       } else {
         const data = await res.json()
@@ -168,23 +190,27 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
       ) : (
         <div className="anivom-wishlist-grid">
           {wishlistItems.map((product, idx) => {
-            const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
+            const selectedColour = product.selectedColour || product.initialColor || ''
+            const itemKey = `${product._id}_${selectedColour}_${idx}`
+            const cardImg = getWishlistGarmentImage(product, selectedColour)
+            const displayName = selectedColour ? `${product.name} - ${selectedColour}` : product.name
+
             return (
               <div
-                key={product._id}
+                key={itemKey}
                 className="anivom-wishlist-card reveal"
                 style={{ '--reveal-delay': `${(idx % 4) * 60}ms` }}
                 onClick={() => {
                   if (onSelectProduct) {
-                    onSelectProduct(product)
+                    onSelectProduct(product, { initialColor: selectedColour })
                   }
                 }}
               >
                 <div className="anivom-wishlist-card-img-wrap">
-                  {primaryImage ? (
+                  {cardImg ? (
                     <img
-                      src={primaryImage}
-                      alt={product.name}
+                      src={cardImg}
+                      alt={displayName}
                       className="anivom-wishlist-card-img"
                       onError={(e) => {
                         const fallback = product?.images && product.images.length > 0 ? product.images[0] : null
@@ -204,7 +230,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
                     className="anivom-wishlist-remove-btn"
                     title="Remove from Wishlist"
                     aria-label="Remove from Wishlist"
-                    onClick={(e) => handleRemoveFromWishlist(product._id, e)}
+                    onClick={(e) => handleRemoveFromWishlist(product, e)}
                   >
                     ✕
                   </button>
@@ -212,19 +238,19 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
                   <button
                     className="anivom-wishlist-quickadd-btn"
                     onClick={(e) => handleAddToCart(product, e)}
-                    disabled={addingId === product._id}
+                    disabled={addingId === `${product._id}_${selectedColour}`}
                   >
-                    {addingId === product._id ? 'Adding...' : '+ Add to Bag'}
+                    {addingId === `${product._id}_${selectedColour}` ? 'Adding...' : '+ Add to Bag'}
                   </button>
                 </div>
 
                 <div className="anivom-wishlist-card-body">
                   <span className="anivom-wishlist-card-cat">{product.category || 'Collection'}</span>
-                  <h3 className="anivom-wishlist-card-name">{product.name}</h3>
+                  <h3 className="anivom-wishlist-card-name">{displayName}</h3>
                   <div className="anivom-wishlist-card-price">&#8377;{product.basePrice}</div>
 
-                  {cardMsg[product._id] && (
-                    <div className="anivom-wishlist-card-msg">{cardMsg[product._id]}</div>
+                  {cardMsg[`${product._id}_${selectedColour}`] && (
+                    <div className="anivom-wishlist-card-msg">{cardMsg[`${product._id}_${selectedColour}`]}</div>
                   )}
 
                   {openStudio && (
@@ -232,7 +258,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
                       className="anivom-wishlist-studio-btn"
                       onClick={(e) => {
                         e.stopPropagation()
-                        openStudio(product)
+                        openStudio(product, { initialColor: selectedColour })
                       }}
                     >
                       Customize in Studio

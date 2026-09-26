@@ -42,7 +42,8 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
   const [cardMsg, setCardMsg] = useState(null)
   const [cardErr, setCardErr] = useState(null)
 
-  const isWishlisted = wishlistIds.includes(product._id)
+  const wishKey = selectedColour ? `${product._id}_${selectedColour}` : product._id
+  const isWishlisted = wishlistIds.includes(wishKey) || wishlistIds.includes(product._id)
 
   const getCardGarmentImage = (view) => {
     if (selectedColour && product?.garmentImages?.byColour) {
@@ -83,7 +84,7 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
       return
     }
     if (onWishlistToggle) {
-      onWishlistToggle(product._id)
+      onWishlistToggle(product._id, selectedColour)
     }
   }
 
