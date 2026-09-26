@@ -30,9 +30,10 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
       setProduct(activeObj)
       setSelectedImgIndex(0)
       if (activeObj.variants && activeObj.variants.length > 0) {
-        const firstVar = activeObj.variants[0]
-        setSelectedSize(firstVar.size)
-        setSelectedColour(firstVar.colour)
+        const preferredCol = activeObj.initialColor || activeObj.initialColour
+        const targetVar = (preferredCol && activeObj.variants.find((v) => v.colour === preferredCol)) || activeObj.variants[0]
+        setSelectedSize(targetVar.size)
+        setSelectedColour(targetVar.colour)
       }
     } else if (productId) {
       const fetchProductById = async () => {
@@ -46,9 +47,10 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
             setProduct(fetchedProduct)
             setSelectedImgIndex(0)
             if (fetchedProduct.variants && fetchedProduct.variants.length > 0) {
-              const firstVar = fetchedProduct.variants[0]
-              setSelectedSize(firstVar.size)
-              setSelectedColour(firstVar.colour)
+              const preferredCol = propProduct?.initialColor || propProduct?.initialColour || initialProduct?.initialColor || initialProduct?.initialColour
+              const targetVar = (preferredCol && fetchedProduct.variants.find((v) => v.colour === preferredCol)) || fetchedProduct.variants[0]
+              setSelectedSize(targetVar.size)
+              setSelectedColour(targetVar.colour)
             }
           } else {
             setProductFetchErr('Garment details could not be retrieved.')

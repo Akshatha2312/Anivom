@@ -388,9 +388,11 @@ function App() {
     }
   }, [view, user, fetchCreations])
 
-  const handleSelectProduct = (product) => {
-    setSelectedProduct(product)
-    setView('product', { productId: product?._id })
+  const handleSelectProduct = (product, options = {}) => {
+    const initCol = typeof options === 'string' ? options : (options?.initialColor || options?.initialColour)
+    const productWithInitCol = initCol ? { ...product, initialColor: initCol } : product
+    setSelectedProduct(productWithInitCol)
+    setView('product', { productId: product?._id, initialColor: initCol })
   }
 
   const handleLogout = async () => {

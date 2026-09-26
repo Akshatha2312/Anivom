@@ -3,20 +3,22 @@ import './Catalog.css'
 import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
 
-function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
+function CatalogProductCard({ product, initialColour, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
   const availableColours = useMemo(() => {
     return product && product.variants && product.variants.length > 0
       ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
       : []
   }, [product])
 
-  const [selectedColour, setSelectedColour] = useState(availableColours[0] || '')
+  const [selectedColour, setSelectedColour] = useState(initialColour || availableColours[0] || '')
 
   useEffect(() => {
-    if (availableColours.length > 0 && !availableColours.includes(selectedColour)) {
+    if (initialColour && availableColours.includes(initialColour)) {
+      setSelectedColour(initialColour)
+    } else if (availableColours.length > 0 && !availableColours.includes(selectedColour)) {
       setSelectedColour(availableColours[0])
     }
-  }, [availableColours, selectedColour])
+  }, [availableColours, initialColour, selectedColour])
 
   const availableSizes = useMemo(() => {
     return product && product.variants && product.variants.length > 0
@@ -68,7 +70,7 @@ function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdate
 
   const handleCardClick = () => {
     if (onSelectProduct) {
-      onSelectProduct(product)
+      onSelectProduct(product, { initialColor: selectedColour, initialSize: selectedSize })
     } else {
       openStudio(product, { initialColor: selectedColour, initialSize: selectedSize })
     }
@@ -221,7 +223,9 @@ function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdate
       <div className="anivom-card-body">
         <div>
           <div className="anivom-card-cat-badge">{product.category || 'Collection'}</div>
-          <h4 className="anivom-card-title">{product.name}</h4>
+          <h4 className="anivom-card-title">
+            {product.name}{selectedColour ? ` - ${selectedColour}` : ''}
+          </h4>
           <div className="anivom-card-price">&#8377;{product.basePrice}</div>
 
           <div className="anivom-card-variant-section">
@@ -517,6 +521,32 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     setPage(1)
   }
 
+  const catalogCards = useMemo(() => {
+    const list = []
+    products.forEach((product) => {
+      const colours = product.variants && product.variants.length > 0
+        ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
+        : []
+
+      if (colours.length > 0) {
+        colours.forEach((col) => {
+          list.push({
+            cardKey: `${product._id}-${col}`,
+            product,
+            initialColour: col,
+          })
+        })
+      } else {
+        list.push({
+          cardKey: product._id,
+          product,
+          initialColour: '',
+        })
+      }
+    })
+    return list
+  }, [products])
+
   const hasActiveFilters = selectedSize !== 'All' || selectedColour !== 'All' || minPrice !== '' || maxPrice !== ''
 
   const startItemNum = totalProducts > 0 ? (page - 1) * 12 + 1 : 0
@@ -530,7 +560,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           <h1 className="anivom-brand-title">THE ANIVOM COLLECTION</h1>
           <p className="anivom-brand-tagline">Find your fit. Find your colour. Make it yours.</p>
           <div className="anivom-catalog-count-badge">
-            {totalProducts} PRODUCTS AVAILABLE
+            {catalogCards.length > 0 ? catalogCards.length : totalProducts} VARIANTS AVAILABLE
           </div>
         </div>
 
@@ -711,11 +741,12 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
         ) : (
           <>
             <div className="anivom-product-grid">
-              {products.map((product, idx) => (
+              {catalogCards.map((item, idx) => (
                 <CatalogProductCard
-                  key={product._id}
+                  key={item.cardKey}
                   index={idx}
-                  product={product}
+                  product={item.product}
+                  initialColour={item.initialColour}
                   user={user}
                   openStudio={openStudio}
                   onCartUpdated={onCartUpdated}
