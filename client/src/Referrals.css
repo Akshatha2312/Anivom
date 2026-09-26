@@ -239,9 +239,16 @@
   border-bottom: 1px solid #E8E2D5;
 }
 
+.anivom-history-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .anivom-history-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 440px;
 }
 
 .anivom-history-table th,
@@ -289,9 +296,28 @@
 
 .anivom-referrals-unauth {
   max-width: 540px;
-  margin: 80px auto;
+  margin: 40px auto;
   text-align: center;
   background: #F7F2E8;
   border: 1px solid #E8E2D5;
   padding: 48px 32px;
+}
+
+@media (max-width: 480px) {
+  .anivom-referrals-root {
+    padding: 24px 16px 60px;
+  }
+
+  .anivom-referrals-title {
+    font-size: 1.6rem;
+  }
+
+  .anivom-referrals-hero-card {
+    padding: 20px 16px;
+  }
+
+  .anivom-referrals-unauth {
+    padding: 32px 16px;
+    margin: 20px auto;
+  }
 }

@@ -449,3 +449,34 @@
     height: 360px;
   }
 }
+
+@media (max-width: 480px) {
+  .anivom-hero-editorial,
+  .anivom-intro-section,
+  .anivom-custom-banner,
+  .anivom-statement-section,
+  .anivom-final-cta-section {
+    padding: 36px 16px;
+  }
+
+  .anivom-hero-heading {
+    font-size: 28px;
+    letter-spacing: 0.06em;
+  }
+
+  .anivom-hero-subtag {
+    font-size: 16px;
+  }
+
+  .anivom-hero-img-frame {
+    height: 280px;
+  }
+
+  .anivom-statement-text {
+    font-size: 20px;
+  }
+
+  .anivom-cta-title {
+    font-size: 22px;
+  }
+}

@@ -267,3 +267,24 @@
   font-size: 0.88rem;
   margin-bottom: 24px;
 }
+
+@media (max-width: 480px) {
+  .info-page-container {
+    padding: 24px 14px 60px 14px;
+  }
+
+  .info-page-title {
+    font-size: 1.7rem;
+  }
+
+  .info-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .info-banner-box,
+  .contact-info-panel,
+  .contact-form-panel {
+    padding: 24px 16px;
+  }
+}

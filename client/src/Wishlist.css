@@ -15,6 +15,8 @@
   margin-bottom: 36px;
   padding-bottom: 20px;
   border-bottom: 1px solid #e5e0d8;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .anivom-wishlist-title {
@@ -96,6 +98,8 @@
 .anivom-wishlist-empty-actions {
   display: flex;
   gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .anivom-btn-wishlist-primary {
@@ -299,7 +303,7 @@
 
 @media (max-width: 600px) {
   .anivom-wishlist-container {
-    padding: 20px 16px 60px 16px;
+    padding: 20px 14px 60px 14px;
   }
 
   .anivom-wishlist-title {
@@ -307,7 +311,15 @@
   }
 
   .anivom-wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .anivom-wishlist-card-img-wrap {
+    height: 220px;
+  }
+
+  .anivom-wishlist-card-body {
+    padding: 12px 10px;
   }
 }

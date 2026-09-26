@@ -1541,6 +1541,35 @@
     grid-template-columns: 1fr;
     gap: 14px;
   }
+
+  .stage-top-controls {
+    padding: 0 10px;
+    height: 40px;
+  }
+
+  .stage-active-badge {
+    display: none;
+  }
+
+  .stage-view-btn {
+    padding: 4px 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+  }
+
+  .studio-canvas-stage {
+    height: 420px;
+  }
+
+  .studio-canvas-container {
+    max-height: 340px;
+    width: 100%;
+  }
+
+  .studio-context-drawer {
+    max-height: 220px;
+    padding: 10px;
+  }
 }
 
 /* Studio View Unavailable Modal Overlay */

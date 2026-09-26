@@ -15,6 +15,8 @@
   margin-bottom: 36px;
   padding-bottom: 20px;
   border-bottom: 1px solid #e5e0d8;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .anivom-cart-title-group {
@@ -417,6 +419,11 @@
 
   .anivom-cart-item-card {
     grid-template-columns: 80px 1fr;
+    gap: 16px;
+  }
+
+  .anivom-cart-item-img-wrap {
+    width: 100%;
   }
 
   .anivom-cart-item-actions {

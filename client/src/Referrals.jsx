@@ -200,34 +200,36 @@ function Referrals({ user, onBackToAccount, onBackToCatalog, onLoginRedirect }) 
               No referrals recorded yet. Share your invitation link to invite friends to ANIVOM.
             </div>
           ) : (
-            <table className="anivom-history-table">
-              <thead>
-                <tr>
-                  <th>Referral</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Reward Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((item) => (
-                  <tr key={item._id}>
-                    <td><strong>{item.label}</strong></td>
-                    <td>{new Date(item.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
-                    <td>
-                      <span className={`anivom-status-tag ${item.status.toLowerCase()}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: '600', color: item.rewardStatus.includes('Earned') ? '#137333' : '#666666' }}>
-                        {item.rewardStatus}
-                      </span>
-                    </td>
+            <div className="anivom-history-table-wrap">
+              <table className="anivom-history-table">
+                <thead>
+                  <tr>
+                    <th>Referral</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Reward Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {history.map((item) => (
+                    <tr key={item._id}>
+                      <td><strong>{item.label}</strong></td>
+                      <td>{new Date(item.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                      <td>
+                        <span className={`anivom-status-tag ${item.status.toLowerCase()}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: '600', color: item.rewardStatus.includes('Earned') ? '#137333' : '#666666' }}>
+                          {item.rewardStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </section>
       </div>

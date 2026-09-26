@@ -480,11 +480,20 @@
 
 @media (max-width: 600px) {
   .anivom-nav-container {
-    padding: 14px 18px;
+    padding: 12px 14px;
+  }
+
+  .anivom-right-actions {
+    gap: 10px;
   }
 
   .anivom-user-name {
     display: none;
+  }
+
+  .anivom-account-menu {
+    max-width: calc(100vw - 28px);
+    right: 0;
   }
 
   .anivom-footer-container {

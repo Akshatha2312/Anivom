@@ -816,6 +816,11 @@
     font-size: 24px;
   }
 
+  .anivom-category-nav {
+    justify-content: flex-start;
+    padding-left: 4px;
+  }
+
   .anivom-compact-toolbar {
     padding: 8px 0;
   }
@@ -830,7 +835,35 @@
   }
 
   .anivom-product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .anivom-catalog-content {
+    padding: 16px 14px 48px;
+  }
+
+  .anivom-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .anivom-card-img-container {
+    height: 220px;
+  }
+
+  .anivom-card-body {
+    padding: 12px 10px;
+  }
+
+  .anivom-card-title {
+    font-size: 13px;
+  }
+
+  .anivom-card-price {
+    font-size: 15px;
+    margin-bottom: 8px;
   }
 }

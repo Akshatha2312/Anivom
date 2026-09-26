@@ -333,6 +333,20 @@
   }
 }
 
+@media (max-width: 480px) {
+  .anivom-auth-page {
+    padding: 12px 10px;
+  }
+
+  .anivom-auth-visual-side {
+    padding: 20px 16px;
+  }
+
+  .anivom-auth-form-side {
+    padding: 20px 16px;
+  }
+}
+
 .anivom-auth-dev-helper {
   background: #F7F2E8;
   border-left: 3px solid #7A1F3D;
@@ -374,7 +388,8 @@
 
 .anivom-dev-helper-credentials {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
   font-size: 0.78rem;
   color: #111111;
   margin-top: 2px;

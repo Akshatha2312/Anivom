@@ -96,6 +96,8 @@
 .anivom-creations-empty-actions {
   display: flex;
   gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .anivom-btn-creations-primary {
@@ -347,12 +349,12 @@
 
 @media (max-width: 600px) {
   .anivom-creations-container {
-    padding: 20px 16px 40px 16px;
+    padding: 20px 14px 40px 14px;
   }
 
   .anivom-creations-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 14px;
   }
 
   .anivom-creations-title {
@@ -363,5 +365,9 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .anivom-creation-card-body {
+    padding: 12px;
   }
 }

@@ -70,6 +70,8 @@
   justify-content: space-between;
   padding-bottom: 12px;
   border-bottom: 1px solid #e5e0d8;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .anivom-btn-add-address {
@@ -320,6 +322,7 @@
 
 .anivom-coupon-input {
   flex: 1;
+  min-width: 0;
   padding: 6px 8px;
   font-size: 0.8rem;
   border: 1px solid #CCC;
@@ -455,7 +458,11 @@
 
 @media (max-width: 576px) {
   .anivom-checkout-container {
-    padding: 20px 16px 60px 16px;
+    padding: 20px 14px 60px 14px;
+  }
+
+  .anivom-address-grid {
+    grid-template-columns: 1fr;
   }
 
   .anivom-form-grid {
@@ -463,7 +470,13 @@
   }
 
   .anivom-checkout-stepper {
-    gap: 16px;
+    gap: 14px;
     font-size: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+
+  .anivom-checkout-section {
+    padding: 18px 16px;
   }
 }

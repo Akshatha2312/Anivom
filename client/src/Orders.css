@@ -1019,7 +1019,24 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  flex-wrap: wrap;
   margin-top: 24px;
+}
+
+@media (max-width: 480px) {
+  .anivom-modal-box {
+    padding: 24px 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .anivom-orders-section {
+    padding: 18px 14px;
+  }
+
+  .anivom-order-card {
+    padding: 18px 14px;
+  }
 }
 
 .anivom-btn-orders-primary.danger {
