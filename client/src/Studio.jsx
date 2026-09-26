@@ -1113,33 +1113,27 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           </div>
         </div>
 
-        <div className="studio-header-workspace-area">
-          <div className="studio-header-center">
-            <h1 className="studio-product-name">{activeProduct.name}</h1>
-          </div>
-
-          <div className="studio-header-actions">
-            <button className="studio-back-btn" onClick={() => setShowOnboardingModal(true)}>
-              HOW IT WORKS
-            </button>
-            <button className="studio-back-btn" onClick={() => setIsPreviewMode(true)}>
-              PREVIEW
-            </button>
-            <button
-              className="save-customization-btn"
-              onClick={handleSaveCustomization}
-              disabled={isSaving || isAddingToCart}
-            >
-              {isSaving ? 'Saving...' : customizationId ? 'Save Changes' : 'Save Creation'}
-            </button>
-            <button
-              className="add-to-cart-btn"
-              onClick={handleAddToCartCustomized}
-              disabled={isSaving || isAddingToCart}
-            >
-              {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
-            </button>
-          </div>
+        <div className="studio-header-actions">
+          <button className="studio-back-btn" onClick={() => setShowOnboardingModal(true)}>
+            HOW IT WORKS
+          </button>
+          <button className="studio-back-btn" onClick={() => setIsPreviewMode(true)}>
+            PREVIEW
+          </button>
+          <button
+            className="save-customization-btn"
+            onClick={handleSaveCustomization}
+            disabled={isSaving || isAddingToCart}
+          >
+            {isSaving ? 'Saving...' : customizationId ? 'Save Changes' : 'Save Creation'}
+          </button>
+          <button
+            className="add-to-cart-btn"
+            onClick={handleAddToCartCustomized}
+            disabled={isSaving || isAddingToCart}
+          >
+            {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
+          </button>
         </div>
       </header>
 
