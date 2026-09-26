@@ -15,6 +15,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
     return localStorage.getItem('anivom_ref_code') || ''
   })
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
   const [showDemoPopup, setShowDemoPopup] = useState(true)
 
