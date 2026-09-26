@@ -46,13 +46,13 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
   }
 
   const stylesCategories = [
-    { title: 'Cropped', desc: 'Modern cropped silhouette with raw hem trim', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348208/anivom/products/display/cropped_display_model.jpg', cat: 'Cropped' },
+    { title: 'Cropped', desc: 'Modern cropped silhouette with raw hem trim', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790346010/cropped_black_front_view_kwqgk4.png', cat: 'Cropped' },
     { title: 'Full Sleeve', desc: 'Structured long sleeve silhouette in heavyweight cotton', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790360283/fullsleve-black-front_ptxokc.png', cat: 'Full Sleeve' },
-    { title: 'Oversized', desc: 'Relaxed heavy silhouettes with dropped shoulders', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348211/anivom/products/display/oversized_display_model.jpg', cat: 'Oversized' },
+    { title: 'Oversized', desc: 'Relaxed heavy silhouettes with dropped shoulders', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790343924/oversized-black-front_alria0.png', cat: 'Oversized' },
     { title: 'Polo', desc: 'Refined pique knit cotton with structured collar', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790355362/polo-black-front_y82xzd.png', cat: 'Polo' },
     { title: 'Sleeveless', desc: 'Athletic cut armless tank tee for unrestricted comfort', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790358628/sleeveless-black-front_lsu9bw.png', cat: 'Sleeveless' },
-    { title: 'Slim Fit', desc: 'Form-fitting tailored cut with flexible comfort', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348213/anivom/products/display/slimfit_display_model.jpg', cat: 'Slim Fit' },
-    { title: 'V-Neck', desc: 'Sleek V-neck cut for modern layering', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790348215/anivom/products/display/vneck_display_model.jpg', cat: 'V-Neck' },
+    { title: 'Slim Fit', desc: 'Form-fitting tailored cut with flexible comfort', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790338620/slim-fit-white-front_xmwgos.png', cat: 'Slim Fit' },
+    { title: 'V-Neck', desc: 'Sleek V-neck cut for modern layering', image: 'https://res.cloudinary.com/dbkt9hcro/image/upload/v1790342172/v-neck-black-front_pnt0pc.png', cat: 'V-Neck' },
   ]
 
   const activeHeroBanner = banners.length > 0 ? banners[0] : null

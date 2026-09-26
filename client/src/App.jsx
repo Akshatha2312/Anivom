@@ -895,7 +895,7 @@ function App() {
             <div style={{ fontSize: '13px', color: '#b3b3b3', lineHeight: '1.6' }}>
               ANIVOM Custom Studio<br />
               High Couture Apparel<br />
-              <span style={{ color: '#C6A15B', fontSize: '12px' }}>அனிவோம் - தமிழ் அடையாளம்</span>
+              <span style={{ color: '#C6A15B', fontSize: '12px' }}>அணிவோம் · தமிழ் அடையாளம்</span>
             </div>
           </div>
         </div>

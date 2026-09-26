@@ -232,7 +232,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
             Join the bespoke fashion movement. Create custom streetwear, order classic heavyweight basics, and manage your saved creations.
           </p>
           <div className="anivom-auth-tamil-accent">
-            "உன் Style. உன் Rules."
+            அணிவோம் · தமிழ் அடையாளம்
           </div>
         </div>
 
