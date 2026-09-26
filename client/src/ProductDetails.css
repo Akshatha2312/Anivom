@@ -9,10 +9,10 @@
 }
 
 .anivom-pdp-container {
-  max-width: 1240px;
-  width: 100%;
+  max-width: 1600px;
+  width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 20px 24px 32px 24px;
+  padding: 20px 20px 32px 20px;
   box-sizing: border-box;
 }
 

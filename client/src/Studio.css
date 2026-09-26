@@ -1030,10 +1030,10 @@
 }
 
 .studio-selector-container {
-  max-width: 1360px;
-  width: 100%;
+  max-width: 1600px;
+  width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 8px 24px 20px;
+  padding: 8px 20px 20px;
   box-sizing: border-box;
   flex: 1;
   display: flex;

@@ -12,8 +12,8 @@
 }
 
 .anivom-hero-grid {
-  max-width: 1400px;
-  width: 100%;
+  max-width: 1600px;
+  width: min(95vw, 1600px);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
@@ -174,9 +174,9 @@
 
 .anivom-styles-section, .anivom-trending-section, .anivom-rec-section {
   max-width: 1600px;
-  width: 100%;
+  width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 60px 36px;
+  padding: 60px 20px;
   box-sizing: border-box;
 }
 

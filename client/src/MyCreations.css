@@ -1,8 +1,8 @@
 .anivom-creations-container {
   max-width: 1600px;
-  width: min(94vw, 1600px);
+  width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 32px 24px 60px 24px;
+  padding: 32px 20px 60px 20px;
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;

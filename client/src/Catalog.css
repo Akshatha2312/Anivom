@@ -192,10 +192,10 @@
 
 /* Catalog Main Layout */
 .anivom-catalog-content {
-  max-width: 1440px;
-  width: 100%;
+  max-width: 1600px;
+  width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 24px 28px 60px;
+  padding: 24px 20px 60px;
   box-sizing: border-box;
 }
 

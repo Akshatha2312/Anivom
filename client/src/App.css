@@ -33,13 +33,13 @@
 }
 
 .anivom-nav-container {
-  max-width: 1440px;
-  width: 100%;
+  max-width: 1600px;
+  width: min(95vw, 1600px);
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 32px;
+  padding: 16px 20px;
   box-sizing: border-box;
 }
 
@@ -384,8 +384,8 @@
 }
 
 .anivom-footer-container {
-  max-width: 1440px;
-  width: 100%;
+  max-width: 1600px;
+  width: min(95vw, 1600px);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
