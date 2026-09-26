@@ -201,8 +201,9 @@
 
 .studio-app-workspace {
   display: flex;
-  height: min(650px, calc(100vh - 120px));
-  min-height: 520px;
+  height: calc(100vh - 140px);
+  min-height: 480px;
+  max-height: 640px;
   background: #111111;
   overflow: hidden;
   position: relative;
@@ -265,7 +266,7 @@
   width: 300px;
   background: #151515;
   border-right: 1px solid rgba(247, 242, 232, 0.08);
-  padding: 16px;
+  padding: 12px;
   overflow-y: auto;
   z-index: 5;
   flex-shrink: 0;
@@ -275,13 +276,13 @@
 .drawer-content {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 .garment-card-summary {
   background: #1c1c1c;
   border: 1px solid rgba(247, 242, 232, 0.08);
-  padding: 12px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
