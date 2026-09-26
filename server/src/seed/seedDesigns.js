@@ -8,7 +8,7 @@ const initialDesigns = [
   {
     name: 'ANIVOM Atelier Seal',
     category: 'ANIVOM Originals',
-    svg: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="42" stroke-dasharray="4 2"/><circle cx="50" cy="50" r="34"/><text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor" letter-spacing="2">ANIVOM</text><text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-size="7" font-weight="600" fill="currentColor" letter-spacing="1">STUDIO ✦ ATELIER</text></svg>`,
+    svg: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="42" stroke-dasharray="4 2"/><circle cx="50" cy="50" r="34"/><text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" font-size="14" font-weight="900" fill="currentColor" letter-spacing="2">ANIVOM</text><text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-size="7" font-weight="600" fill="currentColor" letter-spacing="1">STUDIO ATELIER</text></svg>`,
     isActive: true,
   },
   {

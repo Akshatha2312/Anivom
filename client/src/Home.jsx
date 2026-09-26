@@ -82,7 +82,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
                     {activeHeroBanner.buttonText || 'Explore Collection'}
                   </button>
                   <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
-                    Customize Yours ✦
+                    Customize Yours
                   </button>
                 </>
               ) : (
@@ -91,7 +91,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
                     Shop T-Shirts
                   </button>
                   <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
-                    Customize Yours ✦
+                    Customize Yours
                   </button>
                 </>
               )}
@@ -200,7 +200,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
             Shop the Collection
           </button>
           <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
-            Create Your T-Shirt ✦
+            Create Your T-Shirt
           </button>
         </div>
       </section>

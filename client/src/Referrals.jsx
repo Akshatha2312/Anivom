@@ -162,7 +162,7 @@ function Referrals({ user, onBackToAccount, onBackToCatalog, onLoginRedirect }) 
 
             {copied && (
               <span className="anivom-copy-toast">
-                ✓ Copied to Clipboard ✦
+                ✓ Copied to Clipboard
               </span>
             )}
           </div>

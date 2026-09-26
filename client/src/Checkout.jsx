@@ -317,7 +317,6 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
     return (
       <div className="anivom-checkout-container">
         <div style={{ textAlign: 'center', padding: '60px 24px', background: '#FFFDF8', border: '1px solid #7A1F3D' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>✦</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.5rem', color: '#111111', margin: '0 0 8px 0' }}>ORDER CONFIRMED</h2>
           <p style={{ color: '#555555', fontSize: '1rem', marginBottom: '32px' }}>
             Thank you for your order with ANIVOM. Your payment has been securely verified.

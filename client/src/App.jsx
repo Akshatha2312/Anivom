@@ -239,7 +239,7 @@ function App() {
 
   useEffect(() => {
     const defaultTitle = 'ANIVOM | Wear It Your Way.'
-    const blurTitle = 'Come back to ANIVOM ✦'
+    const blurTitle = 'Come back to ANIVOM'
 
     document.title = defaultTitle
 
@@ -466,7 +466,7 @@ function App() {
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#FFFDF8', display: 'flex', flexDirection: 'column' }}>
       <header className="anivom-shell-header">
         <div className="anivom-ticker-bar">
-          <span className="anivom-ticker-content">✦ {TICKER_MESSAGES[tickerIndex]} ✦</span>
+          <span className="anivom-ticker-content">{TICKER_MESSAGES[tickerIndex]}</span>
         </div>
 
         <div className="anivom-nav-container">
@@ -548,7 +548,7 @@ function App() {
                         setAccountDropdownOpen(false)
                       }}
                     >
-                      ✦ My Profile
+                      My Profile
                     </button>
                     <button
                       className="anivom-menu-item"
@@ -623,7 +623,7 @@ function App() {
             Shop / Catalog
           </button>
           <button onClick={() => { openStudio(null); setMobileMenuOpen(false); }} className="anivom-mobile-link studio">
-            ✦ ANIVOM Studio
+            ANIVOM Studio
           </button>
           <button onClick={() => { setView('cart'); setMobileMenuOpen(false); }} className={`anivom-mobile-link ${view === 'cart' ? 'active' : ''}`}>
             Shopping Bag ({cartCount})

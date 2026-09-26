@@ -296,7 +296,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                       className="admin-submit-btn sm"
                       onClick={() => setActiveAction('refund')}
                     >
-                      Process Refund (&#8377;{order.totalAmount}) ✦
+                      Process Refund (&#8377;{order.totalAmount})
                     </button>
                   </div>
                 )}
@@ -358,7 +358,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                     className="admin-submit-btn sm"
                     onClick={() => setActiveAction('approve_return')}
                   >
-                    Approve Return ✦
+                    Approve Return
                   </button>
                   <button
                     className="admin-btn-secondary sm"
@@ -434,7 +434,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                     disabled={updatingStatus || !selectedNextStatus}
                     onClick={handleUpdateStatus}
                   >
-                    {updatingStatus ? 'UPDATING...' : 'APPLY TRANSITION ✦'}
+                    {updatingStatus ? 'UPDATING...' : 'APPLY TRANSITION'}
                   </button>
                 </div>
               )}
@@ -554,7 +554,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                 disabled={actionLoading}
                 onClick={() => handleProcessReturn('RETURN_APPROVED')}
               >
-                {actionLoading ? 'Approving...' : 'Confirm Approve Return ✦'}
+                {actionLoading ? 'Approving...' : 'Confirm Approve Return'}
               </button>
             </div>
           </div>
@@ -632,7 +632,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
             </div>
 
             <p style={{ fontSize: '0.82rem', color: '#666', marginBottom: '20px' }}>
-              ✦ The refund amount is strictly bound to the order total (&#8377;{order?.totalAmount}) returned by the server and will be issued automatically via Razorpay gateway.
+              The refund amount is strictly bound to the order total (&#8377;{order?.totalAmount}) returned by the server and will be issued automatically via Razorpay gateway.
             </p>
 
             <div className="admin-modal-actions" style={{ justifyContent: 'flex-end', gap: '12px' }}>
@@ -644,7 +644,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                 disabled={actionLoading}
                 onClick={handleProcessRefund}
               >
-                {actionLoading ? 'Processing Refund...' : 'Confirm & Execute Refund ✦'}
+                {actionLoading ? 'Processing Refund...' : 'Confirm & Execute Refund'}
               </button>
             </div>
           </div>

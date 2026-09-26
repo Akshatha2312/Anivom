@@ -28,7 +28,7 @@ function StudioOnboardingModal({ onClose }) {
     {
       num: '03',
       title: 'ARTWORK',
-      icon: '✦',
+      icon: 'A',
       desc: 'Choose from predefined curated ANIVOM vector designs.',
     },
     {

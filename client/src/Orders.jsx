@@ -263,7 +263,7 @@ function Orders({
     if (order.refundStatus === 'PENDING') {
       return (
         <div className="anivom-refund-info-box info-pending">
-          ✦ Your order was cancelled and your refund is being processed.
+          Your order was cancelled and your refund is being processed.
         </div>
       )
     }
@@ -304,7 +304,6 @@ function Orders({
     return (
       <div className="anivom-orders-container">
         <div className="anivom-orders-empty-box">
-          <span className="anivom-orders-symbol">✦</span>
           <h2 className="anivom-orders-empty-head">YOUR ORDERS ARE WAITING.</h2>
           <p className="anivom-orders-empty-sub">
             Sign in to view your orders and track every ANIVOM piece.
@@ -326,7 +325,6 @@ function Orders({
     return (
       <div className="anivom-orders-container">
         <div className="anivom-orders-state-box">
-          <div className="anivom-orders-spinner">✦</div>
           <p className="anivom-orders-state-text">LOADING YOUR ORDERS...</p>
         </div>
       </div>
@@ -366,7 +364,6 @@ function Orders({
     return (
       <div className="anivom-orders-container">
         <div className="anivom-orders-state-box">
-          <div className="anivom-orders-spinner">✦</div>
           <p className="anivom-orders-state-text">LOADING ORDER DETAILS...</p>
         </div>
       </div>
@@ -480,7 +477,7 @@ function Orders({
                         }`}
                       >
                         <div className="anivom-timeline-node">
-                          {isCompleted ? '✓' : isCurrent ? '✦' : ''}
+                          {isCompleted ? '✓' : ''}
                         </div>
                         <span className="anivom-timeline-label">{step.label}</span>
                       </div>
@@ -491,7 +488,7 @@ function Orders({
 
               {selectedOrder.deliveredAt && (
                 <div className="anivom-delivery-date-note">
-                  ✦ Delivered on {formatDate(selectedOrder.deliveredAt)}
+                  Delivered on {formatDate(selectedOrder.deliveredAt)}
                 </div>
               )}
 
@@ -679,7 +676,6 @@ function Orders({
         </div>
 
         <div className="anivom-orders-empty-box">
-          <span className="anivom-orders-symbol">✦</span>
           <h2 className="anivom-orders-empty-head">NO ORDERS YET.</h2>
           <p className="anivom-orders-empty-sub">
             Your next ANIVOM piece is waiting.
@@ -762,7 +758,7 @@ function Orders({
                       <span className="anivom-preview-name">{item.name}</span>
                       <span className="anivom-preview-spec">({item.size} / {item.colour}) × {item.quantity}</span>
                       {item.customized && (
-                        <span className="anivom-chip-custom-badge">✦ CUSTOM</span>
+                        <span className="anivom-chip-custom-badge">CUSTOM</span>
                       )}
                     </div>
                   ))}
@@ -885,7 +881,7 @@ function Orders({
 
             {activeModalOrder.items && activeModalOrder.items.some((i) => i.customized) ? (
               <div className="anivom-modal-notice customized">
-                ✦ <strong>ANIVOM Studio Notice:</strong> Customized items can be returned only when delivered defective or damaged.
+                <strong>ANIVOM Studio Notice:</strong> Customized items can be returned only when delivered defective or damaged.
               </div>
             ) : null}
 

@@ -74,7 +74,7 @@ function App() {
       <aside className={`admin-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="admin-sidebar-brand">
           <span className="sidebar-brand-title">ANIVOM</span>
-          <span className="sidebar-brand-badge">ATELIER ✦ ADMIN</span>
+          <span className="sidebar-brand-badge">ATELIER ADMIN</span>
         </div>
 
         <nav className="admin-sidebar-nav">

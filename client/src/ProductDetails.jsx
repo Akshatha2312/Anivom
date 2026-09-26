@@ -410,12 +410,12 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                 onClick={() => handleStudioNavigation(product)}
                 className="anivom-btn-studio-pdp"
               >
-                Customize in Studio ✦
+                Customize in Studio
               </button>
             </div>
 
             <div className="anivom-custom-note-box">
-              <div className="anivom-note-title">✦ WANT TO MAKE IT YOURS?</div>
+              <div className="anivom-note-title">WANT TO MAKE IT YOURS?</div>
               <p className="anivom-note-body">
                 Add your own text, custom artwork, or an ANIVOM vector design on this T-shirt using our interactive Studio engine.
               </p>

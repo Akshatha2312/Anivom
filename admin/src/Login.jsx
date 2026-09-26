@@ -57,7 +57,7 @@ const Login = ({ onLoginSuccess }) => {
     <div className="admin-login-wrapper">
       <div className="admin-login-card">
         <div className="admin-login-header">
-          <span className="admin-brand-tag">ANIVOM ✦ ATELIER</span>
+          <span className="admin-brand-tag">ANIVOM ATELIER</span>
           <h1 className="admin-login-title">MANAGEMENT STUDIO</h1>
           <p className="admin-login-subtitle">Sign in to access admin workspace</p>
         </div>
@@ -88,7 +88,7 @@ const Login = ({ onLoginSuccess }) => {
           </div>
 
           <button type="submit" disabled={loading} className="admin-submit-btn">
-            {loading ? 'AUTHENTICATING...' : 'ENTER WORKSPACE ✦'}
+            {loading ? 'AUTHENTICATING...' : 'ENTER WORKSPACE'}
           </button>
         </form>
 

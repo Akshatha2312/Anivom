@@ -374,7 +374,7 @@ const ProductFormModal = ({ product, onClose, onSaved }) => {
               Cancel
             </button>
             <button type="submit" disabled={loading} className="admin-submit-btn">
-              {loading ? 'SAVING...' : isEditing ? 'UPDATE PIECE' : 'CREATE PIECE ✦'}
+              {loading ? 'SAVING...' : isEditing ? 'UPDATE PIECE' : 'CREATE PIECE'}
             </button>
           </div>
         </form>

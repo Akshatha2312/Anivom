@@ -120,7 +120,7 @@ function WelcomeModal({
                 className="anivom-btn-welcome-secondary"
                 onClick={handleDesignClick}
               >
-                CREATE YOUR DESIGN ✦
+                CREATE YOUR DESIGN
               </button>
             </div>
 

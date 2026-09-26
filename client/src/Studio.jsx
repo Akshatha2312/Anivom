@@ -211,7 +211,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               &larr; Catalog
             </button>
             <div className="studio-brand-group">
-              <span className="studio-badge">ANIVOM STUDIO ✦ ATELIER</span>
+              <span className="studio-badge">ANIVOM STUDIO ATELIER</span>
               <span className="studio-tagline">Make it yours. Choose a piece and start creating.</span>
             </div>
             <button
@@ -219,13 +219,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               onClick={() => setShowOnboardingModal(true)}
               style={{ marginLeft: '12px' }}
             >
-              HOW IT WORKS ✦
+              HOW IT WORKS
             </button>
           </div>
         </header>
 
         <div className="studio-selector-hero">
-          <div className="studio-selector-badge">✦ BESPOKE STUDIO ATELIER</div>
+          <div className="studio-selector-badge">BESPOKE STUDIO ATELIER</div>
           <h1 className="studio-selector-title">ANIVOM STUDIO</h1>
           <p className="studio-selector-subtitle">Make it yours. Choose a piece and start creating.</p>
           <p className="studio-selector-desc">
@@ -326,7 +326,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                           setSelectedStudioProduct(prod);
                         }}
                       >
-                        START DESIGNING ✦
+                        START DESIGNING
                       </button>
                     </div>
                   </div>
@@ -851,7 +851,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               &larr; Return to Studio Editor
             </button>
             <div className="studio-brand-group">
-              <span className="studio-badge">ANIVOM STUDIO ✦ PREVIEW MODE</span>
+              <span className="studio-badge">ANIVOM STUDIO PREVIEW MODE</span>
               <span className="studio-tagline">Inspect your bespoke garment design before purchasing.</span>
             </div>
           </div>
@@ -868,7 +868,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               onClick={handleAddToCartCustomized}
               disabled={isSaving || isAddingToCart}
             >
-              {isAddingToCart ? 'Adding...' : 'Add Design to Bag ✦'}
+              {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
             </button>
           </div>
         </header>
@@ -1025,7 +1025,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                 onClick={handleAddToCartCustomized}
                 disabled={isSaving || isAddingToCart}
               >
-                {isAddingToCart ? 'Adding...' : 'Add Design to Bag ✦'}
+                {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
               </button>
               <button className="studio-back-btn full-width" onClick={() => setIsPreviewMode(false)}>
                 Return to Editor
@@ -1057,10 +1057,10 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
         <div className="studio-header-actions">
           <button className="studio-back-btn" onClick={() => setShowOnboardingModal(true)}>
-            HOW IT WORKS ✦
+            HOW IT WORKS
           </button>
           <button className="studio-back-btn" onClick={() => setIsPreviewMode(true)}>
-            PREVIEW ✦
+            PREVIEW
           </button>
           <button
             className="save-customization-btn"
@@ -1113,7 +1113,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             className={`tool-bar-btn ${activeToolTab === 'artwork' ? 'active' : ''}`}
             onClick={() => setActiveToolTab('artwork')}
           >
-            <span className="tool-icon">✦</span>
+            <span className="tool-icon">A</span>
             <span className="tool-label">Artwork</span>
           </button>
           <button
@@ -1780,13 +1780,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             <button className="studio-modal-close-btn" onClick={() => setViewUnavailableModal(null)}>
               &times;
             </button>
-            <div className="studio-view-unavailable-badge">✦ VIEW NOTICE</div>
+            <div className="studio-view-unavailable-badge">VIEW NOTICE</div>
             <h3 className="studio-view-unavailable-title">{viewUnavailableModal} VIEW UNAVAILABLE</h3>
             <p className="studio-view-unavailable-text">
               This garment currently has Front and Back views only.
             </p>
             <button className="studio-view-unavailable-btn" onClick={() => setViewUnavailableModal(null)}>
-              UNDERSTOOD ✦
+              UNDERSTOOD
             </button>
           </div>
         </div>

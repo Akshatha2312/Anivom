@@ -235,7 +235,7 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
                         openStudio(product)
                       }}
                     >
-                      Customize in Studio ✦
+                      Customize in Studio
                     </button>
                   )}
                 </div>

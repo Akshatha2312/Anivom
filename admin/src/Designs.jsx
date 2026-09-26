@@ -426,7 +426,7 @@ function Designs() {
                   Cancel
                 </button>
                 <button type="submit" className="admin-submit-btn" disabled={submitting || uploadingImage}>
-                  {submitting ? 'SAVING...' : editingDesign ? 'UPDATE DESIGN' : 'CREATE DESIGN ✦'}
+                  {submitting ? 'SAVING...' : editingDesign ? 'UPDATE DESIGN' : 'CREATE DESIGN'}
                 </button>
               </div>
             </form>
