@@ -502,7 +502,7 @@ function App() {
             <h1 className="anivom-wordmark">ANIVOM</h1>
             <div className="anivom-brand-sub">
               <span className="anivom-tagline">Wear It Your Way.</span>
-              <span className="anivom-tamil-accent">அனிவோம்</span>
+              <span className="anivom-tamil-accent">அணிவோம் · தமிழ் அடையாளம்</span>
             </div>
           </div>
 
