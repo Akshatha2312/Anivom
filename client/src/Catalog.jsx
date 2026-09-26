@@ -339,7 +339,6 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
 
   const [_dbCategories, setDbCategories] = useState(cachedDbCategories || [])
   const [dbSizes, setDbSizes] = useState(cachedDbSizes || [])
-  const [dbColours, setDbColours] = useState(cachedDbColours || [])
 
   useEffect(() => {
     if (!cachedDbCategories) {
@@ -363,19 +362,6 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
             const list = data.data.sizes.map((s) => s.name)
             cachedDbSizes = list
             setDbSizes(list)
-          }
-        })
-        .catch(() => { })
-    }
-
-    if (!cachedDbColours) {
-      fetch(`${API_BASE_URL}/api/v1/colours`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.data?.colours && data.data.colours.length > 0) {
-            const list = data.data.colours.map((c) => c.name)
-            cachedDbColours = list
-            setDbColours(list)
           }
         })
         .catch(() => { })
@@ -406,16 +392,17 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     }
   }, [])
 
-  const defaultSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
-  const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
-
   const categories = ['All', 'Cropped', 'Full Sleeve', 'Oversized', 'Polo', 'Sleeveless', 'Slim Fit', 'V-Neck']
 
-  // Derive colours & sizes strictly from active product variants in allCatalogProducts / products
+  // Derive colours & sizes dynamically from active catalog product variants
   const derivedColours = useMemo(() => {
     const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
     const colorSet = new Set()
     productPool.forEach((p) => {
+      // Respect category filter if selected when deriving available colours
+      if (activeCategory !== 'All' && p.category && p.category.toLowerCase() !== activeCategory.toLowerCase()) {
+        return
+      }
       if (p.variants && Array.isArray(p.variants)) {
         p.variants.forEach((v) => {
           if (v.stock > 0 && v.colour) {
@@ -427,14 +414,17 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
         })
       }
     })
-    return Array.from(colorSet).sort()
-  }, [allCatalogProducts, products])
+    return Array.from(colorSet).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+  }, [allCatalogProducts, products, activeCategory])
 
   const derivedSizes = useMemo(() => {
     const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
     const standardOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
     const sizeSet = new Set()
     productPool.forEach((p) => {
+      if (activeCategory !== 'All' && p.category && p.category.toLowerCase() !== activeCategory.toLowerCase()) {
+        return
+      }
       if (p.variants && Array.isArray(p.variants)) {
         p.variants.forEach((v) => {
           if (v.stock > 0 && v.size) {
@@ -456,7 +446,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
       return a.localeCompare(b)
     })
     return foundSizes
-  }, [allCatalogProducts, products])
+  }, [allCatalogProducts, products, activeCategory])
 
   const sizes = ['All', ...derivedSizes]
   const colours = ['All', ...derivedColours]
@@ -654,24 +644,33 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
 
   const catalogCards = useMemo(() => {
     const list = []
+    const normSelected = selectedColour ? selectedColour.trim().toLowerCase() : 'all'
+
     products.forEach((product) => {
-      let colours = product.variants && product.variants.length > 0
-        ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
+      let variantColours = product.variants && product.variants.length > 0
+        ? Array.from(
+            new Set(
+              product.variants
+                .filter((v) => v.stock > 0 && v.colour)
+                .map((v) => String(v.colour).trim())
+                .filter((col) => col && !col.toLowerCase().includes('-test'))
+            )
+          )
         : []
 
-      if (selectedColour && selectedColour !== 'All') {
-        colours = colours.filter((c) => c.toLowerCase() === selectedColour.toLowerCase())
+      if (normSelected !== 'all') {
+        variantColours = variantColours.filter((c) => c.toLowerCase() === normSelected)
       }
 
-      if (colours.length > 0) {
-        colours.forEach((col) => {
+      if (variantColours.length > 0) {
+        variantColours.forEach((col) => {
           list.push({
             cardKey: `${product._id}-${col}`,
             product,
             initialColour: col,
           })
         })
-      } else {
+      } else if (normSelected === 'all') {
         list.push({
           cardKey: product._id,
           product,
