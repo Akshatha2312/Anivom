@@ -86,7 +86,7 @@
 }
 
 .anivom-auth-form-side {
-  padding: 32px 36px;
+  padding: 24px 32px;
   display: flex;
   flex-direction: column;
 }
@@ -94,12 +94,12 @@
 .anivom-auth-header-toggle {
   display: flex;
   border-bottom: 1px solid #e5e0d8;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .anivom-auth-tab {
   flex: 1;
-  padding: 12px 0;
+  padding: 10px 0;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -122,9 +122,9 @@
 }
 
 .anivom-auth-notice {
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  margin-bottom: 20px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
   border-radius: 2px;
 }
 
@@ -143,31 +143,31 @@
 .anivom-auth-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .anivom-auth-form-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
   color: #111111;
 }
 
 .anivom-auth-form-sub {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: #666666;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
 }
 
 .anivom-auth-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .anivom-auth-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -181,10 +181,10 @@
 
 .anivom-auth-input {
   width: 100%;
-  padding: 9px 12px;
+  padding: 8px 10px;
   background: #FFFDF8;
   border: 1px solid #d5d0c8;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: #111111;
   box-sizing: border-box;
 }
@@ -202,7 +202,7 @@
   background: none;
   border: none;
   color: #666666;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -211,11 +211,11 @@
 
 .anivom-auth-submit {
   width: 100%;
-  padding: 12px 20px;
+  padding: 10px 16px;
   background: #111111;
   color: #FFFDF8;
   border: 1px solid #111111;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -235,9 +235,9 @@
 }
 
 .anivom-auth-switch-text {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #666666;
-  margin-top: 10px;
+  margin-top: 8px;
   text-align: center;
 }
 
@@ -274,10 +274,10 @@
 
 .anivom-google-auth-container {
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .anivom-google-btn-wrapper {
@@ -291,7 +291,7 @@
 }
 
 .anivom-google-loading {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: #7A1F3D;
   font-weight: 600;
   text-align: center;
@@ -303,7 +303,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 8px 0 14px 0;
+  margin: 6px 0 10px 0;
 }
 
 .anivom-auth-divider::before,
@@ -314,8 +314,8 @@
 }
 
 .anivom-auth-divider span {
-  padding: 0 14px;
-  font-size: 0.7rem;
+  padding: 0 12px;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: #888888;
@@ -327,58 +327,64 @@
   }
 
   .anivom-auth-visual-side {
-    padding: 40px 28px;
-    gap: 20px;
+    padding: 32px 24px;
+    gap: 16px;
   }
 
   .anivom-auth-form-side {
-    padding: 40px 28px;
+    padding: 28px 24px;
   }
 }
 
 .anivom-auth-dev-helper {
   background: #F7F2E8;
-  border: 1px solid #C6A15B;
-  padding: 10px 12px;
-  margin-bottom: 12px;
+  border-left: 3px solid #7A1F3D;
+  padding: 8px 12px;
+  margin-bottom: 10px;
   border-radius: 2px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+}
+
+.anivom-dev-helper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .anivom-dev-helper-title {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: #7A1F3D;
   text-transform: uppercase;
 }
 
+.anivom-dev-close-btn {
+  background: none;
+  border: none;
+  color: #777777;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.anivom-dev-close-btn:hover {
+  color: #111111;
+}
+
 .anivom-dev-helper-credentials {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  gap: 12px;
   font-size: 0.78rem;
-  color: #333333;
+  color: #111111;
+  margin-top: 2px;
 }
 
-.anivom-dev-fill-btn {
-  align-self: flex-start;
-  margin-top: 4px;
-  background: #7A1F3D;
-  color: #FFFDF8;
-  border: none;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  cursor: pointer;
-  border-radius: 2px;
-  text-transform: uppercase;
-  transition: background 0.2s ease;
-}
-
-.anivom-dev-fill-btn:hover {
-  background: #111111;
+.anivom-dev-helper-subtext {
+  font-size: 0.72rem;
+  color: #666666;
+  margin: 2px 0 0 0;
 }

@@ -15,8 +15,8 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
     return localStorage.getItem('anivom_ref_code') || ''
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
+  const [showDemoPopup, setShowDemoPopup] = useState(true)
 
   const googleButtonRef = useRef(null)
 
@@ -262,23 +262,24 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
         {error && <div className="anivom-auth-notice error">{error}</div>}
         {successMsg && <div className="anivom-auth-notice success">{successMsg}</div>}
 
-        {import.meta.env.DEV && mode === 'login' && (
+        {showDemoPopup && mode === 'login' && (
           <div className="anivom-auth-dev-helper">
-            <span className="anivom-dev-helper-title">✦ Demo Login (Development Only)</span>
-            <div className="anivom-dev-helper-credentials">
-              <span>Email: <strong>customer@anivom.com</strong></span>
-              <span>Password: <strong>Customer@123</strong></span>
+            <div className="anivom-dev-helper-header">
+              <span className="anivom-dev-helper-title">DEMO LOGIN</span>
+              <button
+                type="button"
+                className="anivom-dev-close-btn"
+                onClick={() => setShowDemoPopup(false)}
+                aria-label="Dismiss demo login notice"
+              >
+                ✕
+              </button>
             </div>
-            <button
-              type="button"
-              className="anivom-dev-fill-btn"
-              onClick={() => {
-                setEmail('customer@anivom.com')
-                setPassword('Customer@123')
-              }}
-            >
-              Fill Test Credentials
-            </button>
+            <div className="anivom-dev-helper-credentials">
+              <span>Email: <strong>anivom1@gmail.com</strong></span>
+              <span>Password: <strong>Anivom@1</strong></span>
+            </div>
+            <p className="anivom-dev-helper-subtext">Use these demo credentials to test the customer account.</p>
           </div>
         )}
 
@@ -328,7 +329,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
             </form>
 
             <div className="anivom-auth-divider">
-              <span>OR CONTINUE WITH</span>
+              <span>OR CONTINUE WITH GOOGLE</span>
             </div>
 
             <div className="anivom-google-auth-container">
@@ -431,7 +432,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
             </form>
 
             <div className="anivom-auth-divider">
-              <span>OR CONTINUE WITH</span>
+              <span>OR CONTINUE WITH GOOGLE</span>
             </div>
 
             <div className="anivom-google-auth-container">
