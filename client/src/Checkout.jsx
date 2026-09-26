@@ -385,13 +385,6 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
 
   return (
     <div className="anivom-checkout-container">
-      <header className="anivom-checkout-header">
-        <div className="anivom-checkout-brand-group">
-          <h1 className="anivom-checkout-brand">ANIVOM</h1>
-          <span className="anivom-checkout-tagline">Wear It Your Way.</span>
-        </div>
-      </header>
-
       <nav className="anivom-checkout-stepper">
         <div className="anivom-step-item active">
           <span className="anivom-step-num">01</span> DELIVERY ADDRESS

@@ -2,49 +2,17 @@
   max-width: 1600px;
   width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 40px 20px 80px 20px;
+  padding: 24px 20px 80px 20px;
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;
 }
 
-.anivom-checkout-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 36px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e0d8;
-}
-
-.anivom-checkout-brand-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.anivom-checkout-brand {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin: 0;
-  color: #111111;
-}
-
-.anivom-checkout-tagline {
-  font-size: 0.8rem;
-  color: #666666;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-
-
 .anivom-checkout-stepper {
   display: flex;
   align-items: center;
   gap: 32px;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
   border-bottom: 1px solid #e5e0d8;
   padding-bottom: 16px;
 }
