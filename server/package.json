@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.1",
     "multer": "^2.4.0",
-    "razorpay": "^2.9.8"
+    "razorpay": "^2.9.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }

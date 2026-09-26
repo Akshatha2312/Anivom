@@ -20,10 +20,12 @@ const wishlistRoutes = require('./routes/wishlistRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const referralRoutes = require('./routes/referralRoutes');
 const helmet = require('helmet');
+const setupSwagger = require('./config/swagger');
 
 const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false }));
+setupSwagger(app);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
