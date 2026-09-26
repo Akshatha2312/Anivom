@@ -181,42 +181,14 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
         )}
 
         <div className="anivom-empty-cart">
-          <h2 className="anivom-empty-title">YOUR BAG IS WAITING.</h2>
+          <h2 className="anivom-empty-title">YOUR BAG IS EMPTY</h2>
           <p className="anivom-empty-sub">
             Looks like you haven't added any garments or custom Studio creations to your bag yet.
           </p>
           <button className="anivom-btn-checkout" style={{ width: 'auto', padding: '14px 36px' }} onClick={onContinueShopping}>
-            Shop the Collection &rarr;
+            CONTINUE SHOPPING
           </button>
         </div>
-
-        {recommendations.length > 0 && (
-          <section className="anivom-cart-rec-section">
-            <h3 className="anivom-cart-rec-title">Users also buy!</h3>
-            <div className="anivom-cart-rec-grid">
-              {recommendations.map((rec) => {
-                const recImg = rec.images && rec.images.length > 0 ? rec.images[0] : null
-                return (
-                  <div
-                    key={rec._id}
-                    className="anivom-rec-card"
-                    onClick={() => onSelectProduct ? onSelectProduct(rec) : onContinueShopping()}
-                  >
-                    <div className="anivom-rec-img-wrap">
-                      {recImg ? (
-                        <img src={recImg} alt={rec.name} className="anivom-rec-img" />
-                      ) : (
-                        <div style={{ padding: '20px', textAlign: 'center', fontSize: '11px', color: '#888' }}>ANIVOM</div>
-                      )}
-                    </div>
-                    <h4 className="anivom-rec-name">{rec.name}</h4>
-                    <span className="anivom-rec-price">&#8377;{rec.basePrice}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
       </div>
     )
   }
