@@ -21,7 +21,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
 
   const wishKey = product && selectedColour ? `${product._id}_${selectedColour}` : product?._id
   const isWishlisted = Array.isArray(wishlistIds) && product
-    ? (wishlistIds.includes(wishKey) || wishlistIds.includes(product._id))
+    ? wishlistIds.includes(wishKey)
     : internalIsWishlisted
 
   useEffect(() => {

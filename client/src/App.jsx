@@ -360,7 +360,7 @@ function App() {
   const handleWishlistToggle = async (productId, colour = '') => {
     if (!user) return
     const key = colour ? `${productId}_${colour}` : productId
-    const isWishlisted = wishlistIds.includes(key) || wishlistIds.includes(productId)
+    const isWishlisted = wishlistIds.includes(key)
     try {
       const queryParam = colour ? `?colour=${encodeURIComponent(colour)}` : ''
       const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}${queryParam}` : ''}`
