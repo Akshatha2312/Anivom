@@ -15,7 +15,7 @@ const getCustomerDesigns = async (req, res, next) => {
       query.name = { $regex: escapedSearch, $options: 'i' };
     }
 
-    const designs = await Design.find(query).sort({ createdAt: -1 });
+    const designs = await Design.find(query).sort({ createdAt: -1 }).lean();
 
     res.status(200).json({
       status: 'success',

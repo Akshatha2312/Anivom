@@ -129,6 +129,8 @@ const customizationSchema = new mongoose.Schema(
   }
 );
 
+customizationSchema.index({ user: 1, createdAt: -1 });
+
 const Customization = mongoose.model('Customization', customizationSchema);
 
 module.exports = Customization;

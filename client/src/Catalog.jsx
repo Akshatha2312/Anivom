@@ -1,35 +1,35 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import './Catalog.css'
 import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
 
 function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
-  // 1. Get colours available for this specific product (from variants with stock > 0)
-  const availableColours = product && product.variants && product.variants.length > 0
-    ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
-    : []
+  const availableColours = useMemo(() => {
+    return product && product.variants && product.variants.length > 0
+      ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
+      : []
+  }, [product])
 
   const [selectedColour, setSelectedColour] = useState(availableColours[0] || '')
 
-  // Keep selectedColour valid if product variants update
   useEffect(() => {
     if (availableColours.length > 0 && !availableColours.includes(selectedColour)) {
       setSelectedColour(availableColours[0])
     }
   }, [availableColours, selectedColour])
 
-  // 2. Get sizes available for the currently selected colour with stock > 0
-  const availableSizes = product && product.variants && product.variants.length > 0
-    ? Array.from(new Set(
-        product.variants
-          .filter((v) => (selectedColour ? v.colour === selectedColour : true) && v.stock > 0)
-          .map((v) => v.size)
-      ))
-    : []
+  const availableSizes = useMemo(() => {
+    return product && product.variants && product.variants.length > 0
+      ? Array.from(new Set(
+          product.variants
+            .filter((v) => (selectedColour ? v.colour === selectedColour : true) && v.stock > 0)
+            .map((v) => v.size)
+        ))
+      : []
+  }, [product, selectedColour])
 
   const [selectedSize, setSelectedSize] = useState(availableSizes[0] || '')
 
-  // Keep selectedSize valid whenever availableSizes change
   useEffect(() => {
     if (availableSizes.length > 0 && !availableSizes.includes(selectedSize)) {
       setSelectedSize(availableSizes[0])
@@ -161,6 +161,9 @@ function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdate
               src={primaryImage}
               alt={product.name}
               className="anivom-card-img-primary"
+              loading={index < 4 ? 'eager' : 'lazy'}
+              fetchPriority={index < 4 ? 'high' : 'auto'}
+              decoding="async"
               onError={(e) => {
                 if (defaultModelImage && e.target.src !== defaultModelImage) {
                   e.target.src = defaultModelImage
@@ -175,6 +178,8 @@ function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdate
                 src={secondaryImage}
                 alt={`${product.name} hover`}
                 className="anivom-card-img-secondary"
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   if (defaultModelImage && e.target.src !== defaultModelImage) {
                     e.target.src = defaultModelImage
@@ -293,37 +298,46 @@ function CatalogProductCard({ product, index = 0, user, openStudio, onCartUpdate
   )
 }
 
-function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSuccess, initialCategory = 'All' }) {
+let cachedDbCategories = null
+let cachedDbSizes = null
+let cachedDbColours = null
+
+function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSuccess, initialCategory = 'All', wishlistIds: propWishlistIds, onWishlistToggle: propWishlistToggle }) {
   const [products, setProducts] = useState([])
-  const [wishlistIds, setWishlistIds] = useState([])
+  const [internalWishlistIds, setInternalWishlistIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const fetchWishlist = async () => {
-    if (!user) {
-      setWishlistIds([])
-      return
-    }
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
-        credentials: 'include',
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const prods = data.data.wishlist?.products || []
-        setWishlistIds(prods.map((p) => p._id || p))
-      }
-    } catch (err) {
-      // silent catch for wishlist fetch error
-    }
-  }
+  const wishlistIds = Array.isArray(propWishlistIds) ? propWishlistIds : internalWishlistIds
 
   useEffect(() => {
-    fetchWishlist()
-  }, [user])
+    const fetchWishlistData = async () => {
+      if (!user || propWishlistIds !== undefined) {
+        if (!user) setInternalWishlistIds([])
+        return
+      }
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
+          credentials: 'include',
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const prods = data.data.wishlist?.products || []
+          setInternalWishlistIds(prods.map((p) => p._id || p))
+        }
+      } catch (err) {
+        setInternalWishlistIds([])
+      }
+    }
+    fetchWishlistData()
+  }, [user, propWishlistIds])
 
   const handleWishlistToggle = async (productId) => {
+    if (propWishlistToggle) {
+      propWishlistToggle(productId)
+      return
+    }
     if (!user) return
     const isWishlisted = wishlistIds.includes(productId)
     try {
@@ -341,7 +355,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
       if (res.ok) {
         const data = await res.json()
         const prods = data.data.wishlist?.products || []
-        setWishlistIds(prods.map((p) => p._id || p))
+        setInternalWishlistIds(prods.map((p) => p._id || p))
       }
     } catch (err) {
       console.error('Wishlist error', err)
@@ -367,40 +381,52 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const [totalPages, setTotalPages] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
 
-  const [dbCategories, setDbCategories] = useState([])
-  const [dbSizes, setDbSizes] = useState([])
-  const [dbColours, setDbColours] = useState([])
+  const [_dbCategories, setDbCategories] = useState(cachedDbCategories || [])
+  const [dbSizes, setDbSizes] = useState(cachedDbSizes || [])
+  const [dbColours, setDbColours] = useState(cachedDbColours || [])
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/v1/categories`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data?.categories && data.data.categories.length > 0) {
-          setDbCategories(data.data.categories.map((c) => c.name))
-        }
-      })
-      .catch(() => { })
+    if (!cachedDbCategories) {
+      fetch(`${API_BASE_URL}/api/v1/categories`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data?.categories && data.data.categories.length > 0) {
+            const list = data.data.categories.map((c) => c.name)
+            cachedDbCategories = list
+            setDbCategories(list)
+          }
+        })
+        .catch(() => { })
+    }
 
-    fetch(`${API_BASE_URL}/api/v1/sizes`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data?.sizes && data.data.sizes.length > 0) {
-          setDbSizes(data.data.sizes.map((s) => s.name))
-        }
-      })
-      .catch(() => { })
+    if (!cachedDbSizes) {
+      fetch(`${API_BASE_URL}/api/v1/sizes`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data?.sizes && data.data.sizes.length > 0) {
+            const list = data.data.sizes.map((s) => s.name)
+            cachedDbSizes = list
+            setDbSizes(list)
+          }
+        })
+        .catch(() => { })
+    }
 
-    fetch(`${API_BASE_URL}/api/v1/colours`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data?.colours && data.data.colours.length > 0) {
-          setDbColours(data.data.colours.map((c) => c.name))
-        }
-      })
-      .catch(() => { })
+    if (!cachedDbColours) {
+      fetch(`${API_BASE_URL}/api/v1/colours`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data?.colours && data.data.colours.length > 0) {
+            const list = data.data.colours.map((c) => c.name)
+            cachedDbColours = list
+            setDbColours(list)
+          }
+        })
+        .catch(() => { })
+    }
   }, [])
 
-  const defaultCategories = ['Oversized', 'Regular Fit', 'Graphic', 'Minimal', 'Custom']
+  const _defaultCategories = ['Oversized', 'Regular Fit', 'Graphic', 'Minimal', 'Custom']
   const defaultSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
   const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
 
@@ -408,7 +434,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const sizes = ['All', ...(dbSizes.length > 0 ? dbSizes : defaultSizes)]
   const colours = ['All', ...(dbColours.length > 0 ? dbColours : defaultColours)]
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -441,11 +467,11 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchQuery, activeCategory, selectedSize, selectedColour, minPrice, maxPrice, sortOption, page])
 
   useEffect(() => {
     fetchProducts()
-  }, [searchQuery, activeCategory, selectedSize, selectedColour, minPrice, maxPrice, sortOption, page])
+  }, [fetchProducts])
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()

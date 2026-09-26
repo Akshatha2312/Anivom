@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './ProductDetails.css'
 import { API_BASE_URL } from './config'
 
-function ProductDetails({ product: propProduct, productId, initialProduct, user, onBackToCatalog, onNavigateToStudio, openStudio, onCartUpdated, onSelectProduct }) {
+function ProductDetails({ product: propProduct, productId, initialProduct, user, onBackToCatalog, onNavigateToStudio, openStudio, onCartUpdated, onSelectProduct, wishlistIds, onWishlistToggle }) {
   const [product, setProduct] = useState(propProduct || initialProduct || null)
   const [loadingProduct, setLoadingProduct] = useState(!propProduct && !initialProduct && !!productId)
   const [productFetchErr, setProductFetchErr] = useState(null)
@@ -11,13 +11,17 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
   const [selectedSize, setSelectedSize] = useState('M')
   const [selectedColour, setSelectedColour] = useState('Black')
   const [quantity, setQuantity] = useState(1)
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const [internalIsWishlisted, setInternalIsWishlisted] = useState(false)
 
   const [adding, setAdding] = useState(false)
   const [msg, setMsg] = useState(null)
   const [err, setErr] = useState(null)
 
   const handleStudioNavigation = openStudio || onNavigateToStudio || (() => {})
+
+  const isWishlisted = Array.isArray(wishlistIds) && product
+    ? wishlistIds.includes(product._id)
+    : internalIsWishlisted
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -60,8 +64,8 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
   }, [propProduct, initialProduct, productId])
 
   useEffect(() => {
+    if (wishlistIds !== undefined || !user || !product) return
     const fetchWishlistStatus = async () => {
-      if (!user || !product) return
       try {
         const res = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
           credentials: 'include',
@@ -70,18 +74,23 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
           const data = await res.json()
           const prods = data.data.wishlist?.products || []
           const found = prods.some((p) => (p._id || p) === product._id)
-          setIsWishlisted(found)
+          setInternalIsWishlisted(found)
         }
       } catch (e) {
-        // silent catch
+        setInternalIsWishlisted(false)
       }
     }
     fetchWishlistStatus()
-  }, [user, product])
+  }, [user, product, wishlistIds])
 
   const handleWishlistToggle = async () => {
     if (!user) {
       setErr('Please sign in to add products to your wishlist.')
+      return
+    }
+
+    if (onWishlistToggle && product) {
+      onWishlistToggle(product._id)
       return
     }
 
@@ -101,12 +110,12 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
         const data = await res.json()
         const prods = data.data.wishlist?.products || []
         const found = prods.some((p) => (p._id || p) === product._id)
-        setIsWishlisted(found)
+        setInternalIsWishlisted(found)
       } else {
         const data = await res.json()
         setErr(data.message || 'Failed to update wishlist.')
       }
-    } catch (e) {
+    } catch {
       setErr('Network error updating wishlist.')
     }
   }
@@ -247,6 +256,8 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                   src={images[selectedImgIndex] || images[0]}
                   alt={product.name}
                   className="anivom-pdp-main-img"
+                  fetchPriority="high"
+                  decoding="async"
                   onError={(e) => {
                     const fallback = product?.images && product.images.length > 0 ? product.images[0] : null
                     if (fallback && e.target.src !== fallback) {
@@ -279,6 +290,8 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
                     src={img}
                     alt={`${product.name} thumbnail ${idx + 1}`}
                     className={`anivom-pdp-thumb ${selectedImgIndex === idx ? 'selected' : ''}`}
+                    loading="lazy"
+                    decoding="async"
                     onClick={() => setSelectedImgIndex(idx)}
                     onError={(e) => {
                       e.target.onerror = null

@@ -35,6 +35,8 @@ const designSchema = new mongoose.Schema(
   }
 );
 
+designSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+
 const Design = mongoose.model('Design', designSchema);
 
 module.exports = Design;

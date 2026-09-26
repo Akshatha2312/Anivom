@@ -5,6 +5,8 @@ import { PREDEFINED_DESIGNS } from './designsData';
 import AuthModal from './AuthModal';
 import StudioOnboardingModal from './StudioOnboardingModal';
 
+let cachedStudioDesigns = null;
+
 const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
   const [productsList, setProductsList] = useState([]);
@@ -42,7 +44,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
   const [saveError, setSaveError] = useState(null);
-  const [libraryDesigns, setLibraryDesigns] = useState(PREDEFINED_DESIGNS);
+  const [libraryDesigns, setLibraryDesigns] = useState(cachedStudioDesigns || PREDEFINED_DESIGNS);
 
   const printAreaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -53,7 +55,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
       if (!hasSeen) {
         setShowOnboardingModal(true);
       }
-    } catch (e) {
+    } catch {
       setShowOnboardingModal(true);
     }
   }, []);
@@ -61,13 +63,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const handleCloseOnboarding = () => {
     try {
       localStorage.setItem('anivom_has_seen_studio_onboarding', 'true');
-    } catch (e) {
-      // fallback if storage disabled
+    } catch {
     }
     setShowOnboardingModal(false);
   };
 
   useEffect(() => {
+    if (cachedStudioDesigns) return;
     let isMounted = true;
     fetch(`${API_BASE_URL}/api/v1/designs`)
       .then((res) => {
@@ -83,11 +85,11 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             svg: d.svg,
             url: d.url,
           }));
+          cachedStudioDesigns = formatted;
           setLibraryDesigns(formatted);
         }
       })
       .catch(() => {
-        // keep fallback PREDEFINED_DESIGNS if API offline
       });
     return () => {
       isMounted = false;
@@ -108,6 +110,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   }, [activeProduct, initialCustomization]);
 
   useEffect(() => {
+    if (activeProduct) return;
     let isMounted = true;
     setLoadingProducts(true);
     setProductsError(null);
@@ -131,7 +134,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [activeProduct]);
 
   useEffect(() => {
     if (initialCustomization) {
@@ -181,7 +184,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
         setLayers(restoredLayers);
       }
     }
-  }, [initialCustomization]);
+  }, [initialCustomization, libraryDesigns]);
 
   const getStudioGarmentFrontImage = (prod) => {
     if (!prod) return null;

@@ -95,6 +95,11 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+productSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, basePrice: 1 });
+productSchema.index({ isActive: 1, basePrice: -1 });
+productSchema.index({ isActive: 1, name: 1 });
+
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;

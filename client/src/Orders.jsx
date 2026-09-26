@@ -90,7 +90,7 @@ function Orders({
         const data = await res.json()
         setSelectedOrderError(data.message || "We couldn't load this order.")
       }
-    } catch (err) {
+    } catch {
       setSelectedOrderError("We couldn't load this order.")
     } finally {
       setSelectedOrderLoading(false)
@@ -183,7 +183,7 @@ function Orders({
       } else {
         setActionError(data.message || 'Unable to cancel order at this time.')
       }
-    } catch (err) {
+    } catch {
       setActionError('Network error while cancelling order. Please try again.')
     } finally {
       setActionLoading(false)
@@ -236,7 +236,7 @@ function Orders({
       } else {
         setActionError(data.message || 'Unable to submit return request at this time.')
       }
-    } catch (err) {
+    } catch {
       setActionError('Network error while submitting return request. Please try again.')
     } finally {
       setActionLoading(false)
@@ -471,7 +471,6 @@ function Orders({
                   {timelineSteps.map((step, idx) => {
                     const isCompleted = activeIndex >= 0 && idx < activeIndex
                     const isCurrent = idx === activeIndex
-                    const isPending = activeIndex < 0 || idx > activeIndex
 
                     return (
                       <div

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import Studio from './Studio'
 import MyCreations from './MyCreations'
@@ -285,7 +285,7 @@ function App() {
     }
   }
 
-  const fetchCartCount = async () => {
+  const fetchCartCount = useCallback(async () => {
     if (!user) {
       setCartCount(0)
       return
@@ -303,9 +303,9 @@ function App() {
     } catch (err) {
       console.error('Failed to fetch cart count', err)
     }
-  }
+  }, [user, setCartCount])
 
-  const fetchCreations = async () => {
+  const fetchCreations = useCallback(async () => {
     if (!user) return
     setLoadingCreations(true)
     setCreationsError(null)
@@ -325,6 +325,52 @@ function App() {
     } finally {
       setLoadingCreations(false)
     }
+  }, [user, setLoadingCreations, setCreationsError, setCreations])
+
+  const [wishlistIds, setWishlistIds] = useState([])
+
+  const fetchWishlist = useCallback(async () => {
+    if (!user) {
+      setWishlistIds([])
+      return
+    }
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/wishlist`, {
+        credentials: 'include',
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const prods = data.data.wishlist?.products || []
+        setWishlistIds(prods.map((p) => p._id || p))
+      }
+    } catch (err) {
+      setWishlistIds([])
+    }
+  }, [user, setWishlistIds])
+
+  const handleWishlistToggle = async (productId) => {
+    if (!user) return
+    const isWishlisted = wishlistIds.includes(productId)
+    try {
+      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}` : ''}`
+      const method = isWishlisted ? 'DELETE' : 'POST'
+      const body = isWishlisted ? null : JSON.stringify({ productId })
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        const prods = data.data.wishlist?.products || []
+        setWishlistIds(prods.map((p) => p._id || p))
+      }
+    } catch (err) {
+      console.error('Wishlist error', err)
+    }
   }
 
   useEffect(() => {
@@ -333,13 +379,14 @@ function App() {
 
   useEffect(() => {
     fetchCartCount()
-  }, [user])
+    fetchWishlist()
+  }, [user, fetchCartCount, fetchWishlist])
 
   useEffect(() => {
     if (view === 'creations' && user) {
       fetchCreations()
     }
-  }, [view, user])
+  }, [view, user, fetchCreations])
 
   const handleSelectProduct = (product) => {
     setSelectedProduct(product)
@@ -374,7 +421,6 @@ function App() {
   }
 
   const openMyCreations = () => {
-    fetchCreations()
     setView('creations')
   }
 
@@ -722,6 +768,8 @@ function App() {
             onCartUpdated={handleCartItemAdded}
             onBackToCatalog={() => setView('catalog')}
             onSelectProduct={handleSelectProduct}
+            wishlistIds={wishlistIds}
+            onWishlistToggle={handleWishlistToggle}
           />
         )}
 
@@ -777,6 +825,8 @@ function App() {
             openStudio={openStudio}
             onCartUpdated={handleCartItemAdded}
             onSelectProduct={handleSelectProduct}
+            wishlistIds={wishlistIds}
+            onWishlistToggle={handleWishlistToggle}
             onAuthSuccess={(userData) => {
               setUser(userData)
               fetchCartCount()

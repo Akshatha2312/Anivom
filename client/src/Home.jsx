@@ -107,6 +107,8 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
                 }
                 alt={activeHeroBanner?.title || 'ANIVOM Fashion Hero'}
                 className="anivom-hero-img"
+                fetchPriority="high"
+                decoding="async"
               />
               <div className="anivom-hero-img-badge">NEW COLLECTION</div>
             </div>
@@ -146,7 +148,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
                 }
               }}
             >
-              <img src={style.image} alt={style.title} className="anivom-style-img" />
+              <img src={style.image} alt={style.title} className="anivom-style-img" loading="lazy" decoding="async" />
               <div className="anivom-style-overlay">
                 <h3 className="anivom-style-title">{style.title}</h3>
                 <p className="anivom-style-desc">{style.desc}</p>

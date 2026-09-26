@@ -99,7 +99,7 @@ const getProducts = async (req, res, next) => {
     const skip = (pageNum - 1) * limitNum;
 
     const [products, totalProducts] = await Promise.all([
-      Product.find(query).sort(sortOption).skip(skip).limit(limitNum),
+      Product.find(query).sort(sortOption).skip(skip).limit(limitNum).lean(),
       Product.countDocuments(query),
     ]);
 
@@ -134,7 +134,7 @@ const getProductById = async (req, res, next) => {
       });
     }
 
-    const product = await Product.findOne({ _id: id, isActive: true });
+    const product = await Product.findOne({ _id: id, isActive: true }).lean();
 
     if (!product) {
       return res.status(404).json({
