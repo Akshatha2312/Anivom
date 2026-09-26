@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 20px 20px;
   background-color: #FFFDF8;
   box-sizing: border-box;
 }
@@ -12,7 +12,7 @@
   display: grid;
   grid-template-columns: 1fr 1.1fr;
   width: 100%;
-  max-width: 960px;
+  max-width: 940px;
   max-height: none;
   overflow: visible;
   border: 1px solid #e5e0d8;
@@ -23,7 +23,7 @@
 .anivom-auth-visual-side {
   background: #111111;
   color: #FFFDF8;
-  padding: 36px 36px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -33,19 +33,19 @@
 .anivom-auth-brand-area {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .anivom-auth-brand-logo {
   font-family: 'Playfair Display', serif;
-  font-size: 2.2rem;
+  font-size: 2.1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: #FFFDF8;
 }
 
 .anivom-auth-tagline {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #C6A15B;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -53,15 +53,15 @@
 }
 
 .anivom-auth-manifesto {
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.45;
   color: #a0a0a0;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .anivom-auth-tamil-accent {
-  margin-top: 18px;
-  font-size: 0.85rem;
+  margin-top: 14px;
+  font-size: 0.82rem;
   color: #C6A15B;
   letter-spacing: 0.05em;
   font-family: inherit;
@@ -71,7 +71,7 @@
   background: none;
   border: none;
   color: #F7F2E8;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -86,7 +86,7 @@
 }
 
 .anivom-auth-form-side {
-  padding: 24px 32px;
+  padding: 20px 28px;
   display: flex;
   flex-direction: column;
 }
@@ -94,16 +94,16 @@
 .anivom-auth-header-toggle {
   display: flex;
   border-bottom: 1px solid #e5e0d8;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .anivom-auth-tab {
   flex: 1;
-  padding: 10px 0;
+  padding: 8px 0;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -122,9 +122,9 @@
 }
 
 .anivom-auth-notice {
-  padding: 8px 12px;
-  font-size: 0.82rem;
-  margin-bottom: 12px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  margin-bottom: 8px;
   border-radius: 2px;
 }
 
@@ -143,31 +143,31 @@
 .anivom-auth-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .anivom-auth-form-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
   margin: 0;
   color: #111111;
 }
 
 .anivom-auth-form-sub {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: #666666;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
 }
 
 .anivom-auth-field {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .anivom-auth-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -181,10 +181,10 @@
 
 .anivom-auth-input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 6px 9px;
   background: #FFFDF8;
   border: 1px solid #d5d0c8;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #111111;
   box-sizing: border-box;
 }
@@ -196,13 +196,13 @@
 
 .anivom-pwd-toggle {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: #666666;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -211,17 +211,17 @@
 
 .anivom-auth-submit {
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 14px;
   background: #111111;
   color: #FFFDF8;
   border: 1px solid #111111;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s ease;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .anivom-auth-submit:hover:not(:disabled) {
@@ -235,9 +235,9 @@
 }
 
 .anivom-auth-switch-text {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #666666;
-  margin-top: 8px;
+  margin-top: 6px;
   text-align: center;
 }
 
@@ -274,15 +274,15 @@
 
 .anivom-google-auth-container {
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .anivom-google-btn-wrapper {
   width: 100%;
-  min-height: 40px;
+  min-height: 38px;
 }
 
 .anivom-google-btn-wrapper.disabled {
@@ -291,7 +291,7 @@
 }
 
 .anivom-google-loading {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #7A1F3D;
   font-weight: 600;
   text-align: center;
@@ -303,7 +303,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 6px 0 10px 0;
+  margin: 4px 0 6px 0;
 }
 
 .anivom-auth-divider::before,
@@ -314,8 +314,8 @@
 }
 
 .anivom-auth-divider span {
-  padding: 0 12px;
-  font-size: 0.68rem;
+  padding: 0 10px;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: #888888;
