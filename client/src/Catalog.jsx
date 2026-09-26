@@ -410,8 +410,76 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
 
   const categories = ['All', 'Cropped', 'Full Sleeve', 'Oversized', 'Polo', 'Sleeveless', 'Slim Fit', 'V-Neck']
-  const sizes = ['All', ...(dbSizes.length > 0 ? dbSizes : defaultSizes)]
-  const colours = ['All', ...(dbColours.length > 0 ? dbColours : defaultColours)]
+
+  // Derive colours & sizes strictly from active product variants in allCatalogProducts / products
+  const derivedColours = useMemo(() => {
+    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
+    const colorSet = new Set()
+    productPool.forEach((p) => {
+      if (p.variants && Array.isArray(p.variants)) {
+        p.variants.forEach((v) => {
+          if (v.stock > 0 && v.colour) {
+            const col = String(v.colour).trim()
+            if (col && !col.toLowerCase().includes('-test')) {
+              colorSet.add(col)
+            }
+          }
+        })
+      }
+    })
+    return Array.from(colorSet).sort()
+  }, [allCatalogProducts, products])
+
+  const derivedSizes = useMemo(() => {
+    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
+    const standardOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+    const sizeSet = new Set()
+    productPool.forEach((p) => {
+      if (p.variants && Array.isArray(p.variants)) {
+        p.variants.forEach((v) => {
+          if (v.stock > 0 && v.size) {
+            const sz = String(v.size).trim()
+            if (sz && !sz.toLowerCase().includes('-test')) {
+              sizeSet.add(sz)
+            }
+          }
+        })
+      }
+    })
+    const foundSizes = Array.from(sizeSet)
+    foundSizes.sort((a, b) => {
+      const idxA = standardOrder.indexOf(a)
+      const idxB = standardOrder.indexOf(b)
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB
+      if (idxA !== -1) return -1
+      if (idxB !== -1) return 1
+      return a.localeCompare(b)
+    })
+    return foundSizes
+  }, [allCatalogProducts, products])
+
+  const sizes = ['All', ...derivedSizes]
+  const colours = ['All', ...derivedColours]
+
+  const getProductImage = (prod) => {
+    if (!prod) return null
+    if (prod.garmentImages) {
+      if (prod.garmentImages.front) return prod.garmentImages.front
+      if (prod.garmentImages.byColour) {
+        const byColObj = prod.garmentImages.byColour instanceof Map
+          ? Object.fromEntries(prod.garmentImages.byColour)
+          : prod.garmentImages.byColour
+        const firstColKey = Object.keys(byColObj)[0]
+        if (firstColKey && byColObj[firstColKey]?.front) {
+          return byColObj[firstColKey].front
+        }
+      }
+    }
+    if (prod.images && prod.images.length > 0) {
+      return prod.images[0]
+    }
+    return null
+  }
 
   const suggestions = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -420,6 +488,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     const results = []
     const seenNames = new Set()
     const normalize = (str) => (str || '').toString().trim().toLowerCase().replace(/\s+/g, ' ')
+    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
 
     const allCategoryNames = Array.from(
       new Set([
@@ -443,16 +512,19 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
       const norm = normalize(cat)
       if (norm && !seenNames.has(norm)) {
         seenNames.add(norm)
+        // Find matching product image for category thumbnail if available
+        const matchingProd = productPool.find((p) => p.category && p.category.toLowerCase() === cat.toLowerCase())
+        const image = getProductImage(matchingProd)
         results.push({
           id: `cat-${norm}`,
           type: 'category',
           label: cat,
           categoryName: cat,
+          image,
         })
       }
     })
 
-    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
     const matchedProducts = productPool.filter((p) => {
       const nameMatch = p.name && p.name.toLowerCase().includes(query)
       const catMatch = p.category && p.category.toLowerCase().includes(query)
@@ -464,6 +536,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
       const norm = normalize(p.name)
       if (norm && !seenNames.has(norm)) {
         seenNames.add(norm)
+        const image = getProductImage(p)
         results.push({
           id: `prod-${p._id}`,
           type: 'product',
@@ -471,6 +544,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           category: p.category,
           price: p.basePrice,
           product: p,
+          image,
         })
       }
     })
@@ -581,9 +655,13 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
   const catalogCards = useMemo(() => {
     const list = []
     products.forEach((product) => {
-      const colours = product.variants && product.variants.length > 0
+      let colours = product.variants && product.variants.length > 0
         ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
         : []
+
+      if (selectedColour && selectedColour !== 'All') {
+        colours = colours.filter((c) => c.toLowerCase() === selectedColour.toLowerCase())
+      }
 
       if (colours.length > 0) {
         colours.forEach((col) => {
@@ -602,7 +680,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
       }
     })
     return list
-  }, [products])
+  }, [products, selectedColour])
 
   const hasActiveFilters = selectedSize !== 'All' || selectedColour !== 'All' || minPrice !== '' || maxPrice !== ''
 
@@ -649,10 +727,16 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
                     onClick={() => handleSelectSuggestion(item)}
                   >
                     <div className="anivom-suggestion-label-group">
-                      <span className={`anivom-suggestion-badge ${item.type}`}>
-                        {item.type === 'category' ? 'Category' : 'Product'}
-                      </span>
-                      <span>{item.label}</span>
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.label}
+                          className="anivom-suggestion-thumb"
+                        />
+                      ) : (
+                        <div className="anivom-suggestion-thumb-placeholder" />
+                      )}
+                      <span className="anivom-suggestion-title">{item.label}</span>
                     </div>
                     {item.type === 'product' && item.price && (
                       <span className="anivom-suggestion-price">&#8377;{item.price}</span>

@@ -145,26 +145,33 @@
 .anivom-suggestion-label-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.anivom-suggestion-badge {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 2px 6px;
+.anivom-suggestion-thumb {
+  width: 36px;
+  height: 46px;
+  object-fit: cover;
   border-radius: 2px;
+  background-color: #F7F2E8;
+  border: 1px solid #EAE4D9;
+  flex-shrink: 0;
 }
 
-.anivom-suggestion-badge.category {
-  background: rgba(122, 31, 61, 0.1);
-  color: #7A1F3D;
+.anivom-suggestion-thumb-placeholder {
+  width: 36px;
+  height: 46px;
+  border-radius: 2px;
+  background-color: #F7F2E8;
+  border: 1px solid #EAE4D9;
+  flex-shrink: 0;
 }
 
-.anivom-suggestion-badge.product {
-  background: rgba(198, 161, 91, 0.15);
+.anivom-suggestion-title {
+  font-size: 13px;
+  font-weight: 500;
   color: #111111;
+  letter-spacing: 0.02em;
 }
 
 .anivom-suggestion-price {
