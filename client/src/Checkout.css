@@ -380,13 +380,7 @@
   color: #FFFDF8;
 }
 
-.anivom-security-note {
-  font-size: 0.72rem;
-  color: #777777;
-  text-align: center;
-  margin-top: 4px;
-  line-height: 1.4;
-}
+
 
 @media (max-width: 1024px) {
   .anivom-checkout-layout {

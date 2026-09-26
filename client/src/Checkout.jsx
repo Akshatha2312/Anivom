@@ -671,11 +671,6 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
           <button className="anivom-btn-return-bag" disabled={isProcessing} onClick={onReturnToCart}>
             Back to Bag
           </button>
-
-          <p className="anivom-security-note">
-            Payment handled securely via Razorpay Test Mode.<br />
-            256-bit encrypted checkout transaction.
-          </p>
         </aside>
       </div>
     </div>
