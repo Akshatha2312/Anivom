@@ -78,13 +78,22 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
   }
 
   const handleWishlistClick = (e) => {
-    e.stopPropagation()
+    if (e) {
+      if (e.stopPropagation) e.stopPropagation()
+      if (e.preventDefault && e.type === 'touchend') e.preventDefault()
+    }
     if (!user) {
       setCardErr('Please log in to add items to your wishlist.')
       return
     }
     if (onWishlistToggle) {
       onWishlistToggle(product._id, selectedColour)
+    }
+  }
+
+  const handlePointerDownWishlist = (e) => {
+    if (e && e.stopPropagation) {
+      e.stopPropagation()
     }
   }
 
@@ -179,9 +188,13 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
         )}
 
         <button
+          type="button"
           className="anivom-wishlist-btn"
           aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
           onClick={handleWishlistClick}
+          onMouseDown={handlePointerDownWishlist}
+          onTouchStart={handlePointerDownWishlist}
+          onTouchEnd={handleWishlistClick}
           title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
         >
           {isWishlisted ? '❤️' : '🤍'}
