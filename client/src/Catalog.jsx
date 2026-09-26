@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import './Catalog.css'
 import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
@@ -132,28 +132,6 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
   const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>"
   const allSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
 
-  const getHexForColour = (colName) => {
-    const map = {
-      'Black': '#111111',
-      'White': '#FFFFFF',
-      'Navy Blue': '#1B2A4A',
-      'Sky Blue': '#87CEEB',
-      'Maroon': '#500B13',
-      'Grey': '#808080',
-      'Olive Green': '#556B2F',
-      'Soft Pink': '#FFB6C1',
-      'Cream': '#FDFBF7',
-      'Mustard': '#E1AD01',
-      'Wine': '#722F37',
-      'Purple': '#4B0082',
-      'Blue': '#1E40AF',
-      'Green': '#15803D',
-      'Pink': '#EC4899',
-      'Yellow': '#EAB308',
-    }
-    return map[colName] || '#CCCCCC'
-  }
-
   return (
     <div className="anivom-fashion-card reveal" style={{ '--reveal-delay': `${(index % 6) * 50}ms` }}>
       <div className="anivom-card-img-container" onClick={handleCardClick}>
@@ -274,13 +252,18 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
 let cachedDbCategories = null
 let cachedDbSizes = null
 let cachedDbColours = null
+let cachedAllProducts = null
 
 function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSuccess, initialCategory = 'All', wishlistIds: propWishlistIds, onWishlistToggle: propWishlistToggle }) {
   const [products, setProducts] = useState([])
+  const [allCatalogProducts, setAllCatalogProducts] = useState(cachedAllProducts || [])
   const [internalWishlistIds, setInternalWishlistIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
+
+  const searchContainerRef = useRef(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   const wishlistIds = Array.isArray(propWishlistIds) ? propWishlistIds : internalWishlistIds
 
@@ -397,15 +380,117 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
         })
         .catch(() => { })
     }
+
+    if (!cachedAllProducts) {
+      fetch(`${API_BASE_URL}/api/v1/products?limit=100`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data?.products && data.data.products.length > 0) {
+            cachedAllProducts = data.data.products
+            setAllCatalogProducts(data.data.products)
+          }
+        })
+        .catch(() => { })
+    }
   }, [])
 
-  const _defaultCategories = ['Oversized', 'Regular Fit', 'Graphic', 'Minimal', 'Custom']
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   const defaultSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
   const defaultColours = ['Black', 'White', 'Navy', 'Grey', 'Olive', 'Cream', 'Maroon', 'Red']
 
   const categories = ['All', 'Cropped', 'Full Sleeve', 'Oversized', 'Polo', 'Sleeveless', 'Slim Fit', 'V-Neck']
   const sizes = ['All', ...(dbSizes.length > 0 ? dbSizes : defaultSizes)]
   const colours = ['All', ...(dbColours.length > 0 ? dbColours : defaultColours)]
+
+  const suggestions = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return []
+
+    const results = []
+    const seenLabels = new Set()
+
+    const allCategoryNames = Array.from(
+      new Set([
+        'Cropped',
+        'Full Sleeve',
+        'Oversized',
+        'Polo',
+        'Sleeveless',
+        'Slim Fit',
+        'V-Neck',
+        ...categories.filter((c) => c !== 'All'),
+        ..._dbCategories,
+      ])
+    )
+
+    const matchedCategories = allCategoryNames.filter((cat) =>
+      cat.toLowerCase().includes(query)
+    )
+
+    matchedCategories.forEach((cat) => {
+      const key = `cat-${cat.toLowerCase()}`
+      if (!seenLabels.has(key)) {
+        seenLabels.add(key)
+        results.push({
+          id: key,
+          type: 'category',
+          label: cat,
+          categoryName: cat,
+        })
+      }
+    })
+
+    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
+    const matchedProducts = productPool.filter((p) => {
+      const nameMatch = p.name && p.name.toLowerCase().includes(query)
+      const catMatch = p.category && p.category.toLowerCase().includes(query)
+      return nameMatch || catMatch
+    })
+
+    matchedProducts.forEach((p) => {
+      const key = `prod-${p._id}`
+      if (!seenLabels.has(key)) {
+        seenLabels.add(key)
+        results.push({
+          id: key,
+          type: 'product',
+          label: p.name,
+          category: p.category,
+          price: p.basePrice,
+          product: p,
+        })
+      }
+    })
+
+    return results.slice(0, 6)
+  }, [search, categories, _dbCategories, allCatalogProducts, products])
+
+  const handleSelectSuggestion = (item) => {
+    setShowSuggestions(false)
+    if (item.type === 'category') {
+      setSearch('')
+      setSearchQuery('')
+      setActiveCategory(item.categoryName)
+      setPage(1)
+    } else if (item.type === 'product') {
+      if (onSelectProduct) {
+        onSelectProduct(item.product)
+      } else if (openStudio) {
+        openStudio(item.product)
+      }
+    }
+  }
 
   const fetchProducts = useCallback(async () => {
     setLoading(true)
@@ -448,6 +533,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
+    setShowSuggestions(false)
     setPage(1)
     setSearchQuery(search)
   }
@@ -533,12 +619,16 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
           </div>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="anivom-search-container">
+        <form onSubmit={handleSearchSubmit} className="anivom-search-container" ref={searchContainerRef}>
           <div className="anivom-search-input-wrap">
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setShowSuggestions(true)
+              }}
+              onFocus={() => setShowSuggestions(true)}
               placeholder="Search oversized, slim fit, v-neck, cropped..."
               className="anivom-search-input"
             />
@@ -546,6 +636,34 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
               Search
             </button>
           </div>
+
+          {showSuggestions && search.trim().length > 0 && (
+            <div className="anivom-search-dropdown">
+              {suggestions.length > 0 ? (
+                suggestions.map((item) => (
+                  <div
+                    key={item.id}
+                    className="anivom-search-suggestion-item"
+                    onClick={() => handleSelectSuggestion(item)}
+                  >
+                    <div className="anivom-suggestion-label-group">
+                      <span className={`anivom-suggestion-badge ${item.type}`}>
+                        {item.type === 'category' ? 'Category' : 'Product'}
+                      </span>
+                      <span>{item.label}</span>
+                    </div>
+                    {item.type === 'product' && item.price && (
+                      <span className="anivom-suggestion-price">&#8377;{item.price}</span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="anivom-search-no-results">
+                  No matching products found.
+                </div>
+              )}
+            </div>
+          )}
         </form>
 
         <div className="anivom-trending-tags">

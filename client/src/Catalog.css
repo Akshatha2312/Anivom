@@ -62,6 +62,7 @@
 
 /* Centered Compact Search */
 .anivom-search-container {
+  position: relative;
   max-width: 440px;
   margin: 0 auto;
 }
@@ -104,6 +105,80 @@
 
 .anivom-search-btn:hover {
   background: #C65D3B;
+}
+
+.anivom-search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #FFFDF8;
+  border: 1px solid #D8D2C6;
+  border-radius: 2px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  max-height: 280px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.anivom-search-suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #111111;
+  cursor: pointer;
+  border-bottom: 1px solid #F2EDE4;
+  transition: background 0.15s ease;
+}
+
+.anivom-search-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.anivom-search-suggestion-item:hover {
+  background: #F7F2E8;
+}
+
+.anivom-suggestion-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.anivom-suggestion-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.anivom-suggestion-badge.category {
+  background: rgba(122, 31, 61, 0.1);
+  color: #7A1F3D;
+}
+
+.anivom-suggestion-badge.product {
+  background: rgba(198, 161, 91, 0.15);
+  color: #111111;
+}
+
+.anivom-suggestion-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7A1F3D;
+}
+
+.anivom-search-no-results {
+  padding: 14px;
+  font-size: 12px;
+  color: #777777;
+  text-align: center;
+  font-style: italic;
 }
 
 /* Compact Trending Tags */
