@@ -1278,3 +1278,33 @@
     }
   }
 }
+
+/* Customers Page Specific Table Column & Layout Refinements */
+.customers-table th:nth-child(1),
+.customers-table td:nth-child(1) {
+  width: 140px;
+  white-space: nowrap;
+}
+
+.customers-table th:nth-child(2),
+.customers-table td:nth-child(2) {
+  width: 220px;
+}
+
+.customers-table th:nth-child(3),
+.customers-table td:nth-child(3) {
+  max-width: 320px;
+  word-break: break-word;
+}
+
+.customers-table th:nth-child(4),
+.customers-table td:nth-child(4) {
+  width: 160px;
+  white-space: nowrap;
+}
+
+.customers-table th:nth-child(5),
+.customers-table td:nth-child(5) {
+  width: 130px;
+  white-space: nowrap;
+}

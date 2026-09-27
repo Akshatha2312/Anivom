@@ -109,7 +109,7 @@ const Customers = () => {
       ) : (
         <>
           <div className="admin-table-wrapper">
-            <table className="admin-table">
+            <table className="admin-table customers-table">
               <thead>
                 <tr>
                   <th>ACCOUNT ID</th>
