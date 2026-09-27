@@ -9,6 +9,7 @@ const Customization = require('../models/Customization');
 const User = require('../models/User');
 const Coupon = require('../models/Coupon');
 const { validateCouponForSubtotal } = require('./couponController');
+const { roundMoney } = require('../utils/money');
 
 const getRazorpayInstance = () => {
   const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_mockkeyid';
@@ -63,7 +64,7 @@ const createOrder = async (req, res, next) => {
         validCustId = custDoc._id;
       }
       const unitPrice = product.basePrice;
-      const itemSubtotal = unitPrice * qtyNum;
+      const itemSubtotal = roundMoney(unitPrice * qtyNum);
       subtotal = itemSubtotal;
       validatedItems.push({
         product: product._id,
@@ -129,7 +130,7 @@ const createOrder = async (req, res, next) => {
       }
 
       const unitPrice = product.basePrice;
-      const itemSubtotal = unitPrice * item.quantity;
+      const itemSubtotal = roundMoney(unitPrice * item.quantity);
       subtotal += itemSubtotal;
 
       validatedItems.push({
@@ -146,6 +147,8 @@ const createOrder = async (req, res, next) => {
       });
     }
   }
+
+    subtotal = roundMoney(subtotal);
 
     let discountAmount = 0;
     let couponSnapshot = null;
@@ -170,7 +173,7 @@ const createOrder = async (req, res, next) => {
       };
     }
 
-    const totalAmount = Math.max(0, subtotal - discountAmount);
+    const totalAmount = roundMoney(Math.max(0, subtotal - discountAmount));
 
     const shippingSnapshot = {
       fullName: address.fullName,
@@ -199,7 +202,7 @@ const createOrder = async (req, res, next) => {
 
     const razorpay = getRazorpayInstance();
     const options = {
-      amount: Math.round(totalAmount * 100),
+      amount: Math.round(roundMoney(totalAmount) * 100),
       currency: 'INR',
       receipt: `receipt_${newOrder._id}`,
       notes: {
@@ -748,7 +751,7 @@ const cancelCustomerOrder = async (req, res, next) => {
       }
 
       const razorpay = getRazorpayInstance();
-      const refundAmountPaise = Math.round(order.totalAmount * 100);
+      const refundAmountPaise = Math.round(roundMoney(order.totalAmount) * 100);
 
       let rzpRefund;
       try {
@@ -776,7 +779,7 @@ const cancelCustomerOrder = async (req, res, next) => {
 
       order.refundStatus = 'REFUNDED';
       order.razorpayRefundId = rzpRefund.id;
-      order.refundedAmount = order.totalAmount;
+      order.refundedAmount = roundMoney(order.totalAmount);
       order.refundedAt = new Date();
       await restoreOrderStock(order);
     }
@@ -959,7 +962,7 @@ const processAdminRefund = async (req, res, next) => {
     }
 
     const razorpay = getRazorpayInstance();
-    const refundAmountPaise = Math.round(order.totalAmount * 100);
+    const refundAmountPaise = Math.round(roundMoney(order.totalAmount) * 100);
 
     let rzpRefund;
     try {
@@ -987,7 +990,7 @@ const processAdminRefund = async (req, res, next) => {
 
     order.refundStatus = 'REFUNDED';
     order.razorpayRefundId = rzpRefund.id;
-    order.refundedAmount = order.totalAmount;
+    order.refundedAmount = roundMoney(order.totalAmount);
     order.refundedAt = new Date();
 
     if (['RETURN_APPROVED', 'CANCELLED'].includes(order.orderStatus)) {

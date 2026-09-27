@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const Customization = require('../models/Customization');
+const { roundMoney } = require('../utils/money');
 
 const populateCart = async (cart) => {
   return await cart.populate([
@@ -390,7 +391,7 @@ const validateCheckoutSummary = async (req, res, next) => {
         }
       }
       const unitPrice = product.basePrice;
-      const itemSubtotal = unitPrice * qtyNum;
+      const itemSubtotal = roundMoney(unitPrice * qtyNum);
       return res.status(200).json({
         status: 'success',
         data: {
@@ -414,9 +415,9 @@ const validateCheckoutSummary = async (req, res, next) => {
               },
             ],
             totalItemCount: qtyNum,
-            subtotal: itemSubtotal,
+            subtotal: roundMoney(itemSubtotal),
             shippingFee: 0,
-            totalAmount: itemSubtotal,
+            totalAmount: roundMoney(itemSubtotal),
           },
         },
       });
@@ -506,7 +507,7 @@ const validateCheckoutSummary = async (req, res, next) => {
       }
 
       const unitPrice = product.basePrice;
-      const itemSubtotal = unitPrice * item.quantity;
+      const itemSubtotal = roundMoney(unitPrice * item.quantity);
       totalItemCount += item.quantity;
       subtotal += itemSubtotal;
 
@@ -527,6 +528,8 @@ const validateCheckoutSummary = async (req, res, next) => {
         itemSubtotal,
       });
     }
+
+    subtotal = roundMoney(subtotal);
 
     res.status(200).json({
       status: 'success',

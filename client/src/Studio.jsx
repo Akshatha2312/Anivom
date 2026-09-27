@@ -4,6 +4,7 @@ import { API_BASE_URL } from './config';
 import { PREDEFINED_DESIGNS } from './designsData';
 import AuthModal from './AuthModal';
 import StudioOnboardingModal from './StudioOnboardingModal';
+import formatINRAmount from './formatINRAmount';
 
 let cachedStudioDesigns = null;
 
@@ -306,7 +307,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                     <div className="studio-product-card-body">
                       <div className="studio-product-card-header">
                         <h3 className="studio-product-card-name">{prod.name}</h3>
-                        <span className="studio-product-card-price">&#8377;{prod.basePrice}</span>
+                        <span className="studio-product-card-price">&#8377;{formatINRAmount(prod.basePrice)}</span>
                       </div>
 
                       {sizes.length > 0 && (
@@ -1105,7 +1106,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
 
           <div className="preview-details-sidebar">
             <h2 className="preview-product-title">{activeProduct.name}</h2>
-            <div className="preview-price-tag">&#8377;{activeProduct.basePrice}</div>
+            <div className="preview-price-tag">&#8377;{formatINRAmount(activeProduct.basePrice)}</div>
 
             <div className="preview-spec-group">
               <label>SELECTED COLOUR</label>
@@ -1250,7 +1251,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               </div>
               <div className="garment-card-summary">
                 <span className="garment-summary-title">{activeProduct.name}</span>
-                <span className="garment-summary-price">&#8377;{activeProduct.basePrice}</span>
+                <span className="garment-summary-price">&#8377;{formatINRAmount(activeProduct.basePrice)}</span>
               </div>
 
               <div className="control-group">
@@ -1314,7 +1315,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                         )}
                         <div className="studio-select-info">
                           <span className="studio-select-name">{prod.name}</span>
-                          <span className="studio-select-price">&#8377;{prod.basePrice}</span>
+                          <span className="studio-select-price">&#8377;{formatINRAmount(prod.basePrice)}</span>
                         </div>
                         {isSelected && <span className="studio-select-badge">ACTIVE</span>}
                       </button>

@@ -336,7 +336,7 @@ const SupportInbox = () => {
                     style={{ background: '#15803D', borderColor: '#15803D' }}
                     onClick={() => handleUpdateStatus(selectedMessage._id, 'resolved')}
                   >
-                    Mark as Resolved ✓
+                    Mark as Resolved
                   </button>
                 )}
 

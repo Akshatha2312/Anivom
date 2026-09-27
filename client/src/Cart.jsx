@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Cart.css'
 import { API_BASE_URL } from './config'
+import formatINRAmount from './formatINRAmount'
 
 function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, onCartUpdated, onSelectProduct }) {
   const [cart, setCart] = useState(null)
@@ -260,13 +261,13 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
                   )}
 
                   <div className="anivom-cart-item-price-row">
-                    Unit Price: &#8377;{itemPrice}
+                    Unit Price: &#8377;{formatINRAmount(itemPrice)}
                   </div>
                 </div>
 
                 <div className="anivom-cart-item-actions">
                   <div className="anivom-item-total">
-                    &#8377;{itemTotal}
+                    &#8377;{formatINRAmount(itemTotal)}
                   </div>
 
                   <div className="anivom-qty-control">
@@ -310,7 +311,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
 
           <div className="anivom-summary-row">
             <span>Bag Subtotal</span>
-            <span>&#8377;{subtotal}</span>
+            <span>&#8377;{formatINRAmount(subtotal)}</span>
           </div>
 
           <div className="anivom-summary-row">
@@ -320,7 +321,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
 
           <div className="anivom-summary-row total">
             <span>Total Amount</span>
-            <span>&#8377;{subtotal}</span>
+            <span>&#8377;{formatINRAmount(subtotal)}</span>
           </div>
 
           <button className="anivom-btn-checkout" onClick={handleCheckoutClick}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Account.css'
 import { API_BASE_URL } from './config'
+import formatINRAmount from './formatINRAmount'
 
 function Account({ user, onBackToCatalog, onNavigateToCreations, onNavigateToOrders, onNavigateToWishlist, onNavigateToReferrals, onLoginRedirect, onLogout }) {
   const [addresses, setAddresses] = useState([])
@@ -499,7 +500,7 @@ function Account({ user, onBackToCatalog, onNavigateToCreations, onNavigateToOrd
                             Placed on {new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </div>
                         </div>
-                        <div className="anivom-acc-order-total">&#8377;{ord.totalAmount}</div>
+                        <div className="anivom-acc-order-total">&#8377;{formatINRAmount(ord.totalAmount)}</div>
                       </div>
                       <div className="anivom-acc-order-status" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>Status: <strong style={{ color: '#2e7d32' }}>{ord.orderStatus}</strong> | Payment: <strong>{ord.paymentStatus}</strong></span>

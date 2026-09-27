@@ -801,6 +801,7 @@ function App() {
             onCartUpdated={handleCartItemAdded}
             openStudio={openStudio}
             onWishlistToggle={handleWishlistToggle}
+            onBuyNow={handleBuyNow}
           />
         )}
 

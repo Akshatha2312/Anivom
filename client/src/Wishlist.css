@@ -1,19 +1,22 @@
 .anivom-wishlist-container {
-  max-width: 1600px;
-  width: min(95vw, 1600px);
+  max-width: 1380px;
+  width: min(94vw, 1380px);
   margin: 0 auto;
-  padding: 32px 20px 48px 20px;
+  padding: 6px 20px 28px;
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;
+  min-height: calc(100vh - 220px);
+  display: flex;
+  flex-direction: column;
 }
 
 .anivom-wishlist-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 28px;
-  padding-bottom: 16px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #e5e0d8;
   flex-wrap: wrap;
   gap: 12px;
@@ -21,7 +24,7 @@
 
 .anivom-wishlist-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 2.2rem;
+  font-size: 1.9rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   margin: 0 0 4px 0;
@@ -64,7 +67,8 @@
 }
 
 .anivom-wishlist-empty-box {
-  min-height: 35vh;
+  min-height: clamp(360px, 52vh, 560px);
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -147,11 +151,16 @@
 
 .anivom-wishlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 350px));
+  gap: 18px;
+  justify-content: start;
+  align-items: start;
+  padding-bottom: 12px;
 }
 
 .anivom-wishlist-card {
+  width: min(100%, 330px);
+  max-height: 448px;
   background: #FFFDF8;
   border: 1px solid #e5e0d8;
   display: flex;
@@ -169,15 +178,17 @@
 
 .anivom-wishlist-card-img-wrap {
   width: 100%;
-  height: 280px;
+  height: 300px;
   background: #F7F2E8;
   position: relative;
   overflow: hidden;
+  display: block;
 }
 
 .anivom-wishlist-card-img {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
@@ -246,15 +257,15 @@
 }
 
 .anivom-wishlist-card-body {
-  padding: 18px;
+  padding: 7px 14px 7px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
 }
 
 .anivom-wishlist-card-cat {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   color: #C65D3B;
@@ -263,16 +274,78 @@
 
 .anivom-wishlist-card-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 1.02rem;
   font-weight: 600;
   margin: 0;
   color: #111111;
+  line-height: 1.2;
 }
 
 .anivom-wishlist-card-price {
   font-size: 1rem;
   font-weight: 700;
   color: #7A1F3D;
+  line-height: 1.2;
+}
+
+.anivom-wishlist-size-group {
+  margin-top: 2px;
+}
+
+.anivom-wishlist-size-label {
+  display: block;
+  margin-bottom: 3px;
+  color: #666666;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.anivom-wishlist-sizes-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.anivom-wishlist-size-pill {
+  min-width: 28px;
+  height: 30px;
+  padding: 3px 7px;
+  background: #FFFDF8;
+  border: 1px solid #D8D2C6;
+  border-radius: 2px;
+  color: #111111;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-wishlist-size-pill:hover:not(:disabled) {
+  border-color: #111111;
+}
+
+.anivom-wishlist-size-pill.active {
+  background: #7A1F3D;
+  border-color: #7A1F3D;
+  color: #FFFDF8;
+}
+
+.anivom-wishlist-size-pill:disabled {
+  background: #F2EDE4;
+  border-color: #E5DFC8;
+  color: #888888;
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.anivom-wishlist-buy-error {
+  color: #C65D3B;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .anivom-wishlist-card-msg {
@@ -283,12 +356,12 @@
 
 .anivom-wishlist-studio-btn {
   width: 100%;
-  margin-top: auto;
   background: transparent;
   border: 1px solid #C6A15B;
   color: #111111;
-  padding: 8px;
-  font-size: 0.72rem;
+  padding: 8px 8px;
+  min-height: 36px;
+  font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -301,6 +374,34 @@
   color: #FFFDF8;
 }
 
+.anivom-wishlist-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: auto;
+}
+
+.anivom-wishlist-buy-btn {
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 8px;
+  background: #7A1F3D;
+  border: 1px solid #7A1F3D;
+  border-radius: 2px;
+  color: #FFFDF8;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anivom-wishlist-buy-btn:hover {
+  background: #5C172E;
+  border-color: #5C172E;
+}
+
 @media (max-width: 600px) {
   .anivom-wishlist-container {
     padding: 20px 14px 60px 14px;
@@ -311,12 +412,12 @@
   }
 
   .anivom-wishlist-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
   }
 
   .anivom-wishlist-card-img-wrap {
-    height: 220px;
+    height: 230px;
   }
 
   .anivom-wishlist-card-body {

@@ -1,5 +1,6 @@
 import React from 'react';
 import './MyCreations.css';
+import formatINRAmount from './formatINRAmount';
 
 const MyCreations = ({
   user,
@@ -88,7 +89,7 @@ const MyCreations = ({
           {items.map((item) => {
             const product = item.product || {};
             const productName = product.name || 'ANIVOM Custom T-Shirt';
-            const basePrice = product.basePrice ? `₹${product.basePrice}` : '';
+            const basePrice = product.basePrice ? `₹${formatINRAmount(product.basePrice)}` : '';
             const layers = item.layers || [];
             const updatedDate = new Date(item.updatedAt || item.createdAt || Date.now()).toLocaleDateString('en-IN', {
               day: 'numeric',

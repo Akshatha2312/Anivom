@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import './Wishlist.css'
 import { API_BASE_URL } from './config'
+import formatINRAmount from './formatINRAmount'
 
-const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onCartUpdated, openStudio, onWishlistToggle }) => {
+const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onCartUpdated, openStudio, onWishlistToggle, onBuyNow }) => {
   const [wishlistItems, setWishlistItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [addingId, setAddingId] = useState(null)
   const [cardMsg, setCardMsg] = useState({})
+  const [selectedSizes, setSelectedSizes] = useState({})
+  const [buyNowErrors, setBuyNowErrors] = useState({})
 
   const fetchWishlist = async () => {
     if (!user) {
@@ -125,6 +128,25 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
     }
   }
 
+  const handleBuyNow = (product, selectedColour, selectedSize, itemKey, e) => {
+    if (e) e.stopPropagation()
+    if (!selectedColour || !selectedSize) {
+      setBuyNowErrors((prev) => ({ ...prev, [itemKey]: 'Please select an available colour and size.' }))
+      return
+    }
+
+    setBuyNowErrors((prev) => ({ ...prev, [itemKey]: '' }))
+    if (onBuyNow) {
+      onBuyNow({
+        productId: product._id,
+        size: selectedSize,
+        colour: selectedColour,
+        quantity: 1,
+        customized: false,
+      })
+    }
+  }
+
   const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>"
 
   if (!user) {
@@ -206,6 +228,16 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
             const itemKey = `${product._id}_${selectedColour}_${idx}`
             const cardImg = getWishlistGarmentImage(product, selectedColour)
             const displayName = selectedColour ? `${product.name} - ${selectedColour}` : product.name
+            const availableSizes = product.variants?.length
+              ? Array.from(new Set(
+                  product.variants
+                    .filter((variant) => variant.colour === selectedColour && variant.stock > 0)
+                    .map((variant) => variant.size)
+                ))
+              : []
+            const selectedSize = availableSizes.includes(selectedSizes[itemKey])
+              ? selectedSizes[itemKey]
+              : availableSizes[0] || ''
 
             return (
               <div
@@ -259,23 +291,61 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
                 <div className="anivom-wishlist-card-body">
                   <span className="anivom-wishlist-card-cat">{product.category || 'Collection'}</span>
                   <h3 className="anivom-wishlist-card-name">{displayName}</h3>
-                  <div className="anivom-wishlist-card-price">&#8377;{product.basePrice}</div>
+                  <div className="anivom-wishlist-card-price">&#8377;{formatINRAmount(product.basePrice)}</div>
+
+                  <div className="anivom-wishlist-size-group">
+                    <span className="anivom-wishlist-size-label">SIZE</span>
+                    <div className="anivom-wishlist-sizes-wrap">
+                      {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map((size) => {
+                        const isAvailable = availableSizes.includes(size)
+                        return (
+                          <button
+                            key={size}
+                            type="button"
+                            disabled={!isAvailable}
+                            className={`anivom-wishlist-size-pill ${selectedSize === size ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (isAvailable) {
+                                setSelectedSizes((prev) => ({ ...prev, [itemKey]: size }))
+                                setBuyNowErrors((prev) => ({ ...prev, [itemKey]: '' }))
+                              }
+                            }}
+                          >
+                            {size}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {buyNowErrors[itemKey] && (
+                    <div className="anivom-wishlist-buy-error">{buyNowErrors[itemKey]}</div>
+                  )}
 
                   {cardMsg[`${product._id}_${selectedColour}`] && (
                     <div className="anivom-wishlist-card-msg">{cardMsg[`${product._id}_${selectedColour}`]}</div>
                   )}
 
-                  {openStudio && (
+                  <div className="anivom-wishlist-card-actions">
+                    {openStudio && (
+                      <button
+                        className="anivom-wishlist-studio-btn"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openStudio(product, { initialColor: selectedColour })
+                        }}
+                      >
+                        Customize in Studio
+                      </button>
+                    )}
                     <button
-                      className="anivom-wishlist-studio-btn"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openStudio(product, { initialColor: selectedColour })
-                      }}
+                      className="anivom-wishlist-buy-btn"
+                      onClick={(e) => handleBuyNow(product, selectedColour, selectedSize, itemKey, e)}
                     >
-                      Customize in Studio
+                      BUY NOW
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
             )

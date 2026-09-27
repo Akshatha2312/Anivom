@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Orders.css'
 import { API_BASE_URL } from './config'
+import formatINRAmount from './formatINRAmount'
 
 function Orders({
   user,
@@ -337,7 +338,7 @@ function Orders({
     if (order.refundStatus === 'REFUNDED') {
       return (
         <div className="anivom-refund-info-box info-completed">
-          ✓ Refund completed.
+          Refund completed.
         </div>
       )
     }
@@ -631,238 +632,247 @@ function Orders({
           </div>
         </div>
 
-        <div className="anivom-orders-section">
-          <div className="anivom-section-header-flex">
-            <h2 className="anivom-orders-section-title">01. ORDER TRACKING</h2>
-            <div className="anivom-action-button-group">
-              {canCancel && (
-                <button
-                  className="anivom-btn-action-cancel"
-                  onClick={(e) => openCancelModal(e, selectedOrder)}
-                >
-                  Cancel Order
-                </button>
-              )}
-              {canReturn && (
-                <button
-                  className="anivom-btn-action-return"
-                  onClick={(e) => openReturnModal(e, selectedOrder)}
-                >
-                  Request Return
-                </button>
-              )}
-            </div>
-          </div>
-
-          {isCancelledOrFailed ? (
-            <div className="anivom-orders-cancelled-banner">
-              <span className="anivom-cancelled-icon"></span>
-              <div>
-                <h3 className="anivom-cancelled-head">
-                  {selectedOrder.orderStatus === 'CANCELLED'
-                    ? 'ORDER CANCELLED'
-                    : 'PAYMENT / ORDER FAILED'}
-                </h3>
-                <p className="anivom-cancelled-desc">
-                  {selectedOrder.orderStatus === 'CANCELLED'
-                    ? 'This order has been cancelled and is no longer being processed.'
-                    : 'Payment verification failed or was declined. Please try placing your order again.'}
-                </p>
-                {selectedOrder.cancellationReason && (
-                  <p className="anivom-cancelled-reason">
-                    <strong>Reason:</strong> {selectedOrder.cancellationReason}
-                  </p>
+        <div className="anivom-order-detail-grid">
+          <section className="anivom-orders-section anivom-order-detail-card">
+            <div className="anivom-section-header-flex">
+              <h2 className="anivom-orders-section-title">01. ORDER TRACKING</h2>
+              <div className="anivom-action-button-group">
+                {canCancel && (
+                  <button
+                    className="anivom-btn-action-cancel"
+                    onClick={(e) => openCancelModal(e, selectedOrder)}
+                  >
+                    Cancel Order
+                  </button>
                 )}
-                {renderRefundBannerMessage(selectedOrder)}
+                {canReturn && (
+                  <button
+                    className="anivom-btn-action-return"
+                    onClick={(e) => openReturnModal(e, selectedOrder)}
+                  >
+                    Request Return
+                  </button>
+                )}
               </div>
             </div>
-          ) : (
-            <div>
-              <div className="anivom-timeline-container">
-                <div className="anivom-timeline-track">
-                  {timelineSteps.map((step, idx) => {
-                    const isCompleted = activeIndex >= 0 && idx < activeIndex
-                    const isCurrent = idx === activeIndex
 
-                    return (
-                      <div
-                        key={step.key}
-                        className={`anivom-timeline-step ${
-                          isCompleted ? 'completed' : isCurrent ? 'current' : 'pending'
-                        }`}
-                      >
-                        <div className="anivom-timeline-node">
-                          {isCompleted ? '✓' : ''}
-                        </div>
-                        <span className="anivom-timeline-label">{step.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {selectedOrder.deliveredAt && (
-                <div className="anivom-delivery-date-note">
-                  Delivered on {formatDate(selectedOrder.deliveredAt)}
-                </div>
-              )}
-
-              {selectedOrder.orderStatus === 'RETURN_REQUESTED' && (
-                <div className="anivom-return-status-banner banner-requested">
-                  <h4 className="anivom-return-banner-title">RETURN REQUESTED</h4>
-                  <p className="anivom-return-banner-text">
-                    Your return request is currently under review by ANIVOM Support. We will notify you once verified.
+            {isCancelledOrFailed ? (
+              <div className="anivom-orders-cancelled-banner">
+                <span className="anivom-cancelled-icon"></span>
+                <div>
+                  <h3 className="anivom-cancelled-head">
+                    {selectedOrder.orderStatus === 'CANCELLED'
+                      ? 'ORDER CANCELLED'
+                      : 'PAYMENT / ORDER FAILED'}
+                  </h3>
+                  <p className="anivom-cancelled-desc">
+                    {selectedOrder.orderStatus === 'CANCELLED'
+                      ? 'This order has been cancelled and is no longer being processed.'
+                      : 'Payment verification failed or was declined. Please try placing your order again.'}
                   </p>
-                  {selectedOrder.returnReason && (
-                    <div className="anivom-return-banner-meta">
-                      <strong>Reason:</strong> {selectedOrder.returnReason}
-                    </div>
+                  {selectedOrder.cancellationReason && (
+                    <p className="anivom-cancelled-reason">
+                      <strong>Reason:</strong> {selectedOrder.cancellationReason}
+                    </p>
                   )}
-                </div>
-              )}
-
-              {selectedOrder.orderStatus === 'RETURN_APPROVED' && (
-                <div className="anivom-return-status-banner banner-approved">
-                  <h4 className="anivom-return-banner-title">RETURN APPROVED</h4>
-                  <p className="anivom-return-banner-text">
-                    Your return request has been approved. Our team will coordinate the pickup or return details with you.
-                  </p>
                   {renderRefundBannerMessage(selectedOrder)}
                 </div>
-              )}
+              </div>
+            ) : (
+              <div>
+                <div className="anivom-timeline-container">
+                  <div className="anivom-timeline-track">
+                    {timelineSteps.map((step, idx) => {
+                      const isCompleted = activeIndex >= 0 && idx < activeIndex
+                      const isCurrent = idx === activeIndex
 
-              {selectedOrder.orderStatus === 'RETURN_REJECTED' && (
-                <div className="anivom-return-status-banner banner-rejected">
-                  <h4 className="anivom-return-banner-title">RETURN REQUEST REJECTED</h4>
-                  <p className="anivom-return-banner-text">
-                    Your return request could not be approved in accordance with ANIVOM return terms. Please contact support if you need further assistance.
-                  </p>
+                      return (
+                        <div
+                          key={step.key}
+                          className={`anivom-timeline-step ${
+                            isCompleted ? 'completed' : isCurrent ? 'current' : 'pending'
+                          }`}
+                        >
+                          <div className="anivom-timeline-node" />
+                          <span className="anivom-timeline-label">{step.label}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
 
-        <div className="anivom-orders-detail-grid">
-          <div className="anivom-orders-main-col">
-            <div className="anivom-orders-section">
-              <h2 className="anivom-orders-section-title">02. GARMENTS & CREATIONS</h2>
-              <div className="anivom-orders-item-list">
-                {selectedOrder.items && selectedOrder.items.map((item, idx) => (
+                {selectedOrder.deliveredAt && (
+                  <div className="anivom-delivery-date-note">
+                    Delivered on {formatDate(selectedOrder.deliveredAt)}
+                  </div>
+                )}
+
+                {selectedOrder.orderStatus === 'RETURN_REQUESTED' && (
+                  <div className="anivom-return-status-banner banner-requested">
+                    <h4 className="anivom-return-banner-title">RETURN REQUESTED</h4>
+                    <p className="anivom-return-banner-text">
+                      Your return request is currently under review by ANIVOM Support. We will notify you once verified.
+                    </p>
+                    {selectedOrder.returnReason && (
+                      <div className="anivom-return-banner-meta">
+                        <strong>Reason:</strong> {selectedOrder.returnReason}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selectedOrder.orderStatus === 'RETURN_APPROVED' && (
+                  <div className="anivom-return-status-banner banner-approved">
+                    <h4 className="anivom-return-banner-title">RETURN APPROVED</h4>
+                    <p className="anivom-return-banner-text">
+                      Your return request has been approved. Our team will coordinate the pickup or return details with you.
+                    </p>
+                    {renderRefundBannerMessage(selectedOrder)}
+                  </div>
+                )}
+
+                {selectedOrder.orderStatus === 'RETURN_REJECTED' && (
+                  <div className="anivom-return-status-banner banner-rejected">
+                    <h4 className="anivom-return-banner-title">RETURN REQUEST REJECTED</h4>
+                    <p className="anivom-return-banner-text">
+                      Your return request could not be approved in accordance with ANIVOM return terms. Please contact support if you need further assistance.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          <section className="anivom-orders-section anivom-order-detail-card">
+            <h2 className="anivom-orders-section-title">02. GARMENTS & CREATIONS</h2>
+            <div className="anivom-orders-item-list">
+              {selectedOrder.items && selectedOrder.items.map((item, idx) => {
+                const itemImg = getItemImage(item)
+
+                return (
                   <div key={idx} className="anivom-orders-item-card">
-                    <div className="anivom-orders-item-info">
-                      <div className="anivom-orders-item-top">
-                        <h3 className="anivom-orders-item-name">{item.name}</h3>
-                        {item.customized && (
-                          <span className="anivom-customized-tag">CUSTOMIZED</span>
-                        )}
-                      </div>
+                    <div className="anivom-orders-item-content">
+                      {itemImg && (
+                        <img
+                          src={itemImg}
+                          alt={item.name}
+                          className="anivom-orders-item-thumb"
+                          onError={(e) => { e.target.style.display = 'none' }}
+                        />
+                      )}
 
-                      <div className="anivom-orders-item-meta">
-                        <span>SIZE: <strong>{item.size}</strong></span>
-                        <span className="anivom-meta-divider">|</span>
-                        <span>COLOUR: <strong>{item.colour}</strong></span>
-                        <span className="anivom-meta-divider">|</span>
-                        <span>QTY: <strong>{item.quantity}</strong></span>
-                      </div>
-
-                      {item.customized && item.customizationSnapshot && (
-                        <div className="anivom-customization-summary-box">
-                          <h4 className="anivom-custom-summary-head">DESIGN SPECIFICATIONS</h4>
-                          {item.customizationSnapshot.layers && item.customizationSnapshot.layers.length > 0 ? (
-                            <ul className="anivom-custom-layer-list">
-                              {item.customizationSnapshot.layers.map((layer, lIdx) => (
-                                <li key={lIdx} className="anivom-custom-layer-item">
-                                  {layer.type === 'text' && layer.text && (
-                                    <span>
-                                      <strong>Text:</strong> "{layer.text.content}" ({layer.text.fontFamily || 'Standard Font'}, Color: {layer.text.color})
-                                    </span>
-                                  )}
-                                  {layer.type === 'predefined_design' && layer.design && (
-                                    <span>
-                                      <strong>Graphic:</strong> Predefined Design #{layer.design.designId}
-                                    </span>
-                                  )}
-                                  {layer.type === 'uploaded_image' && (
-                                    <span>
-                                      <strong>Graphic:</strong> Custom Uploaded Artwork
-                                    </span>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                              Customized garment with bespoke Studio layer configuration.
-                            </div>
+                      <div className="anivom-orders-item-info">
+                        <div className="anivom-orders-item-top">
+                          <h3 className="anivom-orders-item-name">{item.name}</h3>
+                          {item.customized && (
+                            <span className="anivom-customized-tag">CUSTOMIZED</span>
                           )}
                         </div>
-                      )}
+
+                        <div className="anivom-orders-item-meta">
+                          <span>SIZE: <strong>{item.size}</strong></span>
+                          <span className="anivom-meta-divider">|</span>
+                          <span>COLOUR: <strong>{item.colour}</strong></span>
+                          <span className="anivom-meta-divider">|</span>
+                          <span>QTY: <strong>{item.quantity}</strong></span>
+                        </div>
+
+                        {item.customized && item.customizationSnapshot && (
+                          <div className="anivom-customization-summary-box">
+                            <h4 className="anivom-custom-summary-head">DESIGN SPECIFICATIONS</h4>
+                            {item.customizationSnapshot.layers && item.customizationSnapshot.layers.length > 0 ? (
+                              <ul className="anivom-custom-layer-list">
+                                {item.customizationSnapshot.layers.map((layer, lIdx) => (
+                                  <li key={lIdx} className="anivom-custom-layer-item">
+                                    {layer.type === 'text' && layer.text && (
+                                      <span>
+                                        <strong>Text:</strong> "{layer.text.content}" ({layer.text.fontFamily || 'Standard Font'}, Color: {layer.text.color})
+                                      </span>
+                                    )}
+                                    {layer.type === 'predefined_design' && layer.design && (
+                                      <span>
+                                        <strong>Graphic:</strong> Predefined Design #{layer.design.designId}
+                                      </span>
+                                    )}
+                                    {layer.type === 'uploaded_image' && (
+                                      <span>
+                                        <strong>Graphic:</strong> Custom Uploaded Artwork
+                                      </span>
+                                    )}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <div className="anivom-custom-fallback-text">
+                                Customized garment with bespoke Studio layer configuration.
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="anivom-orders-item-price-box">
                       <div className="anivom-item-unit-price">
-                        &#8377;{item.unitPrice} each
+                        &#8377;{formatINRAmount(item.unitPrice)} each
                       </div>
                       <div className="anivom-item-subtotal">
-                        &#8377;{item.subtotal}
+                        &#8377;{formatINRAmount(item.subtotal)}
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
-          </div>
+          </section>
 
-          <div className="anivom-orders-side-col">
-            <div className="anivom-orders-section">
-              <h2 className="anivom-orders-section-title">03. DELIVERY SNAPSHOT</h2>
-              {selectedOrder.shippingAddress ? (
-                <div className="anivom-shipping-snapshot-card">
-                  <div className="anivom-snapshot-name">
-                    {selectedOrder.shippingAddress.fullName}
-                  </div>
-                  <div className="anivom-snapshot-line">
-                    {selectedOrder.shippingAddress.phone}
-                  </div>
-                  <div className="anivom-snapshot-line">
-                    {selectedOrder.shippingAddress.addressLine1}
-                  </div>
-                  {selectedOrder.shippingAddress.addressLine2 && (
-                    <div className="anivom-snapshot-line">
-                      {selectedOrder.shippingAddress.addressLine2}
-                    </div>
-                  )}
-                  <div className="anivom-snapshot-line">
-                    {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} - {selectedOrder.shippingAddress.postalCode}
-                  </div>
-                  <div className="anivom-snapshot-line">
-                    {selectedOrder.shippingAddress.country}
-                  </div>
+          <section className="anivom-orders-section anivom-order-detail-card">
+            <h2 className="anivom-orders-section-title">03. DELIVERY SNAPSHOT</h2>
+            {selectedOrder.shippingAddress ? (
+              <div className="anivom-shipping-snapshot-card">
+                <div className="anivom-snapshot-name">
+                  {selectedOrder.shippingAddress.fullName}
                 </div>
-              ) : (
-                <p className="anivom-orders-state-sub">Address details unavailable.</p>
-              )}
-            </div>
-
-            <div className="anivom-orders-section">
-              <h2 className="anivom-orders-section-title">04. FINANCIAL SUMMARY</h2>
-              <div className="anivom-financial-card">
-                <div className="anivom-fin-line">
-                  <span>Subtotal</span>
-                  <span>&#8377;{selectedOrder.subtotal}</span>
+                <div className="anivom-snapshot-line">
+                  {selectedOrder.shippingAddress.phone}
                 </div>
-                <div className="anivom-fin-line">
-                  <span>Shipping</span>
-                  <span className="anivom-complimentary-tag">COMPLIMENTARY</span>
+                <div className="anivom-snapshot-line">
+                  {selectedOrder.shippingAddress.addressLine1}
                 </div>
-                <div className="anivom-fin-line total">
-                  <span>Total Paid</span>
-                  <span>&#8377;{selectedOrder.totalAmount}</span>
+                {selectedOrder.shippingAddress.addressLine2 && (
+                  <div className="anivom-snapshot-line">
+                    {selectedOrder.shippingAddress.addressLine2}
+                  </div>
+                )}
+                <div className="anivom-snapshot-line">
+                  {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} - {selectedOrder.shippingAddress.postalCode}
+                </div>
+                <div className="anivom-snapshot-line">
+                  {selectedOrder.shippingAddress.country}
                 </div>
               </div>
+            ) : (
+              <p className="anivom-orders-state-sub">Address details unavailable.</p>
+            )}
+          </section>
+
+          <section className="anivom-orders-section anivom-order-detail-card">
+            <h2 className="anivom-orders-section-title">04. ORDER SUMMARY</h2>
+            <div className="anivom-financial-card">
+              <div className="anivom-fin-line">
+                <span>Subtotal</span>
+                <span>&#8377;{formatINRAmount(selectedOrder.subtotal)}</span>
+              </div>
+              <div className="anivom-fin-line">
+                <span>Shipping</span>
+                <span className="anivom-complimentary-tag">COMPLIMENTARY</span>
+              </div>
+              <div className="anivom-fin-line total">
+                <span>Total Paid</span>
+                <span>&#8377;{formatINRAmount(selectedOrder.totalAmount)}</span>
+              </div>
             </div>
-          </div>
+          </section>
         </div>
         {renderModals()}
       </div>
@@ -1003,7 +1013,7 @@ function Orders({
                               </div>
                             </div>
                             <div className="anivom-product-row-right">
-                              <span className="anivom-product-row-price">&#8377;{item.subtotal || (item.unitPrice * item.quantity)}</span>
+                              <span className="anivom-product-row-price">&#8377;{formatINRAmount(item.subtotal || (item.unitPrice * item.quantity))}</span>
                             </div>
                           </div>
                         )
@@ -1018,7 +1028,7 @@ function Orders({
                           <span className="anivom-card-custom-indicator">• Bespoke Creation</span>
                         )}
                         <span className="anivom-card-total-label">Total:</span>
-                        <span className="anivom-card-total">&#8377;{order.totalAmount}</span>
+                        <span className="anivom-card-total">&#8377;{formatINRAmount(order.totalAmount)}</span>
                       </div>
 
                       <div className="anivom-card-footer-actions">

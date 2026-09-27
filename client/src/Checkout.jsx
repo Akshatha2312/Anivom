@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Checkout.css'
 import { API_BASE_URL } from './config'
+import formatINRAmount from './formatINRAmount'
 
 function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueShopping, onLoginRedirect, onNavigateToOrders }) {
   const [addresses, setAddresses] = useState([])
@@ -328,7 +329,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
           <div style={{ maxWidth: '520px', margin: '0 auto 32px auto', background: '#F7F2E8', padding: '24px', textAlign: 'left', fontSize: '0.9rem', lineHeight: '1.8', border: '1px solid #e5e0d8' }}>
             <div><strong>Order Reference:</strong> #{completedOrder._id}</div>
             <div><strong>Razorpay Payment ID:</strong> {completedOrder.razorpayPaymentId}</div>
-            <div><strong>Total Paid:</strong> &#8377;{completedOrder.totalAmount}</div>
+            <div><strong>Total Paid:</strong> &#8377;{formatINRAmount(completedOrder.totalAmount)}</div>
             <div><strong>Payment Status:</strong> <span style={{ color: '#2e7d32', fontWeight: '700' }}>{completedOrder.paymentStatus}</span></div>
             <div><strong>Order Status:</strong> <span style={{ color: '#2e7d32', fontWeight: '700' }}>{completedOrder.orderStatus}</span></div>
           </div>
@@ -386,6 +387,10 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
   }
 
   const isProcessing = paymentStatus !== 'IDLE' && paymentStatus !== 'FAILED'
+  const subtotalAmount = summary.totalAmount ?? summary.subtotal
+  const totalPayable = appliedCoupon
+    ? appliedCoupon.payableAmount ?? Math.max(0, subtotalAmount - appliedCoupon.discountAmount)
+    : subtotalAmount
 
   return (
     <div className="anivom-checkout-container">
@@ -450,7 +455,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
                             Set as Default
                           </button>
                         )}
-                        {addr.isDefault && <span style={{ color: '#2e7d32', fontWeight: '700' }}>✓ Default</span>}
+                        {addr.isDefault && <span style={{ color: '#2e7d32', fontWeight: '700' }}>Default</span>}
                         <button className="anivom-address-action-btn" style={{ color: '#C65D3B' }} disabled={isProcessing} onClick={(e) => handleDeleteAddress(addr._id, e)}>
                           Delete
                         </button>
@@ -543,8 +548,8 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
                       )}
                     </div>
                     <div className="anivom-checkout-item-price">
-                      &#8377;{item.itemSubtotal}
-                      <div style={{ fontSize: '0.75rem', color: '#888888', fontWeight: '500' }}>(&#8377;{item.unitPrice} ea)</div>
+                      &#8377;{formatINRAmount(item.itemSubtotal)}
+                      <div style={{ fontSize: '0.75rem', color: '#888888', fontWeight: '500' }}>(&#8377;{formatINRAmount(item.unitPrice)} ea)</div>
                     </div>
                   </div>
                 )
@@ -565,7 +570,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
 
           <div className="anivom-summary-line">
             <span>Authoritative Subtotal</span>
-            <span>&#8377;{summary.subtotal}</span>
+            <span>&#8377;{formatINRAmount(summary.subtotal)}</span>
           </div>
 
           <div className="anivom-coupon-box">
@@ -598,7 +603,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
                     {appliedCoupon.code}
                   </span>
                   <span className="anivom-coupon-discount">
-                    (-₹{appliedCoupon.discountAmount})
+                    (-₹{formatINRAmount(appliedCoupon.discountAmount)})
                   </span>
                 </div>
                 <button
@@ -621,7 +626,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
           {appliedCoupon && (
             <div className="anivom-summary-line" style={{ color: '#2e7d32', fontWeight: '600' }}>
               <span>Coupon Discount ({appliedCoupon.code})</span>
-              <span>-&#8377;{appliedCoupon.discountAmount}</span>
+              <span>-&#8377;{formatINRAmount(appliedCoupon.discountAmount)}</span>
             </div>
           )}
 
@@ -632,7 +637,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
 
           <div className="anivom-summary-line total">
             <span>Total Payable</span>
-            <span>&#8377;{Math.max(0, summary.subtotal - (appliedCoupon ? appliedCoupon.discountAmount : 0))}</span>
+            <span>&#8377;{formatINRAmount(totalPayable)}</span>
           </div>
 
           <button className="anivom-btn-pay" disabled={isProcessing} onClick={handleProceedToPayment}>
@@ -640,7 +645,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
             {paymentStatus === 'OPENING_GATEWAY' && 'Opening Gateway...'}
             {paymentStatus === 'VERIFYING' && 'Verifying Payment...'}
             {(paymentStatus === 'IDLE' || paymentStatus === 'FAILED') &&
-              `Pay ₹${Math.max(0, summary.subtotal - (appliedCoupon ? appliedCoupon.discountAmount : 0))} Securely`}
+              `Pay ₹${formatINRAmount(totalPayable)} Securely`}
           </button>
 
           <button className="anivom-btn-return-bag" disabled={isProcessing} onClick={onReturnToCart}>

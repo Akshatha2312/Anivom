@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './ProductDetails.css'
 import { API_BASE_URL } from './config'
+import formatINRAmount from './formatINRAmount'
 
 function ProductDetails({ product: propProduct, productId, initialProduct, user, onBackToCatalog, onNavigateToStudio, openStudio, onCartUpdated, onSelectProduct, wishlistIds, onWishlistToggle, onBuyNow, onRequireAuth }) {
   const [product, setProduct] = useState(propProduct || initialProduct || null)
@@ -341,7 +342,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
           <div className="anivom-pdp-details-col reveal" style={{ '--reveal-delay': '100ms' }}>
             <span className="anivom-pdp-cat-badge">{product.category || 'Collection'}</span>
             <h1 className="anivom-pdp-title">{product.name}</h1>
-            <div className="anivom-pdp-price">&#8377;{product.basePrice}</div>
+            <div className="anivom-pdp-price">&#8377;{formatINRAmount(product.basePrice)}</div>
 
             <div className="anivom-pdp-stock-status">
               {isOutOfStock ? (
@@ -349,7 +350,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
               ) : stockAvailable <= 5 ? (
                 <span className="low-stock">Low Stock: Only {stockAvailable} items remaining</span>
               ) : (
-                <span className="in-stock">✓ In Stock & Ready to Ship</span>
+                <span className="in-stock">In Stock & Ready to Ship</span>
               )}
             </div>
 

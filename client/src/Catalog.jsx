@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import './Catalog.css'
 import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
+import formatINRAmount from './formatINRAmount'
 
 function CatalogProductCard({ product, initialColour, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onBuyNow, onRequireAuth }) {
   const availableColours = useMemo(() => {
@@ -239,7 +240,7 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
           <h4 className="anivom-card-title">
             {product.name}{selectedColour ? ` - ${selectedColour}` : ''}
           </h4>
-          <div className="anivom-card-price">&#8377;{product.basePrice}</div>
+          <div className="anivom-card-price">&#8377;{formatINRAmount(product.basePrice)}</div>
 
           <div className="anivom-card-variant-section">
             <div className="anivom-size-group">
@@ -789,7 +790,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
                       <span className="anivom-suggestion-title">{item.label}</span>
                     </div>
                     {item.type === 'product' && item.price && (
-                      <span className="anivom-suggestion-price">&#8377;{item.price}</span>
+                      <span className="anivom-suggestion-price">&#8377;{formatINRAmount(item.price)}</span>
                     )}
                   </div>
                 ))

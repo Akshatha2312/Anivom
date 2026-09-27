@@ -2,7 +2,7 @@
   max-width: 1380px;
   width: min(94vw, 1380px);
   margin: 0 auto;
-  padding: 24px 20px 36px 20px;
+  padding: 20px 20px 28px 20px;
   color: #111111;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   box-sizing: border-box;
@@ -356,8 +356,8 @@
 .anivom-orders-section {
   background: #FFFDF8;
   border: 1px solid #e5e0d8;
-  padding: 24px;
-  margin-bottom: 20px;
+  padding: 18px 20px 16px;
+  margin-bottom: 0;
 }
 
 .anivom-orders-section-title {
@@ -366,8 +366,8 @@
   font-weight: 700;
   color: #111111;
   letter-spacing: 0.05em;
-  margin: 0 0 16px 0;
-  padding-bottom: 10px;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
   border-bottom: 1px solid #111111;
 }
 
@@ -477,31 +477,73 @@
   margin: 0;
 }
 
-.anivom-orders-detail-grid {
+.anivom-order-detail-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
+  margin-top: 0;
 }
 
-.anivom-orders-main-col > .anivom-orders-section:last-child,
-.anivom-orders-side-col > .anivom-orders-section:last-child {
+.anivom-order-detail-card {
+  background: #FFFDF8;
+  border: 1px solid #e3ddd2;
+  padding: 20px 22px;
+  box-sizing: border-box;
+}
+
+.anivom-order-detail-card .anivom-orders-section-title {
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #111111;
+}
+
+.anivom-order-detail-card .anivom-section-header-flex {
+  margin-bottom: 12px;
+}
+
+.anivom-order-detail-card .anivom-timeline-container {
+  padding: 4px 0 0;
+}
+
+.anivom-order-detail-card .anivom-timeline-track {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.anivom-order-detail-card .anivom-timeline-node {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 8px;
+}
+
+.anivom-order-detail-card .anivom-timeline-label {
+  font-size: 0.62rem;
+  line-height: 1.2;
+}
+
+.anivom-order-detail-card .anivom-return-status-banner {
+  margin-top: 14px;
+}
+
+.anivom-order-detail-card .anivom-delivery-date-note {
+  margin-top: 10px;
   margin-bottom: 0;
 }
 
 .anivom-orders-item-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .anivom-orders-item-card {
   border-bottom: 1px solid #e5e0d8;
-  padding-bottom: 16px;
+  padding-bottom: 14px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
+  gap: 18px;
 }
 
 .anivom-orders-item-card:last-child {
@@ -509,16 +551,40 @@
   padding-bottom: 0;
 }
 
+.anivom-orders-item-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.anivom-orders-item-thumb {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #e5e0d8;
+  background: #F7F2E8;
+  border-radius: 2px;
+}
+
+.anivom-orders-item-info {
+  min-width: 0;
+  flex: 1;
+}
+
 .anivom-orders-item-top {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
 .anivom-orders-item-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   font-weight: 700;
   color: #111111;
   margin: 0;
@@ -537,22 +603,26 @@
   font-size: 0.8rem;
   color: #555555;
   margin-bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
 
 .anivom-meta-divider {
-  margin: 0 8px;
+  margin: 0 2px;
   color: #ccc;
 }
 
 .anivom-customization-summary-box {
   background: #F7F2E8;
   border-left: 3px solid #7A1F3D;
-  padding: 12px 14px;
-  margin-top: 10px;
+  padding: 10px 12px;
+  margin-top: 8px;
 }
 
 .anivom-custom-summary-head {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: #7A1F3D;
@@ -563,7 +633,7 @@
 .anivom-custom-layer-list {
   margin: 0;
   padding-left: 16px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #292929;
 }
 
@@ -571,19 +641,25 @@
   margin-bottom: 4px;
 }
 
+.anivom-custom-fallback-text {
+  font-size: 0.78rem;
+  color: #666;
+}
+
 .anivom-orders-item-price-box {
   text-align: right;
   min-width: 100px;
+  padding-top: 2px;
 }
 
 .anivom-item-unit-price {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: #777;
 }
 
 .anivom-item-subtotal {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   font-weight: 700;
   color: #111111;
   margin-top: 2px;
@@ -591,7 +667,7 @@
 
 .anivom-shipping-snapshot-card {
   font-size: 0.88rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: #292929;
 }
 
@@ -616,6 +692,7 @@
 .anivom-fin-line {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   color: #555555;
 }
 
@@ -726,6 +803,12 @@
   margin: 0 0 20px 0;
 }
 
+@media (max-width: 950px) {
+  .anivom-order-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .anivom-order-card-header {
     flex-direction: row;
@@ -756,6 +839,23 @@
 }
 
 @media (max-width: 600px) {
+  .anivom-orders-item-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .anivom-orders-item-content {
+    width: 100%;
+  }
+
+  .anivom-orders-item-price-box {
+    width: 100%;
+    text-align: left;
+    padding-top: 0;
+    border-top: 1px dashed #e5e0d8;
+    padding-top: 8px;
+  }
+
   .anivom-order-product-row {
     flex-direction: column;
     align-items: stretch;

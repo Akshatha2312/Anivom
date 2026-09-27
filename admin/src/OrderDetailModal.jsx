@@ -345,7 +345,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                 <div className="info-key-val">
                   <span>Garment Condition:</span>
                   <span className={order.isDefectiveOrDamaged ? 'stock-low-tag' : 'stock-ok-tag'}>
-                    {order.isDefectiveOrDamaged ? '⚠️ Defective or Damaged Garment Reported' : '✓ Standard Garment Return'}
+                    {order.isDefectiveOrDamaged ? '⚠️ Defective or Damaged Garment Reported' : 'Standard Garment Return'}
                   </span>
                 </div>
                 <div className="info-key-val">

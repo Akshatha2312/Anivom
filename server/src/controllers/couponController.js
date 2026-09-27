@@ -2,9 +2,11 @@ const mongoose = require('mongoose');
 const Coupon = require('../models/Coupon');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const { roundMoney } = require('../utils/money');
 
 const validateCouponForSubtotal = (coupon, subtotal) => {
   const now = new Date();
+  const roundedSubtotal = roundMoney(subtotal);
 
   if (!coupon.isActive) {
     return { valid: false, message: 'Coupon is inactive' };
@@ -22,7 +24,7 @@ const validateCouponForSubtotal = (coupon, subtotal) => {
     return { valid: false, message: 'Coupon usage limit reached' };
   }
 
-  if (subtotal < coupon.minimumOrderAmount) {
+  if (roundedSubtotal < coupon.minimumOrderAmount) {
     return {
       valid: false,
       message: `Minimum order amount of ₹${coupon.minimumOrderAmount} required for this coupon`,
@@ -31,7 +33,7 @@ const validateCouponForSubtotal = (coupon, subtotal) => {
 
   let discountAmount = 0;
   if (coupon.discountType === 'percentage') {
-    discountAmount = (subtotal * coupon.discountValue) / 100;
+    discountAmount = (roundedSubtotal * coupon.discountValue) / 100;
     if (coupon.maximumDiscountAmount > 0 && discountAmount > coupon.maximumDiscountAmount) {
       discountAmount = coupon.maximumDiscountAmount;
     }
@@ -39,8 +41,7 @@ const validateCouponForSubtotal = (coupon, subtotal) => {
     discountAmount = coupon.discountValue;
   }
 
-  discountAmount = Math.min(discountAmount, subtotal);
-  discountAmount = Math.round(discountAmount * 100) / 100;
+  discountAmount = roundMoney(Math.min(discountAmount, roundedSubtotal));
 
   return {
     valid: true,
@@ -80,12 +81,12 @@ const validateCustomerCoupon = async (req, res, next) => {
           subtotalNum = cart.items.reduce((acc, item) => {
             const p = item.product;
             const price = p ? p.basePrice : 0;
-            return acc + price * item.quantity;
+            return acc + roundMoney(price * item.quantity);
           }, 0);
         }
       }
     }
-    subtotalNum = subtotalNum || 0;
+    subtotalNum = roundMoney(subtotalNum || 0);
 
     const validation = validateCouponForSubtotal(coupon, subtotalNum);
     if (!validation.valid) {
@@ -103,7 +104,7 @@ const validateCustomerCoupon = async (req, res, next) => {
         discountType: validation.discountType,
         discountValue: validation.discountValue,
         discountAmount: validation.discountAmount,
-        payableAmount: Math.max(0, subtotalNum - validation.discountAmount),
+        payableAmount: roundMoney(Math.max(0, subtotalNum - validation.discountAmount)),
         subtotal: subtotalNum,
       },
     });
