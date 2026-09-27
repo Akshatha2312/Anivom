@@ -3,7 +3,7 @@ import './Catalog.css'
 import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
 
-function CatalogProductCard({ product, initialColour, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onRequireAuth }) {
+function CatalogProductCard({ product, initialColour, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onBuyNow, onRequireAuth }) {
   const availableColours = useMemo(() => {
     return product && product.variants && product.variants.length > 0
       ? Array.from(new Set(product.variants.filter((v) => v.stock > 0).map((v) => v.colour)))
@@ -139,6 +139,27 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
     }
   }
 
+  const handleBuyNowClick = () => {
+    if (!selectedColour || !selectedSize) {
+      setCardErr('Please select an available colour and size.')
+      return
+    }
+
+    if (onBuyNow && product) {
+      onBuyNow({
+        productId: product._id,
+        size: selectedSize,
+        colour: selectedColour,
+        quantity: 1,
+        customized: false,
+      })
+    }
+
+    if (!user && onRequireAuth) {
+      onRequireAuth()
+    }
+  }
+
   const DEFAULT_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'><rect width='100%' height='100%' fill='%23F7F2E8'/><text x='50%' y='48%' font-family='serif' font-size='28' fill='%237A1F3D' text-anchor='middle' letter-spacing='4'>ANIVOM</text><text x='50%' y='53%' font-family='sans-serif' font-size='14' fill='%23C6A15B' text-anchor='middle' letter-spacing='2'>COUTURE</text></svg>"
   const allSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
 
@@ -257,6 +278,12 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
           >
             CUSTOMIZE IN STUDIO
           </button>
+          <button
+            onClick={handleBuyNowClick}
+            className="anivom-btn-buy-card"
+          >
+            BUY NOW
+          </button>
         </div>
       </div>
     </div>
@@ -268,7 +295,7 @@ let cachedDbSizes = null
 let cachedDbColours = null
 let cachedAllProducts = null
 
-function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSuccess, initialCategory = 'All', wishlistIds: propWishlistIds, onWishlistToggle: propWishlistToggle }) {
+function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, onAuthSuccess, initialCategory = 'All', wishlistIds: propWishlistIds, onWishlistToggle: propWishlistToggle }) {
   const [products, setProducts] = useState([])
   const [allCatalogProducts, setAllCatalogProducts] = useState(cachedAllProducts || [])
   const [internalWishlistIds, setInternalWishlistIds] = useState([])
@@ -929,6 +956,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
                   onSelectProduct={onSelectProduct}
                   wishlistIds={wishlistIds}
                   onWishlistToggle={handleWishlistToggle}
+                  onBuyNow={onBuyNow}
                   onRequireAuth={() => setShowAuthModal(true)}
                 />
               ))}

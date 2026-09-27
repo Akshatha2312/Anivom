@@ -844,6 +844,7 @@ function App() {
             onSelectProduct={handleSelectProduct}
             wishlistIds={wishlistIds}
             onWishlistToggle={handleWishlistToggle}
+            onBuyNow={handleBuyNow}
             onAuthSuccess={(userData) => {
               setUser(userData)
               fetchCartCount()

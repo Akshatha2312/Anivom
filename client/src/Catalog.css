@@ -736,6 +736,29 @@
   color: #FFFDF8;
 }
 
+.anivom-btn-buy-card {
+  width: 100%;
+  padding: 8px;
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  border: 1px solid #7A1F3D;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.anivom-btn-buy-card:hover {
+  background-color: #5C172E;
+  border-color: #5C172E;
+}
+
 .anivom-pagination-bar {
   display: flex;
   justify-content: center;
