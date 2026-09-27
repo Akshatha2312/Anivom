@@ -17,7 +17,7 @@ const Customers = () => {
     try {
       const params = new URLSearchParams();
       params.append('page', currentPage);
-      params.append('limit', 10);
+      params.append('limit', 15);
       if (search.trim()) params.append('search', search.trim());
       if (roleFilter) params.append('role', roleFilter);
 
@@ -124,7 +124,7 @@ const Customers = () => {
                   <tr key={usr._id}>
                     <td className="mono-text">#{usr._id.slice(-8).toUpperCase()}</td>
                     <td><strong>{usr.name}</strong></td>
-                    <td className="mono-text">{usr.email}</td>
+                    <td>{usr.email}</td>
                     <td>
                       <span className={`role-badge ${usr.role}`}>
                         {usr.role.toUpperCase()}
