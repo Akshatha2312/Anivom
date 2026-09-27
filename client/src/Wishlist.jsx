@@ -42,7 +42,11 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
     if (selectedColour && product?.garmentImages?.byColour) {
       const byColourObj = product.garmentImages.byColour
       const colourMapObj = byColourObj instanceof Map ? Object.fromEntries(byColourObj) : byColourObj
-      const colourData = colourMapObj?.[selectedColour]
+      const normSelected = String(selectedColour).trim().toLowerCase()
+      const colourEntry = Object.entries(colourMapObj || {}).find(
+        ([key]) => String(key).trim().toLowerCase() === normSelected
+      )
+      const colourData = colourEntry ? colourEntry[1] : colourMapObj?.[selectedColour]
       if (colourData && colourData.front) {
         return colourData.front
       }
