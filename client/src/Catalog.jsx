@@ -294,7 +294,11 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
         if (res.ok) {
           const data = await res.json()
           const prods = data.data.wishlist?.products || []
-          setInternalWishlistIds(prods.map((p) => p._id || p))
+          setInternalWishlistIds(prods.map((p) => {
+            const id = p._id || p
+            const col = p.selectedColour || p.initialColor || ''
+            return col ? `${id}_${col}` : id
+          }))
         }
       } catch (err) {
         setInternalWishlistIds([])
@@ -303,17 +307,19 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
     fetchWishlistData()
   }, [user, propWishlistIds])
 
-  const handleWishlistToggle = async (productId) => {
+  const handleWishlistToggle = async (productId, colour = '') => {
     if (propWishlistToggle) {
-      propWishlistToggle(productId)
+      propWishlistToggle(productId, colour)
       return
     }
     if (!user) return
-    const isWishlisted = wishlistIds.includes(productId)
+    const key = colour ? `${productId}_${colour}` : productId
+    const isWishlisted = wishlistIds.includes(key)
     try {
-      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}` : ''}`
+      const queryParam = colour ? `?colour=${encodeURIComponent(colour)}` : ''
+      const url = `${API_BASE_URL}/api/v1/wishlist${isWishlisted ? `/${productId}${queryParam}` : ''}`
       const method = isWishlisted ? 'DELETE' : 'POST'
-      const body = isWishlisted ? null : JSON.stringify({ productId })
+      const body = isWishlisted ? null : JSON.stringify({ productId, colour })
 
       const res = await fetch(url, {
         method,
@@ -325,7 +331,11 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onAuthSucce
       if (res.ok) {
         const data = await res.json()
         const prods = data.data.wishlist?.products || []
-        setInternalWishlistIds(prods.map((p) => p._id || p))
+        setInternalWishlistIds(prods.map((p) => {
+          const id = p._id || p
+          const col = p.selectedColour || p.initialColor || ''
+          return col ? `${id}_${col}` : id
+        }))
       }
     } catch (err) {
       console.error('Wishlist error', err)
