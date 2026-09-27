@@ -173,9 +173,20 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [initialCustomization, setInitialCustomization] = useState(null)
+  const [buyNowItem, setBuyNowItem] = useState(null)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [showBagToast, setShowBagToast] = useState(false)
   const bagToastTimerRef = useRef(null)
+
+  const handleBuyNow = (itemData) => {
+    setBuyNowItem(itemData)
+    if (user) {
+      setView('checkout')
+    } else {
+      setMode('login')
+      setView('auth')
+    }
+  }
 
   const triggerBagToast = () => {
     if (bagToastTimerRef.current) {
@@ -698,7 +709,11 @@ function App() {
             onAuthSuccess={(userData) => {
               setUser(userData)
               fetchCartCount()
-              setView('account')
+              if (buyNowItem) {
+                setView('checkout')
+              } else {
+                setView('account')
+              }
             }}
           />
         )}
@@ -758,6 +773,8 @@ function App() {
             onSelectProduct={handleSelectProduct}
             wishlistIds={wishlistIds}
             onWishlistToggle={handleWishlistToggle}
+            onBuyNow={handleBuyNow}
+            onRequireAuth={() => { setView('auth'); setMode('login'); }}
           />
         )}
 
@@ -792,7 +809,10 @@ function App() {
             user={user}
             onContinueShopping={() => setView('catalog')}
             onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
-            onProceedToCheckout={() => setView('checkout')}
+            onProceedToCheckout={() => {
+              setBuyNowItem(null)
+              setView('checkout')
+            }}
             onCartUpdated={fetchCartCount}
             onSelectProduct={handleSelectProduct}
           />
@@ -801,8 +821,16 @@ function App() {
         {view === 'checkout' && (
           <Checkout
             user={user}
-            onContinueShopping={() => setView('catalog')}
-            onReturnToCart={() => setView('cart')}
+            buyNowItem={buyNowItem}
+            onClearBuyNow={() => setBuyNowItem(null)}
+            onContinueShopping={() => {
+              setBuyNowItem(null)
+              setView('catalog')
+            }}
+            onReturnToCart={() => {
+              setBuyNowItem(null)
+              setView('cart')
+            }}
             onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
             onNavigateToOrders={openOrders}
           />
@@ -858,6 +886,7 @@ function App() {
               fetchCartCount()
               setView('cart')
             }}
+            onBuyNow={handleBuyNow}
             onAuthSuccess={(userData) => {
               setUser(userData)
               fetchCartCount()

@@ -484,6 +484,36 @@
   color: #111111;
 }
 
+.anivom-btn-buy-pdp {
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #7A1F3D;
+  color: #FFFDF8;
+  border: 1.5px solid #7A1F3D;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.anivom-btn-buy-pdp:hover:not(:disabled) {
+  background-color: #5C152E;
+  border-color: #5C152E;
+}
+
+.anivom-btn-buy-pdp:disabled {
+  background-color: #E2DCCF;
+  border-color: #E2DCCF;
+  color: #999999;
+  cursor: not-allowed;
+}
+
 
 
 /* Recommendations Section */

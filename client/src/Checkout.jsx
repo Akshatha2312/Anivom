@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Checkout.css'
 import { API_BASE_URL } from './config'
 
-function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, onNavigateToOrders }) {
+function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueShopping, onLoginRedirect, onNavigateToOrders }) {
   const [addresses, setAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -94,6 +94,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ buyNowItem: buyNowItem || undefined }),
       })
 
       const data = await res.json()
@@ -112,7 +113,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
   useEffect(() => {
     fetchAddresses()
     fetchCheckoutSummary()
-  }, [user])
+  }, [user, buyNowItem])
 
   const handleCreateAddress = async (e) => {
     e.preventDefault()
@@ -199,6 +200,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ buyNowItem: buyNowItem || undefined }),
       })
 
       const summaryData = await summaryRes.json()
@@ -216,6 +218,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
         body: JSON.stringify({
           addressId: selectedAddressId,
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+          buyNowItem: buyNowItem || undefined,
         }),
       })
 
@@ -268,6 +271,7 @@ function Checkout({ user, onReturnToCart, onContinueShopping, onLoginRedirect, o
             if (verifyRes.ok) {
               setPaymentStatus('SUCCESS')
               setCompletedOrder(verifyData.data.order)
+              if (onClearBuyNow) onClearBuyNow()
             } else {
               setError(verifyData.message || 'Payment signature verification failed.')
               setPaymentStatus('FAILED')

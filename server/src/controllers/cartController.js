@@ -361,6 +361,67 @@ const clearCart = async (req, res, next) => {
 
 const validateCheckoutSummary = async (req, res, next) => {
   try {
+    const { buyNowItem } = req.body || {};
+    if (buyNowItem) {
+      const { productId, size, colour, quantity, customized, customizationId } = buyNowItem;
+      if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ status: 'fail', message: 'Invalid product ID' });
+      }
+      const product = await Product.findOne({ _id: productId, isActive: true });
+      if (!product) {
+        return res.status(404).json({ status: 'fail', message: 'Product not found or inactive' });
+      }
+      const variant = product.variants ? product.variants.find((v) => v.size === size && v.colour === colour) : null;
+      if (!variant) {
+        return res.status(400).json({ status: 'fail', message: 'Selected variant is not available' });
+      }
+      const qtyNum = Number(quantity) || 1;
+      if (qtyNum > variant.stock) {
+        return res.status(400).json({ status: 'fail', message: `Requested quantity exceeds available stock (${variant.stock} available)` });
+      }
+      let custDoc = null;
+      if (customized) {
+        if (!customizationId || !mongoose.Types.ObjectId.isValid(customizationId)) {
+          return res.status(400).json({ status: 'fail', message: 'Invalid customization ID' });
+        }
+        custDoc = await Customization.findById(customizationId);
+        if (!custDoc || custDoc.user.toString() !== req.user._id.toString()) {
+          return res.status(403).json({ status: 'fail', message: 'Unauthorized customization' });
+        }
+      }
+      const unitPrice = product.basePrice;
+      const itemSubtotal = unitPrice * qtyNum;
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          summary: {
+            items: [
+              {
+                _id: 'buynow_item',
+                product: {
+                  _id: product._id,
+                  name: product.name,
+                  images: product.images,
+                  category: product.category,
+                },
+                size,
+                colour,
+                quantity: qtyNum,
+                customized: Boolean(customized),
+                customization: custDoc,
+                unitPrice,
+                itemSubtotal,
+              },
+            ],
+            totalItemCount: qtyNum,
+            subtotal: itemSubtotal,
+            shippingFee: 0,
+            totalAmount: itemSubtotal,
+          },
+        },
+      });
+    }
+
     let cart = await Cart.findOne({ user: req.user._id });
     if (!cart || !cart.items || cart.items.length === 0) {
       return res.status(400).json({

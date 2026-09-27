@@ -18,7 +18,7 @@ const getRazorpayInstance = () => {
 
 const createOrder = async (req, res, next) => {
   try {
-    const { addressId, couponCode } = req.body;
+    const { addressId, couponCode, buyNowItem } = req.body;
     if (!addressId) {
       return res.status(400).json({ success: false, message: 'Shipping address ID is required.' });
     }
@@ -28,21 +28,68 @@ const createOrder = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Shipping address not found or unauthorized.' });
     }
 
-    const cart = await Cart.findOne({ user: req.user._id })
-      .populate('items.product')
-      .populate({
-        path: 'items.customization',
-        populate: { path: 'product' },
-      });
-
-    if (!cart || !cart.items || cart.items.length === 0) {
-      return res.status(400).json({ success: false, message: 'Cart is empty. Cannot create order.' });
-    }
-
     let subtotal = 0;
     const validatedItems = [];
+    const isBuyNowFlow = Boolean(buyNowItem);
 
-    for (const item of cart.items) {
+    if (buyNowItem) {
+      const { productId, size, colour, quantity, customized, customizationId } = buyNowItem;
+      if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ success: false, message: 'Invalid product ID for Buy Now.' });
+      }
+      const product = await Product.findOne({ _id: productId, isActive: true });
+      if (!product) {
+        return res.status(404).json({ success: false, message: 'Product not found or inactive.' });
+      }
+      const variant = product.variants ? product.variants.find((v) => v.size === size && v.colour === colour) : null;
+      if (!variant) {
+        return res.status(400).json({ success: false, message: 'Selected variant is not available.' });
+      }
+      const qtyNum = Number(quantity) || 1;
+      if (qtyNum > variant.stock) {
+        return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name}. Available: ${variant.stock}` });
+      }
+      let customizationSnapshot = null;
+      let validCustId = null;
+      if (customized) {
+        if (!customizationId || !mongoose.Types.ObjectId.isValid(customizationId)) {
+          return res.status(400).json({ success: false, message: 'Invalid customization ID.' });
+        }
+        const custDoc = await Customization.findById(customizationId);
+        if (!custDoc || custDoc.user.toString() !== req.user._id.toString()) {
+          return res.status(403).json({ success: false, message: 'Unauthorized customization.' });
+        }
+        customizationSnapshot = custDoc.toObject();
+        validCustId = custDoc._id;
+      }
+      const unitPrice = product.basePrice;
+      const itemSubtotal = unitPrice * qtyNum;
+      subtotal = itemSubtotal;
+      validatedItems.push({
+        product: product._id,
+        name: product.name,
+        size,
+        colour,
+        quantity: qtyNum,
+        unitPrice,
+        subtotal: itemSubtotal,
+        customized: Boolean(customized),
+        customization: validCustId,
+        customizationSnapshot,
+      });
+    } else {
+      const cart = await Cart.findOne({ user: req.user._id })
+        .populate('items.product')
+        .populate({
+          path: 'items.customization',
+          populate: { path: 'product' },
+        });
+
+      if (!cart || !cart.items || cart.items.length === 0) {
+        return res.status(400).json({ success: false, message: 'Cart is empty. Cannot create order.' });
+      }
+
+      for (const item of cart.items) {
       const product = await Product.findById(item.product._id || item.product);
       if (!product || !product.isActive) {
         return res.status(400).json({
@@ -144,6 +191,7 @@ const createOrder = async (req, res, next) => {
       discountAmount,
       totalAmount,
       couponSnapshot,
+      isBuyNow: isBuyNowFlow,
       paymentStatus: 'PENDING',
       orderStatus: 'PLACED',
     });
@@ -284,7 +332,9 @@ const verifyPayment = async (req, res) => {
       );
     }
 
-    await Cart.findOneAndUpdate({ user: req.user._id }, { $set: { items: [] } });
+    if (!order.isBuyNow) {
+      await Cart.findOneAndUpdate({ user: req.user._id }, { $set: { items: [] } });
+    }
 
     res.status(200).json({
       success: true,

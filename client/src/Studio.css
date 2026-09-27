@@ -1657,3 +1657,116 @@
   background: #96284d;
   border-color: #96284d;
 }
+
+.buy-now-studio-btn {
+  background: #C6A15B;
+  color: #111111;
+  border: 1px solid #C6A15B;
+  padding: 0 16px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.buy-now-studio-btn:hover:not(:disabled) {
+  background: #d8b46e;
+  border-color: #d8b46e;
+}
+
+.buy-now-studio-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.studio-save-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.studio-save-modal-box {
+  background: #181818;
+  border: 1px solid #C6A15B;
+  padding: 32px 24px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;
+}
+
+.studio-save-modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #FFFDF8;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px 0;
+}
+
+.studio-save-modal-text {
+  font-size: 0.88rem;
+  color: #cccccc;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.studio-save-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.studio-modal-btn-buy {
+  background: #7A1F3D;
+  color: #FFFDF8;
+  border: 1px solid #7A1F3D;
+  padding: 10px 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.studio-modal-btn-buy:hover {
+  background: #96284d;
+  border-color: #96284d;
+}
+
+.studio-modal-btn-close {
+  background: transparent;
+  color: #FFFDF8;
+  border: 1px solid rgba(255, 253, 248, 0.3);
+  padding: 10px 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.studio-modal-btn-close:hover {
+  background: rgba(255, 253, 248, 0.1);
+}

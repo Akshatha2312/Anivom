@@ -126,6 +126,10 @@ const orderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    isBuyNow: {
+      type: Boolean,
+      default: false,
+    },
     stockRestored: {
       type: Boolean,
       default: false,

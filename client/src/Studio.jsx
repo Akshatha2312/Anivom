@@ -14,13 +14,14 @@ const getLayerScale = (layer) => {
   return 1;
 };
 
-const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess }) => {
+const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, onNavigateToCart, onAuthSuccess, onBuyNow }) => {
   const [selectedStudioProduct, setSelectedStudioProduct] = useState(null);
   const [productsList, setProductsList] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [productsError, setProductsError] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [showSaveSuccessModal, setShowSaveSuccessModal] = useState(false);
 
   const [activeView, setActiveView] = useState('front');
   const [viewUnavailableModal, setViewUnavailableModal] = useState(null);
@@ -845,10 +846,50 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
           ? 'Customization updated successfully!'
           : 'Customization saved successfully!'
       );
+      setShowSaveSuccessModal(true);
     } catch (err) {
       setSaveError(err.message || 'Error communicating with customization API.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleBuyNowCustomized = async () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (isAddingToCart || isSaving) return;
+    setIsAddingToCart(true);
+    setSaveError(null);
+    setSaveMessage(null);
+
+    try {
+      let activeCustomizationId = customizationId;
+      if (!activeCustomizationId) {
+        const savedDoc = await saveCustomizationInternal();
+        activeCustomizationId = savedDoc._id;
+      }
+
+      const hasExactColourVariant = activeProduct?.variants?.some((v) => v.colour === selectedColour);
+      const fallbackColour = activeProduct?.variants?.[0]?.colour || selectedColour;
+      const colourToSubmit = hasExactColourVariant ? selectedColour : fallbackColour;
+
+      if (onBuyNow) {
+        onBuyNow({
+          productId: activeProduct._id,
+          size: selectedSize,
+          colour: colourToSubmit,
+          quantity: 1,
+          customized: true,
+          customizationId: activeCustomizationId,
+        });
+      }
+    } catch (err) {
+      setSaveError(err.message || 'Error processing Buy Now for customization.');
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -932,6 +973,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
               disabled={isSaving || isAddingToCart}
             >
               {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
+            </button>
+            <button
+              className="buy-now-studio-btn"
+              onClick={handleBuyNowCustomized}
+              disabled={isSaving || isAddingToCart}
+            >
+              Buy Now
             </button>
           </div>
         </header>
@@ -1133,6 +1181,13 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             disabled={isSaving || isAddingToCart}
           >
             {isAddingToCart ? 'Adding...' : 'Add Design to Bag'}
+          </button>
+          <button
+            className="buy-now-studio-btn"
+            onClick={handleBuyNowCustomized}
+            disabled={isSaving || isAddingToCart}
+          >
+            Buy Now
           </button>
         </div>
       </header>
@@ -1858,6 +1913,34 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             <button className="studio-view-unavailable-btn" onClick={() => setViewUnavailableModal(null)}>
               UNDERSTOOD
             </button>
+          </div>
+        </div>
+      )}
+
+      {showSaveSuccessModal && (
+        <div className="studio-save-modal-backdrop" onClick={() => setShowSaveSuccessModal(false)}>
+          <div className="studio-save-modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3 className="studio-save-modal-title">CREATION SAVED SUCCESSFULLY</h3>
+            <p className="studio-save-modal-text">
+              Your bespoke design for {activeProduct?.name || 'Garment'} ({selectedColour} / {selectedSize}) has been saved to your creations.
+            </p>
+            <div className="studio-save-modal-actions">
+              <button
+                className="studio-modal-btn-buy"
+                onClick={() => {
+                  setShowSaveSuccessModal(false);
+                  handleBuyNowCustomized();
+                }}
+              >
+                Buy Now
+              </button>
+              <button
+                className="studio-modal-btn-close"
+                onClick={() => setShowSaveSuccessModal(false)}
+              >
+                Continue Customizing
+              </button>
+            </div>
           </div>
         </div>
       )}
