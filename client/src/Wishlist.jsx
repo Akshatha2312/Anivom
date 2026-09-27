@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './Wishlist.css'
 import { API_BASE_URL } from './config'
 
-const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onCartUpdated, openStudio }) => {
+const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onCartUpdated, openStudio, onWishlistToggle }) => {
   const [wishlistItems, setWishlistItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -58,6 +58,14 @@ const Wishlist = ({ user, onBackToCatalog, onLoginRedirect, onSelectProduct, onC
     if (e) e.stopPropagation()
     const productId = product._id
     const selectedColour = product.selectedColour || product.initialColor || ''
+    if (onWishlistToggle) {
+      await onWishlistToggle(productId, selectedColour)
+      setWishlistItems((prev) => prev.filter((item) => {
+        const itemCol = item.selectedColour || item.initialColor || ''
+        return !(item._id === productId && itemCol === selectedColour)
+      }))
+      return
+    }
     try {
       const queryParam = selectedColour ? `?colour=${encodeURIComponent(selectedColour)}` : ''
       const res = await fetch(`${API_BASE_URL}/api/v1/wishlist/${productId}${queryParam}`, {

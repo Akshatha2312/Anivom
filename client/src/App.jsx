@@ -783,6 +783,7 @@ function App() {
             onSelectProduct={handleSelectProduct}
             onCartUpdated={handleCartItemAdded}
             openStudio={openStudio}
+            onWishlistToggle={handleWishlistToggle}
           />
         )}
 

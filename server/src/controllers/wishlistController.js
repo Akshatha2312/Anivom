@@ -10,7 +10,10 @@ const formatWishlistProducts = (wishlist) => {
     // Support populated subdocument item.product or legacy populated direct ObjectId item
     const rawProd = item.product && item.product._id ? item.product : (item._id ? item : null);
     if (!rawProd || rawProd.isActive === false) continue;
-    const prodObj = rawProd.toObject ? rawProd.toObject() : { ...rawProd };
+    const prodObj = rawProd.toObject ? rawProd.toObject({ flattenMaps: true }) : { ...rawProd };
+    if (prodObj.garmentImages && prodObj.garmentImages.byColour && prodObj.garmentImages.byColour instanceof Map) {
+      prodObj.garmentImages.byColour = Object.fromEntries(prodObj.garmentImages.byColour);
+    }
     const selectedColour = item.colour || '';
     items.push({
       ...prodObj,
