@@ -347,7 +347,7 @@ function ProductDetails({ product: propProduct, productId, initialProduct, user,
               {isOutOfStock ? (
                 <span className="out-of-stock">✕ Currently Out of Stock</span>
               ) : stockAvailable <= 5 ? (
-                <span className="low-stock">⚡ Low Stock: Only {stockAvailable} items remaining</span>
+                <span className="low-stock">Low Stock: Only {stockAvailable} items remaining</span>
               ) : (
                 <span className="in-stock">✓ In Stock & Ready to Ship</span>
               )}

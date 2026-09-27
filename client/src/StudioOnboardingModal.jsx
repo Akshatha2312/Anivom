@@ -46,7 +46,7 @@ function StudioOnboardingModal({ onClose }) {
     {
       num: '06',
       title: 'SAVE & BAG',
-      icon: '🛍',
+      icon: '',
       desc: 'Save your creation and add the customized T-shirt to your bag.',
     },
   ]

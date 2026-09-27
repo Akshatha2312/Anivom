@@ -538,7 +538,7 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
                       </div>
                       {item.customized && (
                         <div style={{ fontSize: '0.78rem', color: '#7A1F3D', fontWeight: '700', marginTop: '4px' }}>
-                          ✨ Customized Design Attached
+                          Customized Design Attached
                         </div>
                       )}
                     </div>

@@ -145,6 +145,7 @@ const createOrder = async (req, res, next) => {
         customizationSnapshot,
       });
     }
+  }
 
     let discountAmount = 0;
     let couponSnapshot = null;
@@ -346,18 +347,58 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-const getMyOrders = async (req, res) => {
+const getMyOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const page = parseInt(req.query.page, 10);
+    const limit = parseInt(req.query.limit, 10);
+
+    if (page && limit && page > 0 && limit > 0) {
+      const skip = (page - 1) * limit;
+      const total = await Order.countDocuments({ user: req.user._id });
+      const orders = await Order.find({ user: req.user._id })
+        .populate('items.product')
+        .populate({
+          path: 'items.customization',
+          populate: { path: 'product' },
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      return res.status(200).json({
+        success: true,
+        count: orders.length,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit) || 1,
+        },
+        data: { orders },
+      });
+    }
+
+    const orders = await Order.find({ user: req.user._id })
+      .populate('items.product')
+      .populate({
+        path: 'items.customization',
+        populate: { path: 'product' },
+      })
+      .sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: orders.length, data: { orders } });
   } catch (error) {
     next(error);
   }
 };
 
-const getOrderById = async (req, res) => {
+const getOrderById = async (req, res, next) => {
   try {
-    const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+    const order = await Order.findOne({ _id: req.params.id, user: req.user._id })
+      .populate('items.product')
+      .populate({
+        path: 'items.customization',
+        populate: { path: 'product' },
+      });
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found.' });
     }

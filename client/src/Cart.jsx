@@ -126,7 +126,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
     return (
       <div className="anivom-cart-container">
         <div className="anivom-empty-cart">
-          <div className="anivom-empty-icon">🔒</div>
+          <div className="anivom-empty-icon"></div>
           <h3 className="anivom-empty-title">YOUR BAG REQUIRES SIGN-IN</h3>
           <p className="anivom-empty-sub">
             Log in with your ANIVOM customer account to view your saved items and complete your bespoke order.
@@ -235,7 +235,7 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
                   <div className="anivom-cart-item-header">
                     <h3 className="anivom-cart-item-name">{product.name || 'ANIVOM Garment'}</h3>
                     {item.customized && (
-                      <span className="anivom-badge-customized">✨ Customized</span>
+                      <span className="anivom-badge-customized">Customized</span>
                     )}
                   </div>
 

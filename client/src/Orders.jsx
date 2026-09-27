@@ -29,6 +29,9 @@ function Orders({
   const [returnDetails, setReturnDetails] = useState('')
   const [isDefectiveOrDamaged, setIsDefectiveOrDamaged] = useState(false)
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 10
+
   const getCleanOrderId = (val) => {
     if (!val) return null
     if (typeof val === 'string') return val
@@ -111,6 +114,70 @@ function Orders({
       month: 'short',
       year: 'numeric',
     }).toUpperCase()
+  }
+
+  const getItemImage = (item) => {
+    if (!item) return null
+
+    const isNonEmptyStr = (str) => typeof str === 'string' && str.trim().length > 0
+
+    const resolveFromProductObj = (prod, targetColour) => {
+      if (!prod || typeof prod !== 'object') return null
+
+      if (targetColour && prod.garmentImages?.byColour) {
+        const byColObj = prod.garmentImages.byColour instanceof Map
+          ? Object.fromEntries(prod.garmentImages.byColour)
+          : prod.garmentImages.byColour
+        const normColour = String(targetColour).trim().toLowerCase()
+        const entry = Object.entries(byColObj || {}).find(
+          ([key]) => String(key).trim().toLowerCase() === normColour
+        )
+        if (entry && entry[1] && isNonEmptyStr(entry[1].front)) {
+          return entry[1].front
+        }
+      }
+
+      if (isNonEmptyStr(prod.garmentImages?.front)) {
+        return prod.garmentImages.front
+      }
+
+      if (Array.isArray(prod.images)) {
+        const validImg = prod.images.find(isNonEmptyStr)
+        if (validImg) return validImg
+      }
+
+      return null
+    }
+
+    // 1. Check direct populated item.product
+    let resolved = resolveFromProductObj(item.product, item.colour)
+    if (resolved) return resolved
+
+    // 2. Check nested populated item.customization.product (for customized items)
+    if (item.customization && item.customization.product) {
+      resolved = resolveFromProductObj(item.customization.product, item.colour)
+      if (resolved) return resolved
+    }
+
+    // 3. Check customizationSnapshot
+    if (item.customizationSnapshot) {
+      resolved = resolveFromProductObj(item.customizationSnapshot, item.colour)
+      if (resolved) return resolved
+      if (item.customizationSnapshot.product) {
+        resolved = resolveFromProductObj(item.customizationSnapshot.product, item.colour)
+        if (resolved) return resolved
+      }
+    }
+
+    // 4. Direct item.image fallback
+    if (isNonEmptyStr(item.image)) return item.image
+
+    // 5. String product URL fallback
+    if (typeof item.product === 'string' && (item.product.startsWith('http') || item.product.startsWith('/'))) {
+      return item.product
+    }
+
+    return null
   }
 
   const isOrderWithinReturnWindow = (order) => {
@@ -277,7 +344,7 @@ function Orders({
     if (order.refundStatus === 'FAILED') {
       return (
         <div className="anivom-refund-info-box info-failed">
-          ⚠️ Your order was cancelled, but the refund could not be completed automatically. Please contact support.
+          Your order was cancelled, but the refund could not be completed automatically. Please contact support.
         </div>
       )
     }
@@ -346,6 +413,154 @@ function Orders({
       </div>
     )
   }
+
+  const renderModals = () => (
+    <>
+      {activeModalOrder && modalType === 'cancel' && (
+        <div className="anivom-modal-overlay" onClick={closeModal}>
+          <div className="anivom-modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="anivom-modal-close" onClick={closeModal} disabled={actionLoading}>
+              &times;
+            </button>
+            <h3 className="anivom-modal-title">CANCEL ORDER</h3>
+            <p className="anivom-modal-sub">
+              Are you sure you wish to cancel this order? Once cancelled, this action cannot be reversed.
+            </p>
+
+            {actionError && (
+              <div className="anivom-modal-error">{actionError}</div>
+            )}
+
+            {actionSuccess && (
+              <div className="anivom-modal-success">{actionSuccess}</div>
+            )}
+
+            <form onSubmit={handleCancelSubmit}>
+              <div className="anivom-form-group">
+                <label className="anivom-form-label">
+                  CANCELLATION REASON (OPTIONAL)
+                </label>
+                <textarea
+                  className="anivom-form-textarea"
+                  rows={3}
+                  placeholder="Please let us know why you are cancelling..."
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  disabled={actionLoading}
+                />
+              </div>
+
+              <div className="anivom-modal-footer">
+                <button
+                  type="button"
+                  className="anivom-btn-orders-secondary"
+                  onClick={closeModal}
+                  disabled={actionLoading}
+                >
+                  Keep Order
+                </button>
+                <button
+                  type="submit"
+                  className="anivom-btn-orders-primary danger"
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? 'Cancelling Order...' : 'Confirm Cancellation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {activeModalOrder && modalType === 'return' && (
+        <div className="anivom-modal-overlay" onClick={closeModal}>
+          <div className="anivom-modal-box" onClick={(e) => e.stopPropagation()}>
+            <button className="anivom-modal-close" onClick={closeModal} disabled={actionLoading}>
+              &times;
+            </button>
+            <h3 className="anivom-modal-title">REQUEST RETURN</h3>
+            <p className="anivom-modal-sub">
+              Please submit your return request details below. ANIVOM Support will review your request.
+            </p>
+
+            {activeModalOrder.items && activeModalOrder.items.some((i) => i.customized) ? (
+              <div className="anivom-modal-notice customized">
+                <strong>ANIVOM Studio Notice:</strong> Customized items can be returned only when delivered defective or damaged.
+              </div>
+            ) : null}
+
+            {actionError && (
+              <div className="anivom-modal-error">{actionError}</div>
+            )}
+
+            {actionSuccess && (
+              <div className="anivom-modal-success">{actionSuccess}</div>
+            )}
+
+            <form onSubmit={handleReturnSubmit}>
+              <div className="anivom-form-group">
+                <label className="anivom-form-label">RETURN REASON</label>
+                <select
+                  className="anivom-form-select"
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  disabled={actionLoading}
+                >
+                  <option value="Size mismatch / does not fit">Size mismatch / does not fit</option>
+                  <option value="Defective or damaged item delivered">Defective or damaged item delivered</option>
+                  <option value="Garment color or style not as expected">Garment color or style not as expected</option>
+                  <option value="Received incorrect garment">Received incorrect garment</option>
+                  <option value="Other reason">Other reason</option>
+                </select>
+              </div>
+
+              <div className="anivom-form-group">
+                <label className="anivom-form-label">RETURN DETAILS</label>
+                <textarea
+                  className="anivom-form-textarea"
+                  rows={4}
+                  placeholder="Provide specific details about the issue or defect..."
+                  value={returnDetails}
+                  onChange={(e) => setReturnDetails(e.target.value)}
+                  disabled={actionLoading}
+                />
+              </div>
+
+              <div className="anivom-form-group checkbox-group">
+                <label className="anivom-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={isDefectiveOrDamaged}
+                    onChange={(e) => setIsDefectiveOrDamaged(e.target.checked)}
+                    disabled={actionLoading || (activeModalOrder.items && activeModalOrder.items.some((i) => i.customized))}
+                  />
+                  <span>Garment is defective or damaged</span>
+                </label>
+              </div>
+
+              <div className="anivom-modal-footer">
+                <button
+                  type="button"
+                  className="anivom-btn-orders-secondary"
+                  onClick={closeModal}
+                  disabled={actionLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="anivom-btn-orders-primary"
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? 'Submitting Request...' : 'Submit Return Request'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  )
 
   if (selectedOrderError) {
     return (
@@ -441,7 +656,7 @@ function Orders({
 
           {isCancelledOrFailed ? (
             <div className="anivom-orders-cancelled-banner">
-              <span className="anivom-cancelled-icon">⚠️</span>
+              <span className="anivom-cancelled-icon"></span>
               <div>
                 <h3 className="anivom-cancelled-head">
                   {selectedOrder.orderStatus === 'CANCELLED'
@@ -649,6 +864,7 @@ function Orders({
             </div>
           </div>
         </div>
+        {renderModals()}
       </div>
     )
   }
@@ -717,244 +933,175 @@ function Orders({
       </div>
 
       <div className="anivom-orders-list">
-        {orders.map((order, idx) => {
-          const itemCount = order.items ? order.items.reduce((acc, i) => acc + i.quantity, 0) : 0
-          const hasCustomizedItem = order.items && order.items.some((i) => i.customized)
-          const canCancel = ['PLACED', 'CONFIRMED', 'PROCESSING'].includes(order.orderStatus)
-          const canReturn = order.orderStatus === 'DELIVERED' && isOrderWithinReturnWindow(order)
-
+        {(() => {
+          const totalPages = Math.ceil(orders.length / ITEMS_PER_PAGE) || 1
+          const displayedOrders = orders.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
           return (
-            <div
-              key={order._id}
-              className="anivom-order-card reveal"
-              style={{ '--reveal-delay': `${(idx % 5) * 60}ms` }}
-            >
-              <div className="anivom-order-card-header">
-                <div>
-                  <div className="anivom-order-date">{formatDate(order.createdAt)}</div>
-                </div>
+            <>
+              {displayedOrders.map((order, idx) => {
+                const itemCount = order.items ? order.items.reduce((acc, i) => acc + i.quantity, 0) : 0
+                const hasCustomizedItem = order.items && order.items.some((i) => i.customized)
+                const canCancel = ['PLACED', 'CONFIRMED', 'PROCESSING'].includes(order.orderStatus)
+                const canReturn = order.orderStatus === 'DELIVERED' && isOrderWithinReturnWindow(order)
 
-                <div className="anivom-order-badges">
-                  <span className={`anivom-status-badge status-${order.orderStatus.toLowerCase()}`}>
-                    {order.orderStatus === 'RETURN_REQUESTED'
-                      ? 'RETURN REQUESTED'
-                      : order.orderStatus === 'RETURN_APPROVED'
-                      ? 'RETURN APPROVED'
-                      : order.orderStatus === 'RETURN_REJECTED'
-                      ? 'RETURN REJECTED'
-                      : order.orderStatus}
-                  </span>
-                  <span className={`anivom-status-badge payment-${order.paymentStatus.toLowerCase()}`}>
-                    {order.paymentStatus}
-                  </span>
-                  {renderRefundStatusBadge(order.refundStatus)}
-                </div>
-              </div>
-
-              <div className="anivom-order-card-body">
-                <div className="anivom-order-items-preview">
-                  {order.items && order.items.map((item, idx) => (
-                    <div key={idx} className="anivom-order-preview-chip">
-                      <span className="anivom-preview-name">{item.name}</span>
-                      <span className="anivom-preview-spec">({item.size} / {item.colour}) × {item.quantity}</span>
-                      {item.customized && (
-                        <span className="anivom-chip-custom-badge">CUSTOM</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="anivom-order-card-summary">
-                  <div className="anivom-card-item-count">{itemCount} Item{itemCount === 1 ? '' : 's'}</div>
-                  {hasCustomizedItem && (
-                    <div className="anivom-card-custom-indicator">Contains Bespoke Creation</div>
-                  )}
-                  <div className="anivom-card-total">&#8377;{order.totalAmount}</div>
-                </div>
-              </div>
-
-              {order.deliveredAt && (
-                <div className="anivom-card-delivered-note">
-                  Delivered on {formatDate(order.deliveredAt)}
-                </div>
-              )}
-
-              {renderRefundBannerMessage(order)}
-
-              <div className="anivom-order-card-footer">
-                <div className="anivom-card-footer-actions">
-                  {canCancel && (
-                    <button
-                      className="anivom-btn-action-cancel"
-                      onClick={(e) => openCancelModal(e, order)}
-                    >
-                      Cancel Order
-                    </button>
-                  )}
-                  {canReturn && (
-                    <button
-                      className="anivom-btn-action-return"
-                      onClick={(e) => openReturnModal(e, order)}
-                    >
-                      Request Return
-                    </button>
-                  )}
-                  <button
-                    className="anivom-btn-track-order"
-                    onClick={() => setSelectedOrder(order)}
+                return (
+                  <div
+                    key={order._id}
+                    className="anivom-order-card reveal"
+                    style={{ '--reveal-delay': `${(idx % 5) * 60}ms` }}
                   >
-                    Track & Order Details &rarr;
+                    {/* 1. ORDER HEADER */}
+                    <div className="anivom-order-card-header">
+                      <div className="anivom-order-date-box">
+                        <span className="anivom-order-date-label">ORDER PLACED</span>
+                        <span className="anivom-order-date">{formatDate(order.createdAt)}</span>
+                      </div>
+                      <div className="anivom-order-badges">
+                        <span className={`anivom-status-badge status-${order.orderStatus.toLowerCase()}`}>
+                          {order.orderStatus === 'RETURN_REQUESTED'
+                            ? 'RETURN REQUESTED'
+                            : order.orderStatus === 'RETURN_APPROVED'
+                            ? 'RETURN APPROVED'
+                            : order.orderStatus === 'RETURN_REJECTED'
+                            ? 'RETURN REJECTED'
+                            : order.orderStatus}
+                        </span>
+                        <span className={`anivom-status-badge payment-${order.paymentStatus.toLowerCase()}`}>
+                          {order.paymentStatus}
+                        </span>
+                        {renderRefundStatusBadge(order.refundStatus)}
+                      </div>
+                    </div>
+
+                    {/* 2. PRODUCT ITEMS AREA */}
+                    <div className="anivom-order-items-list">
+                      {order.items && order.items.map((item, itemIdx) => {
+                        const itemImg = getItemImage(item)
+                        return (
+                          <div key={itemIdx} className="anivom-order-product-row">
+                            <div className="anivom-product-row-left">
+                              {itemImg && (
+                                <img
+                                  src={itemImg}
+                                  alt={item.name}
+                                  className="anivom-product-row-thumb"
+                                  onError={(e) => { e.target.style.display = 'none' }}
+                                />
+                              )}
+                              <div className="anivom-product-row-details">
+                                <h4 className="anivom-product-row-name">{item.name}</h4>
+                                <div className="anivom-product-row-specs">
+                                  <span>Size: <strong>{item.size}</strong></span>
+                                  <span className="anivom-spec-sep">|</span>
+                                  <span>Colour: <strong>{item.colour}</strong></span>
+                                  <span className="anivom-spec-sep">|</span>
+                                  <span>Qty: <strong>{item.quantity}</strong></span>
+                                </div>
+                                {item.customized && (
+                                  <span className="anivom-product-row-custom-badge">CUSTOM</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="anivom-product-row-right">
+                              <span className="anivom-product-row-price">&#8377;{item.subtotal || (item.unitPrice * item.quantity)}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* 3. ORDER FOOTER & SUMMARY */}
+                    <div className="anivom-order-card-footer">
+                      <div className="anivom-order-card-summary">
+                        <span className="anivom-card-item-count">{itemCount} Item{itemCount === 1 ? '' : 's'}</span>
+                        {hasCustomizedItem && (
+                          <span className="anivom-card-custom-indicator">• Bespoke Creation</span>
+                        )}
+                        <span className="anivom-card-total-label">Total:</span>
+                        <span className="anivom-card-total">&#8377;{order.totalAmount}</span>
+                      </div>
+
+                      <div className="anivom-card-footer-actions">
+                        {canCancel && (
+                          <button
+                            className="anivom-btn-action-cancel"
+                            onClick={(e) => openCancelModal(e, order)}
+                          >
+                            Cancel Order
+                          </button>
+                        )}
+                        {canReturn && (
+                          <button
+                            className="anivom-btn-action-return"
+                            onClick={(e) => openReturnModal(e, order)}
+                          >
+                            Request Return
+                          </button>
+                        )}
+                        <button
+                          className="anivom-btn-track-order"
+                          onClick={() => setSelectedOrder(order)}
+                        >
+                          Track & Order Details &rarr;
+                        </button>
+                      </div>
+                    </div>
+
+                    {order.deliveredAt && (
+                      <div className="anivom-card-delivered-note">
+                        Delivered on {formatDate(order.deliveredAt)}
+                      </div>
+                    )}
+
+                    {renderRefundBannerMessage(order)}
+                  </div>
+                )
+              })}
+
+              {totalPages > 1 && (
+                <div className="anivom-pagination-container">
+                  <button
+                    className="anivom-pagination-btn"
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                    disabled={currentPage === 1}
+                  >
+                    &larr; Previous
+                  </button>
+                  <div className="anivom-pagination-numbers">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        className={`anivom-pagination-num ${currentPage === pageNum ? 'active' : ''}`}
+                        onClick={() => {
+                          setCurrentPage(pageNum)
+                          window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className="anivom-pagination-btn"
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next &rarr;
                   </button>
                 </div>
-              </div>
-            </div>
+              )}
+            </>
           )
-        })}
+        })()}
       </div>
 
-      {activeModalOrder && modalType === 'cancel' && (
-        <div className="anivom-modal-overlay" onClick={closeModal}>
-          <div className="anivom-modal-box" onClick={(e) => e.stopPropagation()}>
-            <button className="anivom-modal-close" onClick={closeModal} disabled={actionLoading}>
-              &times;
-            </button>
-            <h3 className="anivom-modal-title">CANCEL ORDER</h3>
-            <p className="anivom-modal-sub">
-              Are you sure you wish to cancel this order? Once cancelled, this action cannot be reversed.
-            </p>
-
-            {actionError && (
-              <div className="anivom-modal-error">{actionError}</div>
-            )}
-
-            {actionSuccess && (
-              <div className="anivom-modal-success">{actionSuccess}</div>
-            )}
-
-            <form onSubmit={handleCancelSubmit}>
-              <div className="anivom-form-group">
-                <label className="anivom-form-label">
-                  CANCELLATION REASON (OPTIONAL)
-                </label>
-                <textarea
-                  className="anivom-form-textarea"
-                  rows={3}
-                  placeholder="Please let us know why you are cancelling..."
-                  value={cancellationReason}
-                  onChange={(e) => setCancellationReason(e.target.value)}
-                  disabled={actionLoading}
-                />
-              </div>
-
-              <div className="anivom-modal-footer">
-                <button
-                  type="button"
-                  className="anivom-btn-orders-secondary"
-                  onClick={closeModal}
-                  disabled={actionLoading}
-                >
-                  Keep Order
-                </button>
-                <button
-                  type="submit"
-                  className="anivom-btn-orders-primary danger"
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? 'Cancelling Order...' : 'Confirm Cancellation'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {activeModalOrder && modalType === 'return' && (
-        <div className="anivom-modal-overlay" onClick={closeModal}>
-          <div className="anivom-modal-box" onClick={(e) => e.stopPropagation()}>
-            <button className="anivom-modal-close" onClick={closeModal} disabled={actionLoading}>
-              &times;
-            </button>
-            <h3 className="anivom-modal-title">REQUEST RETURN</h3>
-            <p className="anivom-modal-sub">
-              Please submit your return request details below. ANIVOM Support will review your request.
-            </p>
-
-            {activeModalOrder.items && activeModalOrder.items.some((i) => i.customized) ? (
-              <div className="anivom-modal-notice customized">
-                <strong>ANIVOM Studio Notice:</strong> Customized items can be returned only when delivered defective or damaged.
-              </div>
-            ) : null}
-
-            {actionError && (
-              <div className="anivom-modal-error">{actionError}</div>
-            )}
-
-            {actionSuccess && (
-              <div className="anivom-modal-success">{actionSuccess}</div>
-            )}
-
-            <form onSubmit={handleReturnSubmit}>
-              <div className="anivom-form-group">
-                <label className="anivom-form-label">RETURN REASON</label>
-                <select
-                  className="anivom-form-select"
-                  value={returnReason}
-                  onChange={(e) => setReturnReason(e.target.value)}
-                  disabled={actionLoading}
-                >
-                  <option value="Size mismatch / does not fit">Size mismatch / does not fit</option>
-                  <option value="Defective or damaged item delivered">Defective or damaged item delivered</option>
-                  <option value="Garment color or style not as expected">Garment color or style not as expected</option>
-                  <option value="Received incorrect garment">Received incorrect garment</option>
-                  <option value="Other reason">Other reason</option>
-                </select>
-              </div>
-
-              <div className="anivom-form-group">
-                <label className="anivom-form-label">RETURN DETAILS</label>
-                <textarea
-                  className="anivom-form-textarea"
-                  rows={4}
-                  placeholder="Provide specific details about the issue or defect..."
-                  value={returnDetails}
-                  onChange={(e) => setReturnDetails(e.target.value)}
-                  disabled={actionLoading}
-                />
-              </div>
-
-              <div className="anivom-form-group checkbox-group">
-                <label className="anivom-checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={isDefectiveOrDamaged}
-                    onChange={(e) => setIsDefectiveOrDamaged(e.target.checked)}
-                    disabled={actionLoading || (activeModalOrder.items && activeModalOrder.items.some((i) => i.customized))}
-                  />
-                  <span>Garment is defective or damaged</span>
-                </label>
-              </div>
-
-              <div className="anivom-modal-footer">
-                <button
-                  type="button"
-                  className="anivom-btn-orders-secondary"
-                  onClick={closeModal}
-                  disabled={actionLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="anivom-btn-orders-primary"
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? 'Submitting Request...' : 'Submit Return Request'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {renderModals()}
     </div>
   )
 }
