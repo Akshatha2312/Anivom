@@ -1,15 +1,54 @@
 # ANIVOM REST API Documentation
 
-Base URL: `/api/v1`
+## 1. API Overview
+
+The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web service providing business logic, data persistence, payment processing, media uploads, security enforcement, and administrative capabilities for the ANIVOM customized T-shirt platform.
+
+- **Backend Technology Stack**: Node.js (v20+), Express.js (^5.2.1), Mongoose (^9.10.1) & MongoDB Atlas.
+- **Base API URL**: `/api/v1`
+- **API Version**: `v1`
+- **Authentication Approach**: JSON Web Tokens (JWT) signed by the server and transmitted in secure `HTTP-Only`, `SameSite` cookies (`credentials: 'include'`). Endpoints enforce authentication via a `protect` middleware layer and administrative capabilities via an `authorize('admin')` Role-Based Access Control (RBAC) layer.
 
 ---
 
-## 1. Authentication (`/api/v1/auth`)
+## 2. Live API Information
 
-### `POST /api/v1/auth/register`
+- **Production API Base**: https://anivom.onrender.com/api/v1
+- **API Health Check**: `GET https://anivom.onrender.com/api/v1/health`
+- **Interactive OpenAPI 3.0 / Swagger UI**: https://anivom.onrender.com/api-docs
+
+---
+
+## 3. Authentication & Authorization
+
+- **Public Endpoints**: Accessible by any client without authentication (e.g., browsing active catalog items, category lookups, active banners, active vector designs, user registration, and credential/OAuth login).
+- **Protected Endpoints (Customer)**: Require an active, verified user JWT cookie (`protect` middleware). The backend strictly enforces document ownership (`document.user === req.user._id`) for sensitive resources including user cart, saved addresses, customized canvas layers, wishlist, and order histories.
+- **Protected Admin Endpoints**: Require both valid user authentication (`protect`) and an administrative role check (`authorize('admin')`). Non-admin attempts return HTTP `403 Forbidden`.
+
+---
+
+## 4. Endpoints Registry (Exactly 47 Total Endpoints)
+
+### Health Check (1 Endpoint)
+
+#### `GET /api/v1/health`
 - **Authentication**: None (Public)
-- **Role Requirement**: None
-- **Purpose**: Registers a new customer account.
+- **Purpose**: System health status check.
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "message": "ANIVOM API is running"
+  }
+  ```
+
+---
+
+### 1. Authentication (`/api/v1/auth`) — 6 Endpoints
+
+#### `POST /api/v1/auth/register`
+- **Authentication**: None (Public)
+- **Purpose**: Registers a new customer account and generates a unique customer referral code.
 - **Request Body**:
   ```json
   {
@@ -35,12 +74,10 @@ Base URL: `/api/v1`
     }
   }
   ```
-- **Error Responses**: 400 Bad Request (Missing required fields, duplicate email).
 
-### `POST /api/v1/auth/login`
+#### `POST /api/v1/auth/login`
 - **Authentication**: None (Public)
-- **Role Requirement**: None
-- **Purpose**: Authenticates customer or admin credentials and issues JWT token in HTTP-Only cookie and JSON body.
+- **Purpose**: Authenticates customer or admin credentials and issues a signed JWT token in an HTTP-Only cookie and response body.
 - **Request Body**:
   ```json
   {
@@ -64,221 +101,429 @@ Base URL: `/api/v1`
     }
   }
   ```
-- **Error Responses**: 401 Unauthorized (Invalid email or password).
 
-### `POST /api/v1/auth/google`
+#### `POST /api/v1/auth/google`
 - **Authentication**: None (Public)
-- **Role Requirement**: None
-- **Purpose**: Authenticates or registers users via Google OAuth credential token.
+- **Purpose**: Authenticates or registers users via a Google OAuth credential token.
 - **Request Body**: `{ "credential": "GOOGLE_ID_TOKEN" }`
-- **Success Response (200 OK / 201 Created)**: Returns user profile and sets JWT cookie.
+- **Success Response (200 OK / 201 Created)**: Returns authenticated user profile object and sets HTTP-Only JWT cookie.
 
-### `POST /api/v1/auth/logout`
-- **Authentication**: None
-- **Role Requirement**: None
+#### `POST /api/v1/auth/logout`
+- **Authentication**: None (Public)
 - **Purpose**: Clears the authentication HTTP-Only cookie.
 - **Success Response (200 OK)**: `{ "status": "success", "message": "Logged out successfully" }`
 
-### `GET /api/v1/auth/me`
+#### `GET /api/v1/auth/me`
 - **Authentication**: Protected (JWT)
-- **Role Requirement**: None
-- **Purpose**: Fetches profile of currently logged-in user.
-- **Success Response (200 OK)**: User profile object.
+- **Purpose**: Fetches the profile object of the currently logged-in user.
+- **Success Response (200 OK)**: `{ "status": "success", "data": { "user": { ... } } }`
+
+#### `GET /api/v1/auth/users/admin`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Fetches all registered customer user profiles for admin directory management.
 
 ---
 
-## 2. Products (`/api/v1/products`)
+### 2. Products (`/api/v1/products`) — 8 Endpoints
 
-### `GET /api/v1/products`
+#### `GET /api/v1/products`
 - **Authentication**: None (Public)
 - **Purpose**: Fetches active product listing with search, category, size, colour, price filters, and pagination.
 - **Query Parameters**: `search`, `category`, `size`, `colour`, `minPrice`, `maxPrice`, `sort`, `page`, `limit`
-- **Success Response (200 OK)**: List of products and pagination metadata.
+- **Success Response (200 OK)**: List of product documents and pagination metadata.
 
-### `GET /api/v1/products/:id`
+#### `GET /api/v1/products/:id`
 - **Authentication**: None (Public)
-- **Purpose**: Fetches a single active product by ID.
-- **Success Response (200 OK)**: Product object with variants and garment image views.
+- **Purpose**: Fetches a single active product document by ID with variant stock and garment mockups.
 
-### `POST /api/v1/products/admin`
-- **Authentication**: Protected (JWT)
-- **Role Requirement**: Admin
-- **Purpose**: Creates a new product catalog item.
+#### `POST /api/v1/products/admin`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Creates a new product catalog item with multi-view garment images and variant stock.
 
-### `GET /api/v1/products/admin`
-- **Authentication**: Protected (JWT)
-- **Role Requirement**: Admin
+#### `GET /api/v1/products/admin`
+- **Authentication**: Protected (JWT) | **Role**: Admin
 - **Purpose**: Fetches all catalog products (including inactive items).
 
-### `GET /api/v1/products/admin/:id`
-- **Authentication**: Protected (JWT)
-- **Role Requirement**: Admin
-- **Purpose**: Fetches full product details for admin editor.
+#### `GET /api/v1/products/admin/:id`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Fetches full product details for admin editor view.
 
-### `PATCH /api/v1/products/admin/:id`
-- **Authentication**: Protected (JWT)
-- **Role Requirement**: Admin
-- **Purpose**: Updates product fields.
+#### `PATCH /api/v1/products/admin/:id`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Updates product catalog fields and variant details.
 
-### `PATCH /api/v1/products/admin/:id/status`
-- **Authentication**: Protected (JWT)
-- **Role Requirement**: Admin
-- **Purpose**: Toggles product active/inactive status.
+#### `PATCH /api/v1/products/admin/:id/status`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Toggles product active/inactive visibility (`isActive`).
 
-### `PATCH /api/v1/products/admin/:id/variants/:variantId/stock`
-- **Authentication**: Protected (JWT)
-- **Role Requirement**: Admin
-- **Purpose**: Direct stock update for a specific size/colour variant.
+#### `PATCH /api/v1/products/admin/:id/variants/:variantId/stock`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Updates stock counter directly for a specific size/colour variant.
 
 ---
 
-## 3. T-Shirt Customizations (`/api/v1/customizations`)
+### 3. T-Shirt Customizations (`/api/v1/customizations`) — 5 Endpoints
 
-### `POST /api/v1/customizations`
+#### `POST /api/v1/customizations`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Saves or updates a T-shirt customization configuration (text layers, design layers, positions, scale, view).
+- **Purpose**: Saves or updates a T-shirt canvas customization configuration (text layers, vector artwork, image uploads, scale, rotation, view orientation).
 - **Request Body**: `productId`, `size`, `colour`, `layers`, `status`
-- **Success Response (201 Created / 200 OK)**: Customization object.
+- **Success Response (201 Created / 200 OK)**: Customization configuration document.
 
-### `GET /api/v1/customizations`
+#### `GET /api/v1/customizations`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Fetches all saved customizations owned by the current user.
+- **Purpose**: Lists all saved customizations owned by the authenticated user.
 
-### `GET /api/v1/customizations/:id`
+#### `GET /api/v1/customizations/:id`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Fetches a single customization configuration by ID (ownership enforced).
+- **Purpose**: Fetches a specific customization configuration by ID (ownership enforced).
 
-### `PATCH /api/v1/customizations/:id`
+#### `PATCH /api/v1/customizations/:id`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Updates customization layers or options.
+- **Purpose**: Updates an existing customization's canvas layer JSON or variant settings.
 
-### `DELETE /api/v1/customizations/:id`
+#### `DELETE /api/v1/customizations/:id`
 - **Authentication**: Protected (JWT)
 - **Purpose**: Deletes a saved customization owned by the current user.
 
 ---
 
-## 4. Shopping Cart (`/api/v1/cart`)
+### 4. Shopping Cart (`/api/v1/cart`) — 6 Endpoints
 
-### `GET /api/v1/cart`
+#### `GET /api/v1/cart`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Fetches items in the user's active shopping cart.
+- **Purpose**: Fetches active items in the authenticated user's shopping bag.
 
-### `POST /api/v1/cart`
+#### `POST /api/v1/cart`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Adds a product or customized item to cart with stock validation.
+- **Purpose**: Adds a standard product variant or customized garment item to cart after verifying variant stock availability.
 - **Request Body**: `productId`, `size`, `colour`, `quantity`, `customized`, `customizationId`
 
-### `PATCH /api/v1/cart/:itemId`
+#### `PATCH /api/v1/cart/:itemId`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Updates item quantity in cart.
+- **Purpose**: Updates item quantity in user cart.
 
-### `DELETE /api/v1/cart/:itemId`
+#### `DELETE /api/v1/cart/:itemId`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Removes a specific item from cart.
+- **Purpose**: Removes a specific line item from cart.
 
-### `DELETE /api/v1/cart`
+#### `DELETE /api/v1/cart`
 - **Authentication**: Protected (JWT)
 - **Purpose**: Clears all items from user cart.
 
-### `POST /api/v1/cart/checkout-summary`
+#### `POST /api/v1/cart/checkout-summary`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Validates cart contents, recalculates prices server-side, and validates applied coupon.
+- **Purpose**: Recalculates cart subtotals server-side and validates applied coupon discount code.
 
 ---
 
-## 5. Delivery Addresses (`/api/v1/addresses`)
+### 5. Delivery Addresses (`/api/v1/addresses`) — 5 Endpoints
 
-### `GET /api/v1/addresses`
+#### `GET /api/v1/addresses`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Fetches user's saved delivery addresses.
+- **Purpose**: Fetches saved delivery address book entries for current user.
 
-### `POST /api/v1/addresses`
+#### `POST /api/v1/addresses`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Adds a new delivery address.
+- **Purpose**: Adds a new delivery address entry.
 
-### `PATCH /api/v1/addresses/:id`
+#### `PATCH /api/v1/addresses/:id`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Updates an address.
+- **Purpose**: Updates an existing address record.
 
-### `DELETE /api/v1/addresses/:id`
+#### `DELETE /api/v1/addresses/:id`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Deletes an address.
+- **Purpose**: Deletes a delivery address record.
 
-### `PATCH /api/v1/addresses/:id/default`
+#### `PATCH /api/v1/addresses/:id/default`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Sets address as primary default.
+- **Purpose**: Sets a specific address as the primary default delivery address.
 
 ---
 
-## 6. Orders & Payments (`/api/v1/orders`)
+### 6. Orders & Payments (`/api/v1/orders`) — 12 Endpoints
 
-### `POST /api/v1/orders`
+#### `POST /api/v1/orders`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Validates cart, stock, address, coupon, creates Order record, and initializes Razorpay payment order.
+- **Purpose**: Server recalculates grand total, creates Order document in `PENDING` payment state, freezes customization layer JSON snapshots, and initializes Razorpay payment order.
 - **Request Body**: `{ "addressId": "651a...", "couponCode": "WELCOME10" }`
 
-### `POST /api/v1/orders/verify-payment`
+#### `POST /api/v1/orders/verify-payment`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Performs HMAC-SHA256 signature verification for Razorpay payment, updates order to `PAID`, atomically decrements variant stock, and clears user cart.
+- **Purpose**: Performs server-side HMAC-SHA256 signature verification for Razorpay payment, advances order status to `PAID` / `PLACED`, atomically decrements variant stock (`$inc: -quantity`), and clears user cart.
 
-### `GET /api/v1/orders`
+#### `GET /api/v1/orders`
 - **Authentication**: Protected (JWT)
 - **Purpose**: Fetches order history for current user.
 
-### `GET /api/v1/orders/:id`
+#### `GET /api/v1/orders/:id`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Fetches specific order details for customer.
+- **Purpose**: Fetches detailed view of a specific customer order.
 
-### `PATCH /api/v1/orders/:id/cancel`
+#### `PATCH /api/v1/orders/:id/cancel`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Cancels an unfulfilled order and restores variant stock.
+- **Purpose**: Cancels an unfulfilled order and automatically restores variant stock.
 
-### `PATCH /api/v1/orders/:id/return`
+#### `PATCH /api/v1/orders/:id/return`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Customer requests a return for a delivered order.
+- **Purpose**: Requests a return for a delivered order.
 
----
-
-## 7. Image Uploads (`/api/v1/uploads`)
-
-### `POST /api/v1/uploads/image`
-- **Authentication**: Protected (JWT)
-- **Rate Limit**: 50 uploads per 15 min
-- **Purpose**: Validates file type (PNG/JPG/WEBP) and file size (<= 5MB) and uploads file to Cloudinary.
-- **Success Response (200 OK)**: Returns Cloudinary HTTPS URL and public ID.
-
----
-
-## 8. Admin Management Routes
-
-### `GET /api/v1/orders/admin/stats`
+#### `GET /api/v1/orders/admin/stats`
 - **Authentication**: Protected (JWT) | **Role**: Admin
-- **Purpose**: Aggregates sales metrics, revenue, order count summary, and recent order activity.
+- **Purpose**: Aggregates revenue totals, active order counts, customer stats, and recent orders for admin dashboard.
 
-### `GET /api/v1/orders/admin`
+#### `GET /api/v1/orders/admin`
 - **Authentication**: Protected (JWT) | **Role**: Admin
 - **Purpose**: Lists all customer orders with filtering by order status.
 
-### `GET /api/v1/orders/admin/:id`
+#### `GET /api/v1/orders/admin/:id`
 - **Authentication**: Protected (JWT) | **Role**: Admin
-- **Purpose**: Fetches detailed view of any order.
+- **Purpose**: Fetches full admin dossier view of any customer order.
 
-### `PATCH /api/v1/orders/admin/:id/status`
+#### `PATCH /api/v1/orders/admin/:id/status`
 - **Authentication**: Protected (JWT) | **Role**: Admin
-- **Purpose**: Updates order status (`CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
+- **Purpose**: Updates order fulfillment status (`CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
 
-### `PATCH /api/v1/orders/admin/:id/return`
+#### `PATCH /api/v1/orders/admin/:id/return`
 - **Authentication**: Protected (JWT) | **Role**: Admin
 - **Purpose**: Approves or rejects customer return request.
 
-### `PATCH /api/v1/orders/admin/:id/refund`
+#### `PATCH /api/v1/orders/admin/:id/refund`
 - **Authentication**: Protected (JWT) | **Role**: Admin
-- **Purpose**: Initiates Razorpay refund or manual refund marking.
+- **Purpose**: Processes Razorpay API refund or manual refund record marking.
 
-### `GET /api/v1/auth/users/admin`
+---
+
+### 7. Image Uploads (`/api/v1/uploads`) — 1 Endpoint
+
+#### `POST /api/v1/uploads/image`
+- **Authentication**: Protected (JWT)
+- **Rate Limit**: 50 requests per 15 minutes
+- **Purpose**: Multer memory storage parses multipart image file (PNG/JPG/WEBP <= 5MB) and streams buffer to Cloudinary bucket.
+- **Success Response (200 OK)**: Returns Cloudinary HTTPS URL and public asset ID.
+
+---
+
+### 8. Vector Design Library (`/api/v1/designs`) — 5 Endpoints
+
+#### `GET /api/v1/designs`
+- **Authentication**: None (Public)
+- **Purpose**: Fetches active SVG vector design templates for the Studio customizer.
+
+#### `GET /api/v1/designs/admin`
 - **Authentication**: Protected (JWT) | **Role**: Admin
-- **Purpose**: Fetches all registered customer profiles.
+- **Purpose**: Lists all vector design templates in admin library.
 
-### Categories, Sizes, Colours, Designs, Coupons, Banners
-- `GET/POST/PATCH/DELETE` endpoints under `/admin` routes for all master data entities protected by JWT authentication and admin role check middleware.
+#### `POST /api/v1/designs/admin`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Uploads a new SVG vector design template.
+
+#### `PATCH /api/v1/designs/admin/:id`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Updates design template details or active state.
+
+#### `DELETE /api/v1/designs/admin/:id`
+- **Authentication**: Protected (JWT) | **Role**: Admin
+- **Purpose**: Removes design template from vector library.
+
+---
+
+### 9. Product Categories (`/api/v1/categories`) — 5 Endpoints
+
+- `GET /api/v1/categories` | Public | Fetches active product categories.
+- `GET /api/v1/categories/admin` | Protected (Admin) | Lists all categories.
+- `POST /api/v1/categories/admin` | Protected (Admin) | Creates new category.
+- `PATCH /api/v1/categories/admin/:id` | Protected (Admin) | Updates category.
+- `DELETE /api/v1/categories/admin/:id` | Protected (Admin) | Deletes category.
+
+---
+
+### 10. Product Sizes (`/api/v1/sizes`) — 5 Endpoints
+
+- `GET /api/v1/sizes` | Public | Fetches active sizing options.
+- `GET /api/v1/sizes/admin` | Protected (Admin) | Lists all size options.
+- `POST /api/v1/sizes/admin` | Protected (Admin) | Creates size option.
+- `PATCH /api/v1/sizes/admin/:id` | Protected (Admin) | Updates size option.
+- `DELETE /api/v1/sizes/admin/:id` | Protected (Admin) | Deletes size option.
+
+---
+
+### 11. Product Colours (`/api/v1/colours`) — 5 Endpoints
+
+- `GET /api/v1/colours` | Public | Fetches active colour palette options.
+- `GET /api/v1/colours/admin` | Protected (Admin) | Lists all colour palette options.
+- `POST /api/v1/colours/admin` | Protected (Admin) | Creates colour option.
+- `PATCH /api/v1/colours/admin/:id` | Protected (Admin) | Updates colour option.
+- `DELETE /api/v1/colours/admin/:id` | Protected (Admin) | Deletes colour option.
+
+---
+
+### 12. Promotional Coupons (`/api/v1/coupons`) — 5 Endpoints
+
+#### `GET /api/v1/coupons/validate`
+- **Authentication**: Protected (JWT)
+- **Purpose**: Validates promotional coupon code for customer cart subtotal.
+
+- `GET /api/v1/coupons/admin` | Protected (Admin) | Lists all coupons.
+- `POST /api/v1/coupons/admin` | Protected (Admin) | Creates promotional discount coupon.
+- `PATCH /api/v1/coupons/admin/:id` | Protected (Admin) | Updates coupon parameters.
+- `DELETE /api/v1/coupons/admin/:id` | Protected (Admin) | Deletes coupon code.
+
+---
+
+### 13. Homepage Hero Banners (`/api/v1/banners`) — 5 Endpoints
+
+- `GET /api/v1/banners` | Public | Fetches active homepage hero promo banners.
+- `GET /api/v1/banners/admin` | Protected (Admin) | Lists all hero banners.
+- `POST /api/v1/banners/admin` | Protected (Admin) | Creates hero banner.
+- `PATCH /api/v1/banners/admin/:id` | Protected (Admin) | Updates hero banner.
+- `DELETE /api/v1/banners/admin/:id` | Protected (Admin) | Deletes hero banner.
+
+---
+
+### 14. Wishlist (`/api/v1/wishlist`) — 3 Endpoints
+
+- `GET /api/v1/wishlist` | Protected | Fetches customer's saved wishlist products.
+- `POST /api/v1/wishlist` | Protected | Adds product to customer wishlist.
+- `DELETE /api/v1/wishlist/:productId` | Protected | Removes product from wishlist.
+
+---
+
+### 15. Support & Contact (`/api/v1/contact`) — 4 Endpoints
+
+- `POST /api/v1/contact` | Public / OptionalAuth | Submits customer support inquiry (rate limited: 10/15min).
+- `GET /api/v1/contact/admin` | Protected (Admin) | Lists all customer support messages.
+- `PATCH /api/v1/contact/admin/:id/status` | Protected (Admin) | Updates support message status.
+- `DELETE /api/v1/contact/admin/:id` | Protected (Admin) | Deletes support message.
+
+---
+
+### 16. Customer Referrals (`/api/v1/referrals`) — 2 Endpoints
+
+- `GET /api/v1/referrals/me` | Protected | Fetches customer's earned referral statistics.
+- `GET /api/v1/referrals/validate/:code` | Public | Validates referral code string.
+
+---
+
+## 5. Error Response Architecture
+
+All API rejections and runtime exceptions handled by the centralized Express error middleware (`errorMiddleware.js`) return a standardized JSON structure:
+
+```json
+{
+  "status": "error",
+  "message": "Detailed error message explanation"
+}
+```
+
+### Example Error Payloads
+
+#### 400 Bad Request
+```json
+{
+  "status": "error",
+  "message": "Insufficient stock available for requested size/colour variant."
+}
+```
+
+#### 401 Unauthorized
+```json
+{
+  "status": "error",
+  "message": "Not authorized, token missing or invalid."
+}
+```
+
+#### 403 Forbidden
+```json
+{
+  "status": "error",
+  "message": "Access denied. Admin privileges required."
+}
+```
+
+#### 404 Not Found
+```json
+{
+  "status": "error",
+  "message": "Requested resource not found."
+}
+```
+
+---
+
+## 6. HTTP Status Code Guidance
+
+The ANIVOM API strictly uses standard HTTP response status codes:
+- **`200 OK`**: Successful query, record update, or action.
+- **`201 Created`**: Successful document creation (e.g., account registration, order placement).
+- **`400 Bad Request`**: Validation failure, missing parameters, out-of-stock items, or invalid state transition.
+- **`401 Unauthorized`**: Authentication missing or expired JWT cookie token.
+- **`403 Forbidden`**: Role authorization failure (e.g., customer attempting admin route).
+- **`404 Not Found`**: Document ID or route not found.
+- **`429 Too Many Requests`**: Rate limit exceeded for sensitive routes (Auth, Uploads, Contact).
+- **`500 Internal Server Error`**: Unhandled exception (sanitized in production environments).
+
+---
+
+## 7. Payment API Flow (Razorpay Integration)
+
+The backend handles online payment processing through a server-verified 5-step sequence:
+
+```
+[ Customer Client ]                     [ Express Backend ]                   [ Razorpay Gateway ]
+         │                                       │                                     │
+         ├── 1. POST /api/v1/orders ───────────► │                                     │
+         │                                       ├── Validate Cart & Stock             │
+         │                                       ├── Recalculate Total                 │
+         │                                       ├── Create Order (PENDING)            │
+         │                                       ├── Create Razorpay Order ──────────► │
+         │ ◄── 2. Return razorpayOrderId ────────┤ ◄── Return razorpay_order_id ────────┘
+         │                                       │
+         ├── 3. Customer Completes Checkout ──────────────────────────────────────────► │
+         │ ◄── 4. Return Payment Signature ───────────────────────────────────────────┘
+         │                                       │
+         ├── 5. POST /verify-payment ──────────► │
+         │    (orderId, paymentId, signature)    ├── Verify HMAC-SHA256 Signature
+         │                                       ├── Update Order Status -> PAID
+         │                                       ├── Atomically Decrement Stock ($inc)
+         │                                       └── Clear Customer Cart
+         │ ◄── 6. Order Verified (PAID) ─────────┤
+```
+
+---
+
+## 8. Security Controls
+
+- **Security Headers**: `helmet()` enabled to enforce security headers across API responses.
+- **HTTP-Only Cookies**: JWTs are transmitted in `httpOnly`, `sameSite`, `secure` cookies to protect tokens against XSS.
+- **Rate Limiting**: `express-rate-limit` guards against brute-force attacks on Auth (30 req/15min), Image Uploads (50 req/15min), and Support Submission (10 req/15min).
+- **HMAC Signature Verification**: Payment notifications are accepted ONLY after calculating `crypto.createHmac('sha256')` with backend secret keys.
+
+---
+
+## 9. Testing & API Verification
+
+The REST API implementation was verified through automated runtime checks:
+- **Server Initialization Check**: Verified clean Express application loading (`require('./src/app')`).
+- **Health Check**: Verified `GET /api/v1/health` status response (`{ status: 'success', message: 'ANIVOM API is running' }`).
+- **Swagger Documentation UI**: Verified active OpenAPI 3 specification mounting at `/api-docs`.
+- **End-to-End QA Testing**: Executed comprehensive automated browser testing against all customer and admin API endpoints, verifying authentication, catalog search, studio layer persistence, address management, coupon validation, Razorpay modal initialization, and order status transitions.
+
+---
+
+## 10. Environment Variable Configuration
+
+The backend service relies on environment configuration variables. *Do not commit secret values to source control.*
+
+```bash
+PORT                     # Server listening port (Default: 5000)
+NODE_ENV                 # Environment mode ('development' | 'production')
+MONGODB_URI              # MongoDB Atlas cluster connection string
+JWT_SECRET               # Secret key for JWT signature hashing
+CLIENT_URL               # Frontend production origin for CORS policy
+RAZORPAY_KEY_ID          # Razorpay merchant Key ID
+RAZORPAY_KEY_SECRET      # Razorpay merchant secret key
+CLOUDINARY_URL           # Cloudinary API bucket configuration string
+GOOGLE_CLIENT_ID         # Google OAuth Client ID
+```

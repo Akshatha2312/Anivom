@@ -50,7 +50,6 @@ function App() {
         credentials: 'include',
       });
     } catch (err) {
-      // silent catch
     } finally {
       setUser(null);
     }
