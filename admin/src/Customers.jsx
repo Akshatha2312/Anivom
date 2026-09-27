@@ -137,27 +137,25 @@ const Customers = () => {
             </table>
           </div>
 
-          {pagination.totalPages > 1 && (
-            <div className="admin-pagination-bar">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                className="admin-btn-secondary sm"
-              >
-                &larr; Previous Page
-              </button>
-              <span className="pagination-info">
-                Page <strong>{pagination.currentPage}</strong> of <strong>{pagination.totalPages}</strong> ({pagination.totalUsers} accounts)
-              </span>
-              <button
-                disabled={currentPage === pagination.totalPages}
-                onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
-                className="admin-btn-secondary sm"
-              >
-                Next Page &rarr;
-              </button>
-            </div>
-          )}
+          <div className="admin-pagination-bar">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="admin-btn-secondary sm"
+            >
+              &larr; Previous Page
+            </button>
+            <span className="pagination-info">
+              Page <strong>{pagination.currentPage}</strong> of <strong>{pagination.totalPages}</strong> ({pagination.totalUsers} accounts)
+            </span>
+            <button
+              disabled={currentPage >= pagination.totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
+              className="admin-btn-secondary sm"
+            >
+              Next Page &rarr;
+            </button>
+          </div>
         </>
       )}
     </div>
