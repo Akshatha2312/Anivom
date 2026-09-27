@@ -288,7 +288,7 @@ function Coupons() {
                 {paginatedCoupons.map((c) => (
                   <tr key={c._id}>
                     <td>
-                      <strong style={{ color: '#111111', fontSize: '1rem', letterSpacing: '0.05em' }}>{c.code}</strong>
+                      <strong>{c.code}</strong>
                     </td>
                     <td>
                       {c.discountType === 'percentage' ? `${c.discountValue}%` : `₹${c.discountValue}`}
@@ -299,7 +299,7 @@ function Coupons() {
                       {c.usedCount} / {c.usageLimit > 0 ? c.usageLimit : '∞'}
                     </td>
                     <td>
-                      <div style={{ fontSize: '0.85rem' }}>
+                      <div className="sm-text">
                         {c.startDate ? new Date(c.startDate).toLocaleDateString() : 'Immediate'}
                         {' - '}
                         {c.endDate ? new Date(c.endDate).toLocaleDateString() : 'No expiry'}

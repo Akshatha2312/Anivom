@@ -136,28 +136,24 @@ const SupportInbox = () => {
           <button
             className={`admin-btn-secondary sm ${statusFilter === '' ? 'active' : ''}`}
             onClick={() => { setStatusFilter(''); setCurrentPage(1); }}
-            style={{ fontWeight: statusFilter === '' ? '700' : 'normal', borderBottom: statusFilter === '' ? '2px solid #500B13' : '1px solid #D8D2C6' }}
           >
             ALL ({pagination.totalMessages || messages.length})
           </button>
           <button
             className={`admin-btn-secondary sm ${statusFilter === 'unread' ? 'active' : ''}`}
             onClick={() => { setStatusFilter('unread'); setCurrentPage(1); }}
-            style={{ fontWeight: statusFilter === 'unread' ? '700' : 'normal', color: unreadCount > 0 ? '#500B13' : 'inherit', borderBottom: statusFilter === 'unread' ? '2px solid #500B13' : '1px solid #D8D2C6' }}
           >
             UNREAD ({unreadCount})
           </button>
           <button
             className={`admin-btn-secondary sm ${statusFilter === 'read' ? 'active' : ''}`}
             onClick={() => { setStatusFilter('read'); setCurrentPage(1); }}
-            style={{ fontWeight: statusFilter === 'read' ? '700' : 'normal', borderBottom: statusFilter === 'read' ? '2px solid #500B13' : '1px solid #D8D2C6' }}
           >
             READ
           </button>
           <button
             className={`admin-btn-secondary sm ${statusFilter === 'resolved' ? 'active' : ''}`}
             onClick={() => { setStatusFilter('resolved'); setCurrentPage(1); }}
-            style={{ fontWeight: statusFilter === 'resolved' ? '700' : 'normal', borderBottom: statusFilter === 'resolved' ? '2px solid #500B13' : '1px solid #D8D2C6' }}
           >
             RESOLVED
           </button>
@@ -210,7 +206,7 @@ const SupportInbox = () => {
                     <td style={{ maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {msg.subject || 'General Support Inquiry'}
                     </td>
-                    <td>{msg.orderId ? <code>{msg.orderId}</code> : '—'}</td>
+                    <td>{msg.orderId ? <span className="mono-text">{msg.orderId}</span> : '—'}</td>
                     <td>{formatDate(msg.createdAt)}</td>
                     <td>
                       <button

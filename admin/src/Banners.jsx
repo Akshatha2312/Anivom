@@ -303,25 +303,25 @@ function Banners() {
                         <img
                           src={b.image}
                           alt={b.title}
-                          style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(0,0,0,0.1)' }}
+                          style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '2px', border: '1px solid rgba(17, 17, 17, 0.1)' }}
                         />
                       ) : (
-                        <span style={{ fontSize: '0.75rem', color: '#888' }}>No Image</span>
+                        <span className="sm-text">No Image</span>
                       )}
                     </td>
                     <td>
-                      <strong style={{ color: '#111111', fontSize: '0.95rem', display: 'block' }}>{b.title}</strong>
-                      {b.subtitle && <span style={{ fontSize: '0.8rem', color: '#666' }}>{b.subtitle}</span>}
+                      <strong>{b.title}</strong>
+                      {b.subtitle && <span className="sm-text" style={{ display: 'block' }}>{b.subtitle}</span>}
                     </td>
                     <td>
-                      {b.buttonText && <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{b.buttonText}</div>}
-                      {b.buttonLink && <div style={{ fontSize: '0.75rem', color: '#888' }}>{b.buttonLink}</div>}
+                      {b.buttonText && <div><strong>{b.buttonText}</strong></div>}
+                      {b.buttonLink && <div className="sm-text">{b.buttonLink}</div>}
                     </td>
                     <td>
-                      <span style={{ fontWeight: 'bold', color: '#7A1F3D' }}>{b.sortOrder}</span>
+                      <strong style={{ color: '#7A1F3D' }}>{b.sortOrder}</strong>
                     </td>
                     <td>
-                      <div style={{ fontSize: '0.8rem' }}>
+                      <div className="sm-text">
                         {b.startDate ? new Date(b.startDate).toLocaleDateString() : 'Immediate'}
                         {' - '}
                         {b.endDate ? new Date(b.endDate).toLocaleDateString() : 'No expiry'}
@@ -333,15 +333,15 @@ function Banners() {
                       </span>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button className="icon-btn edit" onClick={() => openEditModal(b)}>Edit</button>
+                      <div className="action-buttons-group">
+                        <button className="admin-btn-secondary sm" onClick={() => openEditModal(b)}>Edit</button>
                         <button
-                          className={`icon-btn toggle ${b.isActive ? 'deactivate' : 'activate'}`}
+                          className={`admin-status-toggle-btn ${b.isActive ? 'deactivate' : 'activate'}`}
                           onClick={() => handleToggleStatus(b)}
                         >
                           {b.isActive ? 'Deactivate' : 'Activate'}
                         </button>
-                        <button className="icon-btn delete" onClick={() => handleDelete(b)}>Delete</button>
+                        <button className="admin-status-toggle-btn deactivate" onClick={() => handleDelete(b)}>Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -413,7 +413,7 @@ function Banners() {
                     disabled={uploadingImage}
                     style={{ flex: 1 }}
                   />
-                  {uploadingImage && <span style={{ fontSize: '0.85rem', color: '#7A1F3D' }}>Uploading...</span>}
+                  {uploadingImage && <span className="sm-text" style={{ color: '#7A1F3D', fontWeight: 'bold' }}>Uploading...</span>}
                 </div>
                 {image && (
                   <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
