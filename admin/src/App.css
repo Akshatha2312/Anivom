@@ -1280,21 +1280,31 @@
 }
 
 /* Customers Page Specific Table Column & Layout Refinements */
+.customers-table {
+  width: auto;
+  min-width: 100%;
+}
+
+.customers-table th,
+.customers-table td {
+  padding: 10px 14px;
+}
+
 .customers-table th:nth-child(1),
 .customers-table td:nth-child(1) {
-  width: 140px;
+  width: 130px;
   white-space: nowrap;
 }
 
 .customers-table th:nth-child(2),
 .customers-table td:nth-child(2) {
-  width: 220px;
+  width: 200px;
 }
 
 .customers-table th:nth-child(3),
 .customers-table td:nth-child(3) {
-  max-width: 320px;
-  word-break: break-word;
+  width: 240px;
+  overflow-wrap: break-word;
 }
 
 .customers-table th:nth-child(4),
@@ -1305,6 +1315,6 @@
 
 .customers-table th:nth-child(5),
 .customers-table td:nth-child(5) {
-  width: 130px;
+  width: 140px;
   white-space: nowrap;
 }
