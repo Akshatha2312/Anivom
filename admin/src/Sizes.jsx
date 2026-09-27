@@ -187,14 +187,14 @@ function Sizes() {
       </div>
 
       {loading ? (
-        <div className="admin-app-loading" style={{ height: '300px' }}>
+        <div className="admin-state-container">
           <div className="admin-spinner"></div>
-          <span>Loading Size Options...</span>
+          <p>Loading Size Options...</p>
         </div>
       ) : filteredSizes.length === 0 ? (
         <div className="admin-empty-box">
           <p>No sizes found matching your search.</p>
-          <button className="secondary-action-btn" onClick={openCreateModal}>Create Size</button>
+          <button className="admin-btn-secondary" onClick={openCreateModal}>Create Size</button>
         </div>
       ) : (
         <>
@@ -212,7 +212,7 @@ function Sizes() {
                 {paginatedSizes.map((s) => (
                   <tr key={s._id}>
                     <td>
-                      <strong style={{ color: '#111111', fontSize: '1rem' }}>{s.name}</strong>
+                      <strong>{s.name}</strong>
                     </td>
                     <td>
                       <span className={`status-pill ${s.isActive ? 'active' : 'inactive'}`}>
@@ -221,15 +221,15 @@ function Sizes() {
                     </td>
                     <td>{new Date(s.createdAt).toLocaleDateString()}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button className="icon-btn edit" onClick={() => openEditModal(s)}>Edit</button>
+                      <div className="action-buttons-group">
+                        <button className="admin-btn-secondary sm" onClick={() => openEditModal(s)}>Edit</button>
                         <button
-                          className={`icon-btn toggle ${s.isActive ? 'deactivate' : 'activate'}`}
+                          className={`admin-status-toggle-btn ${s.isActive ? 'deactivate' : 'activate'}`}
                           onClick={() => handleToggleStatus(s)}
                         >
                           {s.isActive ? 'Deactivate' : 'Activate'}
                         </button>
-                        <button className="icon-btn delete" onClick={() => handleDelete(s)}>Delete</button>
+                        <button className="admin-status-toggle-btn deactivate" onClick={() => handleDelete(s)}>Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -261,16 +261,16 @@ function Sizes() {
       )}
 
       {modalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-container design-modal">
-            <div className="modal-header">
-              <h2>{editingSize ? 'Edit Size Option' : 'Create Size Option'}</h2>
-              <button className="close-modal-btn" onClick={() => setModalOpen(false)}>×</button>
+        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '540px' }}>
+            <div className="admin-modal-header">
+              <h2>{editingSize ? 'EDIT SIZE OPTION' : 'CREATE SIZE OPTION'}</h2>
+              <button className="admin-modal-close" onClick={() => setModalOpen(false)}>✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-form">
+            <form onSubmit={handleSubmit} className="admin-form-stack">
               {formError && <div className="admin-error-banner">{formError}</div>}
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Size Name *</label>
                 <input
                   type="text"
@@ -281,8 +281,8 @@ function Sizes() {
                 />
               </div>
 
-              <div className="form-group checkbox-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <div className="admin-input-group checkbox-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                   <input
                     type="checkbox"
                     checked={sizeActive}
@@ -292,12 +292,12 @@ function Sizes() {
                 </label>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="secondary-action-btn" onClick={() => setModalOpen(false)}>
+              <div className="admin-modal-actions">
+                <button type="button" className="admin-btn-secondary" onClick={() => setModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="primary-action-btn" disabled={submitting}>
-                  {submitting ? 'Saving...' : editingSize ? 'Update Size' : 'Create Size'}
+                <button type="submit" className="admin-submit-btn" disabled={submitting}>
+                  {submitting ? 'SAVING...' : editingSize ? 'UPDATE SIZE' : 'CREATE SIZE'}
                 </button>
               </div>
             </form>

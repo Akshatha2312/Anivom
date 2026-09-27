@@ -187,14 +187,14 @@ function Colours() {
       </div>
 
       {loading ? (
-        <div className="admin-app-loading" style={{ height: '300px' }}>
+        <div className="admin-state-container">
           <div className="admin-spinner"></div>
-          <span>Loading Colour Options...</span>
+          <p>Loading Colour Options...</p>
         </div>
       ) : filteredColours.length === 0 ? (
         <div className="admin-empty-box">
           <p>No colours found matching your search.</p>
-          <button className="secondary-action-btn" onClick={openCreateModal}>Create Colour</button>
+          <button className="admin-btn-secondary" onClick={openCreateModal}>Create Colour</button>
         </div>
       ) : (
         <>
@@ -212,7 +212,7 @@ function Colours() {
                 {paginatedColours.map((c) => (
                   <tr key={c._id}>
                     <td>
-                      <strong style={{ color: '#111111', fontSize: '1rem' }}>{c.name}</strong>
+                      <strong>{c.name}</strong>
                     </td>
                     <td>
                       <span className={`status-pill ${c.isActive ? 'active' : 'inactive'}`}>
@@ -221,15 +221,15 @@ function Colours() {
                     </td>
                     <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button className="icon-btn edit" onClick={() => openEditModal(c)}>Edit</button>
+                      <div className="action-buttons-group">
+                        <button className="admin-btn-secondary sm" onClick={() => openEditModal(c)}>Edit</button>
                         <button
-                          className={`icon-btn toggle ${c.isActive ? 'deactivate' : 'activate'}`}
+                          className={`admin-status-toggle-btn ${c.isActive ? 'deactivate' : 'activate'}`}
                           onClick={() => handleToggleStatus(c)}
                         >
                           {c.isActive ? 'Deactivate' : 'Activate'}
                         </button>
-                        <button className="icon-btn delete" onClick={() => handleDelete(c)}>Delete</button>
+                        <button className="admin-status-toggle-btn deactivate" onClick={() => handleDelete(c)}>Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -261,16 +261,16 @@ function Colours() {
       )}
 
       {modalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-container design-modal">
-            <div className="modal-header">
-              <h2>{editingColour ? 'Edit Colour Option' : 'Create Colour Option'}</h2>
-              <button className="close-modal-btn" onClick={() => setModalOpen(false)}>×</button>
+        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '540px' }}>
+            <div className="admin-modal-header">
+              <h2>{editingColour ? 'EDIT COLOUR OPTION' : 'CREATE COLOUR OPTION'}</h2>
+              <button className="admin-modal-close" onClick={() => setModalOpen(false)}>✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-form">
+            <form onSubmit={handleSubmit} className="admin-form-stack">
               {formError && <div className="admin-error-banner">{formError}</div>}
 
-              <div className="form-group">
+              <div className="admin-input-group">
                 <label>Colour Name *</label>
                 <input
                   type="text"
@@ -281,8 +281,8 @@ function Colours() {
                 />
               </div>
 
-              <div className="form-group checkbox-group">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <div className="admin-input-group checkbox-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                   <input
                     type="checkbox"
                     checked={colourActive}
@@ -292,12 +292,12 @@ function Colours() {
                 </label>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="secondary-action-btn" onClick={() => setModalOpen(false)}>
+              <div className="admin-modal-actions">
+                <button type="button" className="admin-btn-secondary" onClick={() => setModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="primary-action-btn" disabled={submitting}>
-                  {submitting ? 'Saving...' : editingColour ? 'Update Colour' : 'Create Colour'}
+                <button type="submit" className="admin-submit-btn" disabled={submitting}>
+                  {submitting ? 'SAVING...' : editingColour ? 'UPDATE COLOUR' : 'CREATE COLOUR'}
                 </button>
               </div>
             </form>
