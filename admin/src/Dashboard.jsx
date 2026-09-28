@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
-import StatusBadge from './StatusBadge';
+import './Dashboard.css';
 
 const Dashboard = ({ onNavigate }) => {
   const [stats, setStats] = useState(null);
@@ -52,137 +52,176 @@ const Dashboard = ({ onNavigate }) => {
 
   if (!stats) return null;
 
+  const orderFlow = ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+  const exceptions = ['CANCELLED', 'FAILED'];
+  const currentDate = new Date().toLocaleDateString('en-IN', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).toUpperCase();
+
   return (
-    <div className="dashboard-content">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">ANIVOM ATELIER DASHBOARD</h1>
-          <p className="admin-page-subtitle">Real-time store metrics, sales breakdown, and stock alerts</p>
+    <div className="dashboard-content atelier-dashboard">
+      <header className="atelier-heading">
+        <div className="atelier-heading-lockup">
+          <span className="atelier-kicker">ANIVOM ATELIER</span>
+          <h1>CONTROL ROOM</h1>
         </div>
-        <button className="admin-btn-secondary" onClick={fetchStats}>
-          Refresh Stats ↻
-        </button>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span className="stat-label">TOTAL REVENUE (PAID)</span>
-          <span className="stat-value">&#8377;{stats.totalRevenue ? stats.totalRevenue.toLocaleString() : 0}</span>
-          <span className="stat-sub">From verified customer payments</span>
+        <div className="atelier-heading-actions">
+          <time className="atelier-date">{currentDate}</time>
+          <button className="atelier-refresh" onClick={fetchStats}>
+            <span aria-hidden="true">↻</span> REFRESH STATS
+          </button>
         </div>
+      </header>
 
-        <div className="stat-card">
-          <span className="stat-label">TOTAL ORDERS</span>
-          <span className="stat-value">{stats.totalOrders || 0}</span>
-          <span className="stat-sub">All order statuses</span>
-        </div>
-
-        <div className="stat-card">
-          <span className="stat-label">ACTIVE PRODUCTS</span>
-          <span className="stat-value">{stats.activeProducts || 0} / {stats.totalProducts || 0}</span>
-          <span className="stat-sub">Catalog pieces available</span>
+      <section className="atelier-overview" aria-label="Store overview">
+        <div className="atelier-revenue">
+          <span className="atelier-eyebrow">TODAY'S ATELIER</span>
+          <strong className="atelier-revenue-value">&#8377;{stats.totalRevenue ? stats.totalRevenue.toLocaleString() : 0}</strong>
+          <span className="atelier-revenue-caption">COLLECTED FROM VERIFIED PAYMENTS</span>
+          <span className="atelier-revenue-rule" aria-hidden="true"></span>
+          <span className="atelier-revenue-note">TOTAL PAID REVENUE</span>
         </div>
 
-        <div className="stat-card stat-alert">
-          <span className="stat-label">LOW STOCK ALERTS</span>
-          <span className="stat-value">{stats.lowStockCount || 0}</span>
-          <span className="stat-sub">Variants with stock &le; 5</span>
+        <div className="atelier-measures">
+          <div className="atelier-measure">
+            <span className="atelier-eyebrow">ORDERS</span>
+            <strong>{stats.totalOrders || 0}</strong>
+            <span>ALL ORDER STATUSES</span>
+          </div>
+          <div className="atelier-measure">
+            <span className="atelier-eyebrow">ACTIVE PIECES</span>
+            <strong>{stats.activeProducts || 0}<i> / {stats.totalProducts || 0}</i></strong>
+            <span>CATALOG AVAILABLE</span>
+          </div>
+          <div className={`atelier-measure ${stats.lowStockCount > 0 ? 'is-attention' : ''}`}>
+            <span className="atelier-eyebrow">LOW STOCK</span>
+            <strong>{stats.lowStockCount || 0}</strong>
+            <span>VARIANTS AT 5 OR LESS</span>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="dashboard-section-row">
-        <div className="admin-card flex-1">
-          <h2 className="admin-card-title">Order Status Breakdown</h2>
-          <div className="status-counts-grid">
-            {stats.ordersByStatus && Object.entries(stats.ordersByStatus).map(([st, count]) => (
-              <div key={st} className="status-count-pill">
-                <StatusBadge status={st} type="order" />
-                <span className="status-count-val">{count}</span>
+      <section className="atelier-flow-section" aria-labelledby="atelier-flow-title">
+        <div className="atelier-section-heading">
+          <div>
+            <span className="atelier-section-index">01 / OPERATIONS</span>
+            <h2 id="atelier-flow-title">ORDER FLOW</h2>
+          </div>
+          <span className="atelier-section-aside">LIVE STATUS</span>
+        </div>
+        <div className="atelier-flow-track">
+          {orderFlow.map((status, index) => (
+            <React.Fragment key={status}>
+              <div className={`atelier-flow-step flow-step-${index}`}>
+                <strong>{String(stats.ordersByStatus?.[status] || 0).padStart(2, '0')}</strong>
+                <span>{status}</span>
               </div>
+              {index < orderFlow.length - 1 && <span className="atelier-flow-arrow" aria-hidden="true">&#8594;</span>}
+            </React.Fragment>
+          ))}
+          <div className="atelier-exceptions">
+            <span className="atelier-eyebrow">EXCEPTIONS</span>
+            {exceptions.map((status) => (
+              <span key={status} className="atelier-exception-count">
+                <strong>{String(stats.ordersByStatus?.[status] || 0).padStart(2, '0')}</strong> {status}
+              </span>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="dashboard-section-row">
-        <div className="admin-card flex-1">
-          <div className="admin-card-header">
-            <h2 className="admin-card-title">Recent Customer Orders</h2>
-            <button className="admin-text-link" onClick={() => onNavigate('orders')}>
-              View All Orders &rarr;
-            </button>
+      <div className="atelier-insight-grid">
+        <section className="atelier-catalog" aria-labelledby="atelier-catalog-title">
+          <div className="atelier-section-heading">
+            <div>
+              <span className="atelier-section-index">02 / COLLECTION</span>
+              <h2 id="atelier-catalog-title">CATALOG PULSE</h2>
+            </div>
           </div>
+          <div className="atelier-catalog-count">
+            <strong>{stats.activeProducts || 0}</strong>
+            <div>
+              <span>ACTIVE PIECES</span>
+              <small>OF {stats.totalProducts || 0} IN THE CATALOG</small>
+            </div>
+          </div>
+          <div className="atelier-catalog-meter" aria-hidden="true">
+            <span style={{ width: `${stats.totalProducts ? Math.min((stats.activeProducts / stats.totalProducts) * 100, 100) : 0}%` }}></span>
+          </div>
+        </section>
 
-          {!stats.recentOrders || stats.recentOrders.length === 0 ? (
-            <p className="admin-empty-text">No orders placed yet.</p>
+        <section className={`atelier-attention ${stats.lowStockCount > 0 ? 'has-alerts' : ''}`} aria-labelledby="atelier-attention-title">
+          <div className="atelier-section-heading">
+            <div>
+              <span className="atelier-section-index">03 / INVENTORY</span>
+              <h2 id="atelier-attention-title">NEEDS ATTENTION</h2>
+            </div>
+          </div>
+          {stats.lowStockVariants && stats.lowStockVariants.length > 0 ? (
+            <div className="atelier-stock-list">
+              {stats.lowStockVariants.map((item) => (
+                <div className="atelier-stock-item" key={`${item.productId}_${item.variantId}`}>
+                  <div>
+                    <strong>{item.productName}</strong>
+                    <span>{item.size} / {item.colour}</span>
+                  </div>
+                  <span className="atelier-stock-remaining">{item.stock} LEFT</span>
+                  <button onClick={() => onNavigate('products')}>MANAGE STOCK <span aria-hidden="true">&#8594;</span></button>
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>ORDER ID</th>
-                    <th>CUSTOMER</th>
-                    <th>TOTAL</th>
-                    <th>PAYMENT</th>
-                    <th>ORDER STATUS</th>
-                    <th>DATE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentOrders.map((ord) => (
-                    <tr key={ord._id}>
-                      <td className="mono-text">#{ord._id.slice(-8).toUpperCase()}</td>
-                      <td>{ord.user ? ord.user.name : 'Guest'} ({ord.user ? ord.user.email : 'N/A'})</td>
-                      <td>&#8377;{ord.totalAmount}</td>
-                      <td><StatusBadge status={ord.paymentStatus} type="payment" /></td>
-                      <td><StatusBadge status={ord.orderStatus} type="order" /></td>
-                      <td>{new Date(ord.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="atelier-all-clear">
+              <span className="atelier-clear-mark" aria-hidden="true">&#10003;</span>
+              <div><strong>ALL CLEAR</strong><span>No current inventory alerts.</span></div>
             </div>
           )}
-        </div>
+        </section>
       </div>
 
-      {stats.lowStockVariants && stats.lowStockVariants.length > 0 && (
-        <div className="dashboard-section-row">
-          <div className="admin-card flex-1">
-            <h2 className="admin-card-title">Low Stock Variant Warnings (&le; 5 units)</h2>
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>PRODUCT</th>
-                    <th>SIZE</th>
-                    <th>COLOUR</th>
-                    <th>REMAINING STOCK</th>
-                    <th>ACTION</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.lowStockVariants.map((item) => (
-                    <tr key={`${item.productId}_${item.variantId}`}>
-                      <td><strong>{item.productName}</strong></td>
-                      <td>{item.size}</td>
-                      <td>{item.colour}</td>
-                      <td>
-                        <span className="stock-warning-tag">{item.stock} LEFT</span>
-                      </td>
-                      <td>
-                        <button className="admin-btn-secondary sm" onClick={() => onNavigate('products')}>
-                          Manage Stock
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <section className="atelier-activity" aria-labelledby="atelier-activity-title">
+        <div className="atelier-activity-header">
+          <div className="atelier-section-heading">
+            <div>
+              <span className="atelier-section-index">04 / THE FLOOR</span>
+              <h2 id="atelier-activity-title">RECENT ACTIVITY</h2>
             </div>
           </div>
+          <button className="atelier-view-orders" onClick={() => onNavigate('orders')}>
+            VIEW ALL ORDERS <span aria-hidden="true">&#8594;</span>
+          </button>
         </div>
-      )}
+
+        {!stats.recentOrders || stats.recentOrders.length === 0 ? (
+          <p className="atelier-empty">No orders placed yet.</p>
+        ) : (
+          <>
+            <div className="atelier-activity-labels" aria-hidden="true">
+              <span>DATE / ORDER</span><span>CUSTOMER</span><span>AMOUNT</span><span>PAYMENT</span><span>STATUS</span>
+            </div>
+            <div className="atelier-activity-list">
+              {stats.recentOrders.map((ord) => (
+                <article className="atelier-activity-row" key={ord._id}>
+                  <div className="atelier-order-reference">
+                    <span>{new Date(ord.createdAt).toLocaleDateString()}</span>
+                    <strong>#{ord._id.slice(-8).toUpperCase()}</strong>
+                  </div>
+                  <div className="atelier-customer-name">
+                    <strong>{ord.user ? ord.user.name : 'Guest'}</strong>
+                    <span>{ord.user ? ord.user.email : 'N/A'}</span>
+                  </div>
+                  <strong className="atelier-order-amount">&#8377;{ord.totalAmount}</strong>
+                  <span className={`atelier-status atelier-payment-${(ord.paymentStatus || 'unknown').toLowerCase()}`}>{ord.paymentStatus || 'UNKNOWN'}</span>
+                  <span className={`atelier-status atelier-order-${(ord.orderStatus || 'unknown').toLowerCase()}`}>{ord.orderStatus || 'UNKNOWN'}</span>
+                </article>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 };

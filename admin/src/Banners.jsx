@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
+import './Banners.css';
 
 function Banners() {
   const [banners, setBanners] = useState([]);
@@ -245,7 +246,7 @@ function Banners() {
   };
 
   return (
-    <div className="admin-page-container">
+    <div className="admin-page-container banner-page">
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">HOMEPAGE BANNERS & CONTENT</h1>
@@ -328,7 +329,7 @@ function Banners() {
                       </div>
                     </td>
                     <td>
-                      <span className={`status-pill ${b.isActive ? 'active' : 'inactive'}`}>
+                      <span className={`status-pill banner-status-pill ${b.isActive ? 'active' : 'inactive'}`}>
                         {b.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>

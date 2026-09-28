@@ -1,0 +1,845 @@
+.atelier-dashboard {
+  --atelier-ink: #171312;
+  --atelier-paper: #fffdf8;
+  --atelier-cream: #f2ebde;
+  --atelier-wine: #70263e;
+  --atelier-gold: #bd9452;
+  --atelier-muted: #756d65;
+  --atelier-rule: rgba(23, 19, 18, 0.16);
+  gap: 22px;
+  min-width: 0;
+  padding-bottom: 18px;
+  color: var(--atelier-ink);
+}
+
+.atelier-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 4px 0 17px;
+  border-bottom: 1px solid var(--atelier-rule);
+}
+
+.atelier-heading-lockup,
+.atelier-heading-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.atelier-kicker,
+.atelier-eyebrow,
+.atelier-section-index,
+.atelier-section-aside,
+.atelier-date,
+.atelier-refresh,
+.atelier-revenue-caption,
+.atelier-revenue-note,
+.atelier-measure > span:last-child,
+.atelier-flow-step > span,
+.atelier-exception-count,
+.atelier-catalog-count div > span,
+.atelier-catalog-count small,
+.atelier-stock-remaining,
+.atelier-stock-item button,
+.atelier-activity-labels,
+.atelier-status,
+.atelier-view-orders {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.atelier-kicker {
+  color: var(--atelier-wine);
+  margin-bottom: 3px;
+}
+
+.atelier-heading h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(23px, 2.1vw, 31px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.atelier-heading h1 span {
+  color: var(--atelier-gold);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+.atelier-heading-actions {
+  align-items: flex-end;
+  gap: 11px;
+}
+
+.atelier-date {
+  color: var(--atelier-muted);
+  text-align: right;
+}
+
+.atelier-refresh,
+.atelier-view-orders {
+  color: var(--atelier-wine);
+  border: 0;
+  border-bottom: 1px solid var(--atelier-wine);
+  background: transparent;
+  padding: 0 0 4px;
+  cursor: pointer;
+}
+
+.atelier-refresh span {
+  display: inline-block;
+  margin-right: 5px;
+  color: var(--atelier-gold);
+  font-size: 15px;
+  vertical-align: -1px;
+}
+
+.atelier-refresh:hover,
+.atelier-view-orders:hover {
+  color: var(--atelier-ink);
+  border-color: var(--atelier-ink);
+}
+
+.atelier-overview {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.08fr) minmax(0, 1.92fr);
+  min-height: 204px;
+  background: var(--atelier-ink);
+  color: var(--atelier-paper);
+}
+
+.atelier-revenue {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 27px clamp(22px, 3vw, 42px);
+  overflow: hidden;
+}
+
+.atelier-revenue::after {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  bottom: 22px;
+  width: 1px;
+  background: rgba(255, 253, 248, 0.2);
+  content: '';
+}
+
+.atelier-revenue .atelier-eyebrow {
+  color: var(--atelier-gold);
+}
+
+.atelier-revenue-value {
+  margin: 10px 0 4px;
+  color: var(--atelier-paper);
+  font-family: var(--font-sans);
+  font-size: clamp(28px, 3.3vw, 44px);
+  font-weight: 500;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.atelier-revenue-caption {
+  color: rgba(255, 253, 248, 0.75);
+}
+
+.atelier-revenue-rule {
+  width: 38px;
+  height: 2px;
+  margin: 17px 0 9px;
+  background: var(--atelier-gold);
+}
+
+.atelier-revenue-note {
+  color: rgba(255, 253, 248, 0.55);
+}
+
+.atelier-measures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.atelier-measure {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 22px clamp(12px, 2vw, 26px);
+  border-right: 1px solid rgba(255, 253, 248, 0.16);
+}
+
+.atelier-measure:last-child {
+  border-right: 0;
+}
+
+.atelier-measure .atelier-eyebrow {
+  color: rgba(255, 253, 248, 0.6);
+}
+
+.atelier-measure > strong {
+  margin: 10px 0 7px;
+  color: var(--atelier-paper);
+  font-family: var(--font-serif);
+  font-size: clamp(27px, 3vw, 39px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.atelier-measure > strong i {
+  color: var(--atelier-gold);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-style: normal;
+}
+
+.atelier-measure > span:last-child {
+  color: rgba(255, 253, 248, 0.52);
+}
+
+.atelier-measure.is-attention > strong,
+.atelier-measure.is-attention .atelier-eyebrow {
+  color: #d88b73;
+}
+
+.atelier-flow-section,
+.atelier-catalog,
+.atelier-attention,
+.atelier-activity {
+  min-width: 0;
+  background: var(--atelier-paper);
+}
+
+.atelier-flow-section {
+  padding: 20px 23px 23px;
+  border-top: 2px solid var(--atelier-wine);
+}
+
+.atelier-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.atelier-section-index {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--atelier-gold);
+}
+
+.atelier-section-heading h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.atelier-section-aside {
+  color: var(--atelier-muted);
+}
+
+.atelier-flow-track {
+  display: grid;
+  grid-template-columns: minmax(50px, 1fr) 24px minmax(50px, 1fr) 24px minmax(50px, 1fr) 24px minmax(50px, 1fr) 24px minmax(50px, 1fr) minmax(108px, 0.85fr);
+  align-items: center;
+  gap: 9px;
+  margin-top: 21px;
+}
+
+.atelier-flow-step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.atelier-flow-step > strong {
+  color: var(--atelier-wine);
+  font-family: var(--font-serif);
+  font-size: 29px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.atelier-flow-step > span {
+  color: var(--atelier-muted);
+  overflow-wrap: anywhere;
+}
+
+.flow-step-4 > strong {
+  color: #596b53;
+}
+
+.atelier-flow-arrow {
+  color: var(--atelier-gold);
+  font-size: 17px;
+  text-align: center;
+}
+
+.atelier-exceptions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding-left: 17px;
+  border-left: 1px solid var(--atelier-rule);
+}
+
+.atelier-exceptions > .atelier-eyebrow {
+  color: var(--atelier-muted);
+}
+
+.atelier-exception-count {
+  color: var(--atelier-muted);
+}
+
+.atelier-exception-count strong {
+  color: var(--atelier-wine);
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.atelier-insight-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 22px;
+}
+
+.atelier-catalog,
+.atelier-attention {
+  padding: 19px 22px 21px;
+  border-top: 1px solid var(--atelier-rule);
+}
+
+.atelier-catalog-count {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 17px 0 13px;
+}
+
+.atelier-catalog-count > strong {
+  color: var(--atelier-wine);
+  font-family: var(--font-serif);
+  font-size: 39px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.atelier-catalog-count div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.atelier-catalog-count div > span {
+  color: var(--atelier-ink);
+}
+
+.atelier-catalog-count small {
+  color: var(--atelier-muted);
+}
+
+.atelier-catalog-meter {
+  height: 3px;
+  background: var(--atelier-cream);
+}
+
+.atelier-catalog-meter span {
+  display: block;
+  height: 100%;
+  background: var(--atelier-gold);
+}
+
+.atelier-all-clear {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 17px;
+}
+
+.atelier-clear-mark {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  place-items: center;
+  border: 1px solid #75836b;
+  border-radius: 50%;
+  color: #596b53;
+  font-size: 14px;
+}
+
+.atelier-all-clear div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.atelier-all-clear strong {
+  color: #596b53;
+  font-size: 11px;
+}
+
+.atelier-all-clear div span {
+  color: var(--atelier-muted);
+  font-size: 12px;
+}
+
+.atelier-stock-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 13px;
+}
+
+.atelier-stock-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--atelier-rule);
+}
+
+.atelier-stock-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.atelier-stock-item > div strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atelier-stock-item > div span {
+  color: var(--atelier-muted);
+  font-size: 11px;
+}
+
+.atelier-stock-remaining {
+  color: var(--atelier-wine);
+}
+
+.atelier-stock-item button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--atelier-wine);
+  cursor: pointer;
+}
+
+.atelier-stock-item button span {
+  color: var(--atelier-gold);
+}
+
+.atelier-activity {
+  border-top: 2px solid var(--atelier-ink);
+}
+
+.atelier-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 18px 22px 15px;
+}
+
+.atelier-view-orders {
+  flex: 0 0 auto;
+}
+
+.atelier-activity-labels,
+.atelier-activity-row {
+  display: grid;
+  grid-template-columns: minmax(115px, 1.05fr) minmax(130px, 1.4fr) minmax(88px, 0.8fr) minmax(82px, 0.75fr) minmax(94px, 0.85fr);
+  align-items: center;
+  gap: 14px;
+  padding-right: 22px;
+  padding-left: 22px;
+}
+
+.atelier-activity-labels {
+  padding-top: 10px;
+  padding-bottom: 9px;
+  border-top: 1px solid var(--atelier-rule);
+  color: var(--atelier-muted);
+}
+
+.atelier-activity-row {
+  min-height: 62px;
+  border-top: 1px solid rgba(23, 19, 18, 0.09);
+}
+
+.atelier-order-reference,
+.atelier-customer-name {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.atelier-order-reference > span,
+.atelier-customer-name > span {
+  color: var(--atelier-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.atelier-order-reference > strong,
+.atelier-customer-name > strong {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atelier-order-reference > strong {
+  color: var(--atelier-wine);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.atelier-order-amount {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.atelier-status {
+  justify-self: start;
+  padding: 4px 7px;
+  border-left: 2px solid var(--atelier-gold);
+  background: var(--atelier-cream);
+  color: var(--atelier-ink);
+  overflow-wrap: anywhere;
+}
+
+.atelier-payment-paid,
+.atelier-order-delivered {
+  border-color: #65765c;
+}
+
+.atelier-payment-pending,
+.atelier-order-placed,
+.atelier-order-processing {
+  border-color: var(--atelier-gold);
+}
+
+.atelier-payment-failed,
+.atelier-order-cancelled,
+.atelier-order-failed {
+  border-color: var(--atelier-wine);
+  color: var(--atelier-wine);
+}
+
+.atelier-order-confirmed,
+.atelier-order-shipped {
+  border-color: #9a6f79;
+}
+
+.atelier-empty {
+  margin: 0;
+  padding: 20px 22px;
+  border-top: 1px solid var(--atelier-rule);
+  color: var(--atelier-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .atelier-flow-track {
+    grid-template-columns: minmax(45px, 1fr) 15px minmax(45px, 1fr) 15px minmax(45px, 1fr) 15px minmax(45px, 1fr) 15px minmax(45px, 1fr) minmax(92px, 0.9fr);
+    gap: 6px;
+  }
+
+  .atelier-flow-step > strong {
+    font-size: 25px;
+  }
+
+  .atelier-activity-labels,
+  .atelier-activity-row {
+    grid-template-columns: minmax(100px, 1fr) minmax(110px, 1.2fr) minmax(76px, 0.75fr) minmax(72px, 0.7fr) minmax(84px, 0.8fr);
+    gap: 9px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+}
+
+@media (max-width: 760px) {
+  .atelier-dashboard {
+    gap: 16px;
+  }
+
+  .atelier-heading {
+    align-items: flex-start;
+  }
+
+  .atelier-heading-actions {
+    align-items: flex-end;
+  }
+
+  .atelier-date {
+    max-width: 200px;
+    font-size: 9px;
+  }
+
+  .atelier-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .atelier-revenue {
+    min-height: 174px;
+    padding: 23px;
+  }
+
+  .atelier-revenue::after {
+    top: auto;
+    right: 22px;
+    bottom: 0;
+    left: 22px;
+    width: auto;
+    height: 1px;
+  }
+
+  .atelier-measure {
+    min-height: 118px;
+    padding: 17px 14px;
+  }
+
+  .atelier-measure > strong {
+    font-size: 30px;
+  }
+
+  .atelier-measure > span:last-child {
+    font-size: 8px;
+  }
+
+  .atelier-flow-section {
+    padding: 18px;
+  }
+
+  .atelier-flow-track {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 13px 8px;
+  }
+
+  .atelier-flow-arrow {
+    display: none;
+  }
+
+  .atelier-flow-step > strong {
+    font-size: 24px;
+  }
+
+  .atelier-flow-step > span {
+    font-size: 9px;
+  }
+
+  .atelier-exceptions {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 13px;
+    padding: 10px 0 0;
+    border-top: 1px solid var(--atelier-rule);
+    border-left: 0;
+  }
+
+  .atelier-insight-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  body:has(.atelier-dashboard) .admin-top-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  body:has(.atelier-dashboard) .top-bar-breadcrumbs {
+    order: 2;
+    flex: 0 0 100%;
+  }
+
+  body:has(.atelier-dashboard) .top-bar-user-group {
+    margin-left: auto;
+  }
+
+  .atelier-heading {
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .atelier-heading-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .atelier-date {
+    text-align: left;
+  }
+
+  .atelier-heading h1 {
+    font-size: 24px;
+  }
+
+  .atelier-measure {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
+
+  .atelier-measure > strong {
+    font-size: 26px;
+  }
+
+  .atelier-measure .atelier-eyebrow {
+    font-size: 9px;
+  }
+
+  .atelier-flow-track {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .atelier-exceptions {
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+  }
+
+  .atelier-stock-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .atelier-stock-item button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .atelier-activity-header {
+    align-items: flex-start;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .atelier-activity-labels {
+    display: none;
+  }
+
+  .atelier-activity-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 9px 12px;
+    padding: 13px 16px;
+  }
+
+  .atelier-order-reference {
+    grid-column: 1;
+  }
+
+  .atelier-customer-name {
+    grid-column: 1;
+  }
+
+  .atelier-order-amount {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .atelier-activity-row .atelier-status:nth-of-type(1) {
+    grid-column: 1;
+  }
+
+  .atelier-activity-row .atelier-status:nth-of-type(2) {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 430px) {
+  .atelier-measures {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .atelier-measure {
+    min-width: 0;
+    min-height: 88px;
+    padding: 17px 9px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 253, 248, 0.16);
+  }
+
+  .atelier-measure:last-child {
+    grid-column: auto;
+    border-bottom: 0;
+  }
+
+  .atelier-flow-section .atelier-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .atelier-flow-track {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .atelier-flow-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--atelier-rule);
+  }
+
+  .atelier-flow-step > span {
+    order: 1;
+  }
+
+  .atelier-flow-step > strong {
+    order: 2;
+    text-align: right;
+  }
+}
+
+body:has(.atelier-dashboard) .admin-workspace-shell,
+body:has(.atelier-dashboard) .admin-main-stage,
+body:has(.atelier-dashboard) .admin-page-body,
+body:has(.atelier-dashboard) .dashboard-content {
+  height: auto;
+  overflow: visible;
+}
+
+body:has(.atelier-dashboard) .admin-workspace-shell,
+body:has(.atelier-dashboard) .admin-main-stage {
+  min-height: 100vh;
+}
+
+body:has(.atelier-dashboard) .admin-page-body,
+body:has(.atelier-dashboard) .dashboard-content {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+@media (min-width: 901px) {
+  body:has(.atelier-dashboard) .admin-sidebar {
+    height: auto;
+    overflow: visible;
+  }
+}

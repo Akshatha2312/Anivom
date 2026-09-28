@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
+import './Coupons.css';
 
 function Coupons() {
   const [coupons, setCoupons] = useState([]);
@@ -233,7 +234,7 @@ function Coupons() {
   };
 
   return (
-    <div className="admin-page-container">
+    <div className="admin-page-container coupon-page">
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">COUPONS MANAGEMENT</h1>
@@ -306,7 +307,7 @@ function Coupons() {
                       </div>
                     </td>
                     <td>
-                      <span className={`status-pill ${c.isActive ? 'active' : 'inactive'}`}>
+                      <span className={`status-pill coupon-status-pill ${c.isActive ? 'active' : 'inactive'}`}>
                         {c.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>

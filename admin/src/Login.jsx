@@ -62,6 +62,18 @@ const Login = ({ onLoginSuccess }) => {
           <p className="admin-login-subtitle">Sign in to access admin workspace</p>
         </div>
 
+        <div className="admin-test-credentials-box">
+          <div className="admin-test-credentials-title">DEMO ACCESS</div>
+          <div className="admin-test-credentials-row">
+            <span className="admin-test-credentials-label">Email</span>
+            <code className="admin-test-credentials-value">admin@anivom.com</code>
+          </div>
+          <div className="admin-test-credentials-row">
+            <span className="admin-test-credentials-label">Password</span>
+            <code className="admin-test-credentials-value">admin123</code>
+          </div>
+        </div>
+
         {error && <div className="admin-error-banner">{error}</div>}
 
         <form onSubmit={handleSubmit} className="admin-login-form">
@@ -91,18 +103,6 @@ const Login = ({ onLoginSuccess }) => {
             {loading ? 'AUTHENTICATING...' : 'ENTER WORKSPACE'}
           </button>
         </form>
-
-        <div className="admin-test-credentials-box">
-          <div className="admin-test-credentials-title">ADMIN TEST CREDENTIALS</div>
-          <div className="admin-test-credentials-row">
-            <span className="admin-test-credentials-label">Email:</span>
-            <code className="admin-test-credentials-value">admin@anivom.com</code>
-          </div>
-          <div className="admin-test-credentials-row">
-            <span className="admin-test-credentials-label">Password:</span>
-            <code className="admin-test-credentials-value">admin123</code>
-          </div>
-        </div>
       </div>
     </div>
   );

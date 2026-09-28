@@ -1,0 +1,7 @@
+.coupon-page .coupon-status-pill {
+  position: static;
+  inset: auto;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
