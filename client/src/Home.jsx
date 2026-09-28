@@ -63,11 +63,11 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
         <div className="anivom-hero-grid">
           <div className="anivom-hero-text-col reveal">
             <span className="anivom-hero-kicker">
-              {activeHeroBanner?.title || 'AUTUMN / WINTER COUTURE'}
+              {activeHeroBanner?.title || 'MONTH END OFFER'}
             </span>
             <h1 className="anivom-hero-heading">ANIVOM</h1>
             <div className="anivom-hero-subtag">
-              {activeHeroBanner?.subtitle || 'Wear It Your Way.'}
+              {activeHeroBanner?.subtitle || 'Up to 20% off on selected styles. Make it yours.'}
             </div>
             <p className="anivom-hero-desc">
               Your T-shirt. Your design. Your rules. High fashion ready-to-wear collections meets interactive custom apparel tailoring.
@@ -88,7 +88,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
               ) : (
                 <>
                   <button className="anivom-btn-primary" onClick={onNavigateToCatalog}>
-                    Shop T-Shirts
+                    Shop the Edit
                   </button>
                   <button className="anivom-btn-secondary" onClick={() => onNavigateToStudio(null)}>
                     Customize Yours
@@ -103,14 +103,13 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
               <img
                 src={
                   activeHeroBanner?.image ||
-                  'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80'
+                  '/images/anivom-atelier-hero.png'
                 }
                 alt={activeHeroBanner?.title || 'ANIVOM Fashion Hero'}
                 className="anivom-hero-img"
                 fetchPriority="high"
                 decoding="async"
               />
-              <div className="anivom-hero-img-badge">NEW COLLECTION</div>
             </div>
           </div>
         </div>
@@ -120,7 +119,7 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
         <div className="anivom-intro-container reveal">
           <h2 className="anivom-intro-title">REDEFINING CUSTOM STREETWEAR COUTURE</h2>
           <p className="anivom-intro-text">
-            ANIVOM merges contemporary oversized fits with custom digital design. Choose from our signature ready-to-wear drops or personalize every layer with your custom graphics, artwork, and text.
+            ANIVOM blends contemporary silhouettes with custom digital design. Choose from our ready-to-wear collections or create your own piece with graphics, artwork, and text.
           </p>
         </div>
       </section>
@@ -185,7 +184,6 @@ function Home({ user, onNavigateToCatalog, onNavigateToStudio, onCartUpdated, on
           <h2 className="anivom-statement-text">
             &ldquo;DON&rsquo;T JUST WEAR A T-SHIRT. MAKE IT YOURS.&rdquo;
           </h2>
-          <span className="anivom-statement-sub">ANIVOM HIGH COUTURE APPAREL</span>
         </div>
       </section>
 

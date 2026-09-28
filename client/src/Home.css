@@ -8,25 +8,31 @@
 .anivom-hero-editorial {
   background-color: #F7F2E8;
   border-bottom: 1px solid #E8E2D5;
-  padding: 60px 24px;
+  padding: 0;
 }
 
 .anivom-hero-grid {
-  max-width: 1600px;
-  width: min(95vw, 1600px);
-  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  min-height: 600px;
+  margin: 0;
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 56px;
+  grid-template-areas: "hero";
   align-items: center;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
 .anivom-hero-text-col {
+  grid-area: hero;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 40px;
+  width: 62%;
+  max-width: 760px;
+  padding: 48px 24px 48px clamp(32px, 8vw, 128px);
+  box-sizing: border-box;
 }
 
 .anivom-hero-kicker {
@@ -107,22 +113,34 @@
 }
 
 .anivom-hero-visual-col {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   width: 100%;
 }
 
 .anivom-hero-img-frame {
   position: relative;
   width: 100%;
-  height: 480px;
-  border-radius: 4px;
+  height: 100%;
+  min-height: 600px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.anivom-hero-img-frame::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(247, 242, 232, 0.58) 0%, rgba(247, 242, 232, 0.34) 31%, rgba(247, 242, 232, 0.08) 54%, transparent 72%);
 }
 
 .anivom-hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 .anivom-hero-img-badge {
@@ -262,7 +280,7 @@
 .anivom-custom-banner {
   background-color: #111111;
   color: #FFFDF8;
-  padding: 60px 24px;
+  padding: 48px 24px;
 }
 
 .anivom-custom-banner-content {
@@ -291,7 +309,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 24px;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
   text-align: left;
 }
 
@@ -387,7 +405,7 @@
 
 .anivom-statement-section {
   background-color: #F7F2E8;
-  padding: 80px 24px;
+  padding: 48px 24px;
   text-align: center;
   border-top: 1px solid #E8E2D5;
   border-bottom: 1px solid #E8E2D5;
@@ -414,7 +432,7 @@
 }
 
 .anivom-final-cta-section {
-  padding: 80px 24px;
+  padding: 48px 24px;
   text-align: center;
   background-color: #FFFDF8;
 }
@@ -434,11 +452,12 @@
 
 @media (max-width: 900px) {
   .anivom-hero-grid {
-    grid-template-columns: 1fr;
+    min-height: 560px;
   }
 
   .anivom-hero-text-col {
-    padding-left: 0;
+    width: 72%;
+    padding-left: 40px;
   }
   
   .anivom-hero-heading {
@@ -446,17 +465,22 @@
   }
   
   .anivom-hero-img-frame {
-    height: 360px;
+    min-height: 560px;
   }
 }
 
 @media (max-width: 480px) {
-  .anivom-hero-editorial,
-  .anivom-intro-section,
-  .anivom-custom-banner,
+  .anivom-intro-section {
+    padding: 36px 16px;
+  }
+
+  .anivom-custom-banner {
+    padding: 30px 16px;
+  }
+
   .anivom-statement-section,
   .anivom-final-cta-section {
-    padding: 36px 16px;
+    padding: 28px 16px;
   }
 
   .anivom-hero-heading {
@@ -464,12 +488,27 @@
     letter-spacing: 0.06em;
   }
 
-  .anivom-hero-subtag {
-    font-size: 16px;
+  .anivom-hero-grid,
+  .anivom-hero-img-frame {
+    min-height: 620px;
   }
 
-  .anivom-hero-img-frame {
-    height: 280px;
+  .anivom-hero-text-col {
+    align-self: start;
+    width: 100%;
+    padding: 36px 20px;
+  }
+
+  .anivom-hero-img {
+    object-position: 72% center;
+  }
+
+  .anivom-hero-img-frame::after {
+    background: linear-gradient(90deg, rgba(247, 242, 232, 0.62) 0%, rgba(247, 242, 232, 0.34) 58%, rgba(247, 242, 232, 0.08) 82%, transparent 100%);
+  }
+
+  .anivom-hero-subtag {
+    font-size: 16px;
   }
 
   .anivom-statement-text {

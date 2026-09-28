@@ -72,7 +72,7 @@ function Contact({ user }) {
   }
 
   return (
-    <div className="info-page-container">
+    <div className="info-page-container contact-page-container">
       <div className="info-page-inner reveal">
         <span className="info-header-badge">CLIENT CARE</span>
         <h1 className="info-page-title">CONTACT ATELIER SUPPORT</h1>
@@ -95,14 +95,7 @@ function Contact({ user }) {
               <p>10:00 AM – 7:00 PM IST</p>
             </div>
 
-            <div className="contact-info-block">
-              <h4>STUDIO LOCATION</h4>
-              <p>ANIVOM Custom Apparel Studio</p>
-              <p>High Couture &amp; Cultural Apparel</p>
-              <p>India</p>
-            </div>
-
-            <div className="contact-info-block" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(198,161,91,0.2)' }}>
+            <div className="contact-info-block" style={{ paddingTop: '12px', borderTop: '1px solid rgba(198,161,91,0.2)' }}>
               <span style={{ fontSize: '0.75rem', color: '#C6A15B', letterSpacing: '0.1em', fontWeight: '700' }}>
                 அனிவோம் - Wear It Your Way.
               </span>
@@ -184,7 +177,7 @@ function Contact({ user }) {
                   name="message"
                   required
                   disabled={loading}
-                  rows={4}
+                  rows={3}
                   placeholder="How can our support team assist you?"
                   value={formData.message}
                   onChange={handleChange}
