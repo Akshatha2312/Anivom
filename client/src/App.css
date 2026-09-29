@@ -32,6 +32,11 @@
   box-sizing: border-box;
 }
 
+.anivom-shell-main-cart-signed-out {
+  display: flex;
+  flex-direction: column;
+}
+
 .anivom-nav-container {
   max-width: 1600px;
   width: min(95vw, 1600px);
@@ -498,6 +503,10 @@
 
   .anivom-footer-container {
     grid-template-columns: 1fr;
+  }
+
+  .anivom-shell-main-cart-signed-out + .anivom-shell-footer .anivom-footer-container {
+    width: 100%;
   }
 
   .anivom-footer-bottom {

@@ -359,6 +359,20 @@
   padding: 60px 20px;
 }
 
+.anivom-cart-signed-out {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 16px 20px;
+}
+
+.anivom-cart-signed-out .anivom-empty-cart {
+  min-height: 0;
+  padding: 12px 20px;
+}
+
 .anivom-empty-icon {
   font-size: 3rem;
   margin-bottom: 16px;
@@ -413,6 +427,18 @@
 }
 
 @media (max-width: 576px) {
+  .anivom-cart-signed-out {
+    padding: 16px;
+  }
+
+  .anivom-cart-signed-out .anivom-empty-cart {
+    padding: 12px 0;
+  }
+
+  .anivom-cart-signed-out-actions {
+    flex-wrap: wrap;
+  }
+
   .anivom-cart-container {
     padding: 20px 16px 60px 16px;
   }

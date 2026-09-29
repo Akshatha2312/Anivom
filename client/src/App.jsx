@@ -38,6 +38,7 @@ const PATH_MAP = {
   '/cart': 'cart',
   '/bag': 'cart',
   '/checkout': 'checkout',
+  '/login': 'auth',
   '/account': 'account',
   '/orders': 'orders',
   '/creations': 'creations',
@@ -57,6 +58,7 @@ const VIEW_MAP = {
   studio: '/studio',
   cart: '/cart',
   checkout: '/checkout',
+  auth: '/login',
   account: '/account',
   orders: '/orders',
   creations: '/creations',
@@ -625,7 +627,7 @@ function App() {
               </div>
             ) : (
               <button
-                onClick={() => setView('account')}
+                onClick={() => { setView('auth'); setMode('login'); }}
                 className={`anivom-btn-auth-link ${view === 'account' ? 'active' : ''}`}
               >
                 Sign In
@@ -678,7 +680,7 @@ function App() {
               </button>
             </>
           ) : (
-            <button onClick={() => { setView('account'); setMobileMenuOpen(false); }} className="anivom-mobile-link auth">
+            <button onClick={() => { setView('auth'); setMode('login'); setMobileMenuOpen(false); }} className="anivom-mobile-link auth">
               Sign In / Register
             </button>
           )}
@@ -699,7 +701,7 @@ function App() {
         }}
       />
 
-      <main className="anivom-shell-main">
+      <main className={`anivom-shell-main${view === 'cart' && !user ? ' anivom-shell-main-cart-signed-out' : ''}`}>
         {view === 'auth' && (
           <AuthModal
             user={user}

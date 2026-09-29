@@ -125,14 +125,14 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
 
   if (!user) {
     return (
-      <div className="anivom-cart-container">
+      <div className="anivom-cart-container anivom-cart-signed-out">
         <div className="anivom-empty-cart">
           <div className="anivom-empty-icon"></div>
           <h3 className="anivom-empty-title">YOUR BAG REQUIRES SIGN-IN</h3>
           <p className="anivom-empty-sub">
             Log in with your ANIVOM customer account to view your saved items and complete your bespoke order.
           </p>
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center' }}>
+          <div className="anivom-cart-signed-out-actions" style={{ display: 'flex', gap: '14px', justifyContent: 'center' }}>
             <button className="anivom-btn-checkout" style={{ width: 'auto', padding: '12px 28px' }} onClick={onLoginRedirect}>
               Sign In to ANIVOM
             </button>

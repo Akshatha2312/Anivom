@@ -2,7 +2,7 @@
   max-width: 1600px;
   width: min(95vw, 1600px);
   margin: 0 auto;
-  padding: 40px 20px 80px 20px;
+  padding: 40px 20px 20px 20px;
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;
@@ -77,13 +77,12 @@
 }
 
 .anivom-account-empty-box {
-  min-height: 45vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 60px 24px;
+  padding: 32px 24px;
   background: #F7F2E8;
   border: 1px solid #e5e0d8;
 }
@@ -565,6 +564,11 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+  }
+
+  .anivom-account-empty-actions {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .anivom-acc-address-form {

@@ -3,7 +3,7 @@
   min-height: calc(100vh - 140px);
   background-color: var(--bg-primary, #FFFDF8);
   color: var(--text-dark, #111111);
-  padding: 40px 24px 80px;
+  padding: 10px 24px 12px;
   box-sizing: border-box;
 }
 
@@ -18,9 +18,9 @@
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 40px;
-  padding-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-light, #E8E2D5);
 }
 
@@ -32,32 +32,32 @@
   color: var(--accent-gold, #C6A15B);
   font-weight: 700;
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .anivom-referrals-title {
   font-family: var(--font-sans, sans-serif);
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  margin: 0 0 12px;
+  margin: 0 0 4px;
   color: var(--text-dark, #111111);
 }
 
 .anivom-referrals-subtitle {
   font-family: var(--font-sans, sans-serif);
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-muted, #666666);
   max-width: 640px;
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .anivom-referrals-back-btn {
   background: transparent;
   border: 1px solid var(--text-dark, #111111);
   color: var(--text-dark, #111111);
-  padding: 10px 20px;
+  padding: 6px 12px;
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -73,17 +73,17 @@
 .anivom-referrals-hero-card {
   background: #F7F2E8;
   border: 1px solid #E8E2D5;
-  padding: 32px;
-  margin-bottom: 32px;
+  padding: 12px;
+  margin-bottom: 14px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 10px;
 }
 
 .anivom-referrals-hero-top {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 12px;
 }
 
 @media (max-width: 768px) {
@@ -96,10 +96,10 @@
 .anivom-link-box {
   background: #FFFDF8;
   border: 1px solid #E8E2D5;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .anivom-box-label {
@@ -112,7 +112,7 @@
 
 .anivom-code-value {
   font-family: var(--font-mono, monospace);
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--accent-burgundy, #7A1F3D);
@@ -127,7 +127,7 @@
 
 .anivom-hero-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -135,10 +135,11 @@
   background-color: var(--accent-burgundy, #7A1F3D);
   color: #FFFDF8;
   border: none;
-  padding: 12px 28px;
+  min-height: 38px;
+  padding: 8px 18px;
   font-size: 0.88rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -152,10 +153,11 @@
   background-color: transparent;
   color: var(--text-dark, #111111);
   border: 1px solid var(--text-dark, #111111);
-  padding: 12px 28px;
+  min-height: 38px;
+  padding: 8px 18px;
   font-size: 0.88rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -181,8 +183,8 @@
 .anivom-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 40px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 @media (max-width: 900px) {
@@ -200,14 +202,15 @@
 .anivom-stat-card {
   background: #FFFDF8;
   border: 1px solid #E8E2D5;
-  padding: 24px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .anivom-stat-val {
-  font-size: 2rem;
+  font-size: 1.5rem;
+  line-height: 1.1;
   font-weight: 800;
   color: var(--text-dark, #111111);
 }
@@ -219,7 +222,7 @@
 .anivom-stat-label {
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted, #666666);
 }
@@ -227,15 +230,15 @@
 .anivom-history-section {
   background: #FFFDF8;
   border: 1px solid #E8E2D5;
-  padding: 32px;
+  padding: 12px;
 }
 
 .anivom-history-title {
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.01em;
-  margin: 0 0 20px;
-  padding-bottom: 12px;
+  margin: 0 0 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #E8E2D5;
 }
 
@@ -253,7 +256,7 @@
 
 .anivom-history-table th,
 .anivom-history-table td {
-  padding: 14px 16px;
+  padding: 12px 14px;
   text-align: left;
   border-bottom: 1px solid #E8E2D5;
   font-size: 0.9rem;
@@ -269,10 +272,11 @@
 }
 
 .anivom-history-empty {
-  padding: 32px;
+  padding: 8px 12px;
   text-align: center;
   color: var(--text-muted, #666666);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .anivom-status-tag {
@@ -303,9 +307,32 @@
   padding: 48px 32px;
 }
 
+@media (min-width: 901px) {
+  .anivom-referrals-root {
+    display: flex;
+    min-height: calc(100vh - 100px);
+    padding-bottom: 0;
+  }
+
+  .anivom-referrals-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .anivom-referrals-header,
+  .anivom-referrals-hero-card,
+  .anivom-stats-grid {
+    margin-bottom: 0;
+  }
+}
+
 @media (max-width: 480px) {
   .anivom-referrals-root {
-    padding: 24px 16px 60px;
+    display: block;
+    min-height: 0;
+    padding: 20px 16px 40px;
   }
 
   .anivom-referrals-title {
@@ -313,7 +340,13 @@
   }
 
   .anivom-referrals-hero-card {
-    padding: 20px 16px;
+    padding: 16px 14px;
+  }
+
+  .anivom-btn-copy,
+  .anivom-btn-share {
+    min-height: 42px;
+    padding: 10px 16px;
   }
 
   .anivom-referrals-unauth {
