@@ -23,6 +23,10 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1,
+    validate: {
+      validator: Number.isInteger,
+      message: 'Quantity must be a positive integer',
+    },
   },
   unitPrice: {
     type: Number,

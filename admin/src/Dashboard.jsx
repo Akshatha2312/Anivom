@@ -53,7 +53,7 @@ const Dashboard = ({ onNavigate }) => {
   if (!stats) return null;
 
   const orderFlow = ['PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
-  const exceptions = ['CANCELLED', 'FAILED'];
+  const exceptions = ['CANCELLED', 'FAILED', 'RETURN_REQUESTED'];
   const currentDate = new Date().toLocaleDateString('en-IN', {
     weekday: 'long',
     day: '2-digit',

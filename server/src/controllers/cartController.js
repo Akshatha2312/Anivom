@@ -3,6 +3,7 @@ const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const Customization = require('../models/Customization');
 const { roundMoney } = require('../utils/money');
+const { isPositiveIntegerQuantity } = require('../utils/quantity');
 
 const populateCart = async (cart) => {
   return await cart.populate([
@@ -365,6 +366,9 @@ const validateCheckoutSummary = async (req, res, next) => {
     const { buyNowItem } = req.body || {};
     if (buyNowItem) {
       const { productId, size, colour, quantity, customized, customizationId } = buyNowItem;
+      if (!isPositiveIntegerQuantity(quantity)) {
+        return res.status(400).json({ status: 'fail', message: 'Quantity must be a positive integer.' });
+      }
       if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
         return res.status(400).json({ status: 'fail', message: 'Invalid product ID' });
       }
@@ -376,7 +380,7 @@ const validateCheckoutSummary = async (req, res, next) => {
       if (!variant) {
         return res.status(400).json({ status: 'fail', message: 'Selected variant is not available' });
       }
-      const qtyNum = Number(quantity) || 1;
+      const qtyNum = quantity;
       if (qtyNum > variant.stock) {
         return res.status(400).json({ status: 'fail', message: `Requested quantity exceeds available stock (${variant.stock} available)` });
       }
@@ -459,10 +463,10 @@ const validateCheckoutSummary = async (req, res, next) => {
         });
       }
 
-      if (item.quantity <= 0) {
+      if (!isPositiveIntegerQuantity(item.quantity)) {
         return res.status(400).json({
           status: 'fail',
-          message: `Invalid quantity for "${product.name}".`,
+          message: `Invalid quantity for "${product.name}". Quantity must be a positive integer.`,
         });
       }
 

@@ -88,6 +88,9 @@ const MyCreations = ({
         <div className="anivom-creations-grid">
           {items.map((item) => {
             const product = item.product || {};
+            const byColour = product.garmentImages?.byColour;
+            const colourImages = byColour instanceof Map ? Object.fromEntries(byColour) : byColour;
+            const previewImage = colourImages?.[item.colour]?.front || product.images?.[0];
             const productName = product.name || 'ANIVOM Custom T-Shirt';
             const basePrice = product.basePrice ? `₹${formatINRAmount(product.basePrice)}` : '';
             const layers = item.layers || [];
@@ -104,8 +107,8 @@ const MyCreations = ({
                     className="anivom-creation-swatch-bg"
                     style={{ backgroundColor: item.colour === 'White' ? '#FFFDF8' : item.colour === 'Navy' ? '#1e3a8a' : '#111111' }}
                   >
-                    {product.images && product.images.length > 0 ? (
-                      <img src={product.images[0]} alt={productName} className="anivom-creation-img" />
+                    {previewImage ? (
+                      <img src={previewImage} alt={productName} className="anivom-creation-img" />
                     ) : (
                       <span className="anivom-creation-no-img">ANIVOM</span>
                     )}

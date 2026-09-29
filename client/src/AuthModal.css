@@ -345,6 +345,27 @@
   .anivom-auth-form-side {
     padding: 20px 16px;
   }
+
+  .anivom-auth-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 12px 10px;
+    box-sizing: border-box;
+  }
+
+  .anivom-auth-overlay .anivom-auth-split-wrapper {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  .anivom-auth-overlay .anivom-welcome-close-btn {
+    position: fixed !important;
+    top: max(12px, env(safe-area-inset-top)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+  }
 }
 
 .anivom-auth-dev-helper {

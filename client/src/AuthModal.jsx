@@ -460,7 +460,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
   if (isOverlay) {
     return (
       <div
-        className="anivom-welcome-overlay"
+        className="anivom-welcome-overlay anivom-auth-overlay"
         onClick={(e) => {
           if (e.target.classList.contains('anivom-welcome-overlay') && onClose) {
             onClose()

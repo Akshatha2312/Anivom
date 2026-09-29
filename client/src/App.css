@@ -503,6 +503,7 @@
 
   .anivom-footer-container {
     grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .anivom-shell-main-cart-signed-out + .anivom-shell-footer .anivom-footer-container {

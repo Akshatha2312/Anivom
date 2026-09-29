@@ -7,7 +7,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 - **Backend Technology Stack**: Node.js (v20+), Express.js (^5.2.1), Mongoose (^9.10.1) & MongoDB Atlas.
 - **Base API URL**: `/api/v1`
 - **API Version**: `v1`
-- **Authentication Approach**: JSON Web Tokens (JWT) signed by the server and transmitted in secure `HTTP-Only`, `SameSite` cookies (`credentials: 'include'`). Endpoints enforce authentication via a `protect` middleware layer and administrative capabilities via an `authorize('admin')` Role-Based Access Control (RBAC) layer.
+- **Authentication Approach**: JSON Web Tokens (JWT) are set in an HTTP-only cookie named `token`; clients send it with `credentials: 'include'`. The cookie always uses `httpOnly: true` and `path: '/'`. In production it uses `secure: true` and `sameSite: 'none'`; locally it uses `secure: false` and `sameSite: 'lax'`. The `protect` middleware also accepts a Bearer token. Administrative endpoints additionally use `authorize('admin')`.
 
 ---
 
@@ -22,12 +22,12 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 ## 3. Authentication & Authorization
 
 - **Public Endpoints**: Accessible by any client without authentication (e.g., browsing active catalog items, category lookups, active banners, active vector designs, user registration, and credential/OAuth login).
-- **Protected Endpoints (Customer)**: Require an active, verified user JWT cookie (`protect` middleware). The backend strictly enforces document ownership (`document.user === req.user._id`) for sensitive resources including user cart, saved addresses, customized canvas layers, wishlist, and order histories.
+- **Protected Endpoints (Customer)**: Require an existing authenticated user and a valid JWT from the `token` cookie or an `Authorization: Bearer` header (`protect` middleware). The backend enforces document ownership (`document.user === req.user._id`) for sensitive resources including user cart, saved addresses, customized canvas layers, wishlist, and order histories.
 - **Protected Admin Endpoints**: Require both valid user authentication (`protect`) and an administrative role check (`authorize('admin')`). Non-admin attempts return HTTP `403 Forbidden`.
 
 ---
 
-## 4. Endpoints Registry (Exactly 47 Total Endpoints)
+## 4. Endpoints Registry (Exactly 83 Total Endpoints)
 
 ### Health Check (1 Endpoint)
 
@@ -57,19 +57,19 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
     "password": "SecretPassword123"
   }
   ```
-- **Success Response (201 Created)**:
+- **Success Response (201 Created)**: Sets the HTTP-only `token` cookie. The JSON response contains user data and no JWT.
   ```json
   {
     "status": "success",
-    "message": "Customer account registered successfully.",
-    "token": "eyJhbGciOi...",
+    "message": "Customer registered successfully",
     "data": {
       "user": {
         "_id": "651a...",
         "name": "Jane Doe",
         "email": "jane@example.com",
         "role": "customer",
-        "referralCode": "ANIVOM8F2A"
+        "referralCode": "ANIVOM8F2A1234",
+        "createdAt": "2026-09-30T12:00:00.000Z"
       }
     }
   }
@@ -77,7 +77,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 
 #### `POST /api/v1/auth/login`
 - **Authentication**: None (Public)
-- **Purpose**: Authenticates customer or admin credentials and issues a signed JWT token in an HTTP-Only cookie and response body.
+- **Purpose**: Authenticates customer or admin credentials and sets a signed JWT in the HTTP-only `token` cookie. The JWT is not returned in the JSON response body.
 - **Request Body**:
   ```json
   {
@@ -85,18 +85,19 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
     "password": "SecretPassword123"
   }
   ```
-- **Success Response (200 OK)**:
+- **Success Response (200 OK)**: Sets the HTTP-only `token` cookie; JSON contains user data only.
   ```json
   {
     "status": "success",
-    "message": "Log in successful.",
-    "token": "eyJhbGciOi...",
+    "message": "Customer logged in successfully",
     "data": {
       "user": {
         "_id": "651a...",
         "name": "Jane Doe",
         "email": "jane@example.com",
-        "role": "customer"
+        "role": "customer",
+        "referralCode": "ANIVOM8F2A1234",
+        "createdAt": "2026-09-30T12:00:00.000Z"
       }
     }
   }
@@ -106,7 +107,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 - **Authentication**: None (Public)
 - **Purpose**: Authenticates or registers users via a Google OAuth credential token.
 - **Request Body**: `{ "credential": "GOOGLE_ID_TOKEN" }`
-- **Success Response (200 OK / 201 Created)**: Returns authenticated user profile object and sets HTTP-Only JWT cookie.
+- **Success Response (200 OK)**: Returns the authenticated user profile and sets the HTTP-only `token` cookie; the JWT is not included in the JSON body.
 
 #### `POST /api/v1/auth/logout`
 - **Authentication**: None (Public)
@@ -129,7 +130,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 #### `GET /api/v1/products`
 - **Authentication**: None (Public)
 - **Purpose**: Fetches active product listing with search, category, size, colour, price filters, and pagination.
-- **Query Parameters**: `search`, `category`, `size`, `colour`, `minPrice`, `maxPrice`, `sort`, `page`, `limit`
+- **Query Parameters**: `search`, `category` (category value/name), `size`, `colour`, `minPrice`, `maxPrice`, `sort`, `page`, `limit`
 - **Success Response (200 OK)**: List of product documents and pagination metadata.
 
 #### `GET /api/v1/products/:id`
@@ -167,7 +168,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 #### `POST /api/v1/customizations`
 - **Authentication**: Protected (JWT)
 - **Purpose**: Saves or updates a T-shirt canvas customization configuration (text layers, vector artwork, image uploads, scale, rotation, view orientation).
-- **Request Body**: `productId`, `size`, `colour`, `layers`, `status`
+- **Request Body**: `product`, `size`, `colour`, `layers`, `status`
 - **Success Response (201 Created / 200 OK)**: Customization configuration document.
 
 #### `GET /api/v1/customizations`
@@ -197,7 +198,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 #### `POST /api/v1/cart`
 - **Authentication**: Protected (JWT)
 - **Purpose**: Adds a standard product variant or customized garment item to cart after verifying variant stock availability.
-- **Request Body**: `productId`, `size`, `colour`, `quantity`, `customized`, `customizationId`
+- **Request Body**: `product`, `size`, `colour`, `quantity`, `customized`, `customization` (when customized)
 
 #### `PATCH /api/v1/cart/:itemId`
 - **Authentication**: Protected (JWT)
@@ -245,12 +246,34 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 
 #### `POST /api/v1/orders`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Server recalculates grand total, creates Order document in `PENDING` payment state, freezes customization layer JSON snapshots, and initializes Razorpay payment order.
-- **Request Body**: `{ "addressId": "651a...", "couponCode": "WELCOME10" }`
+- **Purpose**: Server recalculates the total, creates an Order with `paymentStatus: PENDING` and `orderStatus: PLACED`, freezes customization snapshots, and initializes a Razorpay payment order.
+- **Request Body**: Required `addressId`; optional `couponCode`; optional `buyNowItem` for Buy Now instead of cart checkout. `buyNowItem` contains `productId`, `size`, `colour`, `quantity`, `customized`, and optional `customizationId`.
+- **Success Response (201 Created)**: `data.order` is the created Order document. `data.razorpayOrder` contains the gateway checkout values:
+  ```json
+  {
+    "success": true,
+    "message": "Order created successfully.",
+    "data": {
+      "order": {
+        "_id": "651a...",
+        "paymentStatus": "PENDING",
+        "orderStatus": "PLACED",
+        "razorpayOrderId": "order_9A33XABC"
+      },
+      "razorpayOrder": {
+        "id": "order_9A33XABC",
+        "amount": 120000,
+        "currency": "INR",
+        "key": "rzp_test_..."
+      }
+    }
+  }
+  ```
 
 #### `POST /api/v1/orders/verify-payment`
 - **Authentication**: Protected (JWT)
-- **Purpose**: Performs server-side HMAC-SHA256 signature verification for Razorpay payment, advances order status to `PAID` / `PLACED`, atomically decrements variant stock (`$inc: -quantity`), and clears user cart.
+- **Purpose**: Verifies the Razorpay HMAC-SHA256 signature. On success, sets `paymentStatus: PAID` and `orderStatus: CONFIRMED`, atomically decrements variant stock (`$inc: -quantity`), and clears the user cart for cart-based checkout.
+- **Request Body**: All four fields are required: `orderId`, `razorpay_order_id`, `razorpay_payment_id`, and `razorpay_signature`.
 
 #### `GET /api/v1/orders`
 - **Authentication**: Protected (JWT)
@@ -282,7 +305,7 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 
 #### `PATCH /api/v1/orders/admin/:id/status`
 - **Authentication**: Protected (JWT) | **Role**: Admin
-- **Purpose**: Updates order fulfillment status (`CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
+- **Purpose**: Accepts target statuses `PLACED`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, and `FAILED`, subject to the current order's allowed transitions. Transitions are `PLACED` → `CONFIRMED`, `CANCELLED`, or `FAILED`; `CONFIRMED` → `PROCESSING`, `SHIPPED`, or `CANCELLED`; `PROCESSING` → `SHIPPED` or `CANCELLED`; and `SHIPPED` → `DELIVERED`. Delivered, cancelled, failed, and return-status orders cannot be updated through this endpoint.
 
 #### `PATCH /api/v1/orders/admin/:id/return`
 - **Authentication**: Protected (JWT) | **Role**: Admin
@@ -407,46 +430,31 @@ The **ANIVOM REST API** is a production-ready Node.js & Express 5 backend web se
 
 ## 5. Error Response Architecture
 
-All API rejections and runtime exceptions handled by the centralized Express error middleware (`errorMiddleware.js`) return a standardized JSON structure:
+Response envelopes depend on the handler. Validation and authorization failures returned directly by controllers commonly use `{ "status": "fail", "message": "..." }` or `{ "success": false, "message": "..." }`. Exceptions forwarded with `next(error)` are handled by the centralized Express error middleware (`errorMiddleware.js`) and use `{ "status": "error", "message": "..." }`.
 
+### Example Error Payloads
+
+#### Controller-handled 400 Bad Request
+```json
+{
+  "status": "fail",
+  "message": "Invalid product ID"
+}
+```
+
+Some controllers use a `success: false` envelope:
+```json
+{
+  "success": false,
+  "message": "Invalid or expired coupon code."
+}
+```
+
+#### Middleware-handled exception
 ```json
 {
   "status": "error",
   "message": "Detailed error message explanation"
-}
-```
-
-### Example Error Payloads
-
-#### 400 Bad Request
-```json
-{
-  "status": "error",
-  "message": "Insufficient stock available for requested size/colour variant."
-}
-```
-
-#### 401 Unauthorized
-```json
-{
-  "status": "error",
-  "message": "Not authorized, token missing or invalid."
-}
-```
-
-#### 403 Forbidden
-```json
-{
-  "status": "error",
-  "message": "Access denied. Admin privileges required."
-}
-```
-
-#### 404 Not Found
-```json
-{
-  "status": "error",
-  "message": "Requested resource not found."
 }
 ```
 
@@ -478,17 +486,19 @@ The backend handles online payment processing through a server-verified 5-step s
          │                                       ├── Recalculate Total                 │
          │                                       ├── Create Order (PENDING)            │
          │                                       ├── Create Razorpay Order ──────────► │
-         │ ◄── 2. Return razorpayOrderId ────────┤ ◄── Return razorpay_order_id ────────┘
+         │ ◄── 2. Return data.order + data.razorpayOrder ─┤ ◄── Return razorpay_order_id ─┘
          │                                       │
          ├── 3. Customer Completes Checkout ──────────────────────────────────────────► │
          │ ◄── 4. Return Payment Signature ───────────────────────────────────────────┘
          │                                       │
-         ├── 5. POST /verify-payment ──────────► │
-         │    (orderId, paymentId, signature)    ├── Verify HMAC-SHA256 Signature
-         │                                       ├── Update Order Status -> PAID
+         ├── 5. POST /api/v1/orders/verify-payment ─────► │
+         │    (orderId, razorpay_order_id,        │
+         │     razorpay_payment_id,               ├── Verify HMAC-SHA256 Signature
+         │     razorpay_signature)                │
+         │                                       ├── Set paymentStatus=PAID, orderStatus=CONFIRMED
          │                                       ├── Atomically Decrement Stock ($inc)
          │                                       └── Clear Customer Cart
-         │ ◄── 6. Order Verified (PAID) ─────────┤
+         │ ◄── 6. Order Verified (paymentStatus=PAID, orderStatus=CONFIRMED) ──┤
 ```
 
 ---

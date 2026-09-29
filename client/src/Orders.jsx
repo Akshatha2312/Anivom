@@ -864,11 +864,15 @@ function Orders({
                 <span>&#8377;{formatINRAmount(selectedOrder.subtotal)}</span>
               </div>
               <div className="anivom-fin-line">
+                <span>Discount</span>
+                <span>{selectedOrder.discountAmount > 0 ? '-' : ''}&#8377;{formatINRAmount(selectedOrder.discountAmount ?? 0)}</span>
+              </div>
+              <div className="anivom-fin-line">
                 <span>Shipping</span>
                 <span className="anivom-complimentary-tag">COMPLIMENTARY</span>
               </div>
               <div className="anivom-fin-line total">
-                <span>Total Paid</span>
+                <span>{selectedOrder.paymentStatus === 'PAID' ? 'Total Paid' : 'Order Total'}</span>
                 <span>&#8377;{formatINRAmount(selectedOrder.totalAmount)}</span>
               </div>
             </div>

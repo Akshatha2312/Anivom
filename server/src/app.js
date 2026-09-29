@@ -24,7 +24,23 @@ const setupSwagger = require('./config/swagger');
 
 const app = express();
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      connectSrc: ["'self'", 'https://anivom.onrender.com', 'http://localhost:5000'],
+      formAction: ["'self'"],
+      frameAncestors: ["'self'"],
+      fontSrc: ["'self'", 'data:'],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      objectSrc: ["'none'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+    },
+  },
+}));
 setupSwagger(app);
 
 const authLimiter = rateLimit({

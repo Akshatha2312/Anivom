@@ -10,6 +10,7 @@ const User = require('../models/User');
 const Coupon = require('../models/Coupon');
 const { validateCouponForSubtotal } = require('./couponController');
 const { roundMoney } = require('../utils/money');
+const { isPositiveIntegerQuantity } = require('../utils/quantity');
 
 const getRazorpayCredentials = () => {
   const key_id = process.env.RAZORPAY_KEY_ID;
@@ -45,6 +46,9 @@ const createOrder = async (req, res, next) => {
 
     if (buyNowItem) {
       const { productId, size, colour, quantity, customized, customizationId } = buyNowItem;
+      if (!isPositiveIntegerQuantity(quantity)) {
+        return res.status(400).json({ success: false, message: 'Quantity must be a positive integer.' });
+      }
       if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
         return res.status(400).json({ success: false, message: 'Invalid product ID for Buy Now.' });
       }
@@ -56,7 +60,7 @@ const createOrder = async (req, res, next) => {
       if (!variant) {
         return res.status(400).json({ success: false, message: 'Selected variant is not available.' });
       }
-      const qtyNum = Number(quantity) || 1;
+      const qtyNum = quantity;
       if (qtyNum > variant.stock) {
         return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name}. Available: ${variant.stock}` });
       }
@@ -101,6 +105,9 @@ const createOrder = async (req, res, next) => {
       }
 
       for (const item of cart.items) {
+      if (!isPositiveIntegerQuantity(item.quantity)) {
+        return res.status(400).json({ success: false, message: 'Cart item quantity must be a positive integer.' });
+      }
       const product = await Product.findById(item.product._id || item.product);
       if (!product || !product.isActive) {
         return res.status(400).json({
@@ -665,6 +672,7 @@ const getAdminStats = async (req, res, next) => {
       DELIVERED: 0,
       CANCELLED: 0,
       FAILED: 0,
+      RETURN_REQUESTED: 0,
     };
 
     statusCounts.forEach((item) => {

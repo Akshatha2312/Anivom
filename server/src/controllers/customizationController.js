@@ -100,7 +100,7 @@ const createCustomization = async (req, res, next) => {
 const getCustomizations = async (req, res, next) => {
   try {
     const customizations = await Customization.find({ user: req.user._id })
-      .populate('product', 'name basePrice images')
+      .populate('product', 'name basePrice images garmentImages')
       .sort({ createdAt: -1 })
       .lean();
 

@@ -41,8 +41,8 @@ const swaggerDocument = {
       cookieAuth: {
         type: 'apiKey',
         in: 'cookie',
-        name: 'jwt',
-        description: 'HTTP-Only JWT cookie issued upon authentication'
+        name: 'token',
+        description: 'HTTP-Only JWT cookie named token, issued upon authentication'
       }
     }
   },
@@ -183,7 +183,7 @@ const swaggerDocument = {
         summary: 'List active catalog products with search, category, size, color, and price filtering',
         parameters: [
           { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Search term' },
-          { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Category ID' },
+          { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Category value/name' },
           { name: 'size', in: 'query', schema: { type: 'string' }, description: 'Size filter' },
           { name: 'colour', in: 'query', schema: { type: 'string' }, description: 'Colour filter' },
           { name: 'minPrice', in: 'query', schema: { type: 'number' }, description: 'Minimum base price' },
@@ -197,7 +197,7 @@ const swaggerDocument = {
         }
       }
     },
-    '/api/v1/products/:id': {
+    '/api/v1/products/{id}': {
       get: {
         tags: ['Products'],
         summary: 'Fetch single product by ID',
@@ -466,8 +466,49 @@ const swaggerDocument = {
         tags: ['Orders'],
         summary: 'Create order document and initialize Razorpay payment order',
         security: [{ cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['addressId'],
+                properties: {
+                  addressId: { type: 'string', example: '651a...' },
+                  couponCode: { type: 'string', description: 'Optional coupon code' },
+                  buyNowItem: {
+                    type: 'object',
+                    description: 'Optional Buy Now item; omit for cart checkout',
+                    properties: {
+                      productId: { type: 'string' },
+                      size: { type: 'string' },
+                      colour: { type: 'string' },
+                      quantity: { type: 'integer', minimum: 1 },
+                      customized: { type: 'boolean' },
+                      customizationId: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         responses: {
-          '201': { description: 'Order created in PENDING payment state' }
+          '201': {
+            description: 'Order created in PENDING payment state',
+            content: {
+              'application/json': {
+                example: {
+                  success: true,
+                  message: 'Order created successfully.',
+                  data: {
+                    order: { _id: '651a...', paymentStatus: 'PENDING', orderStatus: 'PLACED', razorpayOrderId: 'order_9A33XABC' },
+                    razorpayOrder: { id: 'order_9A33XABC', amount: 120000, currency: 'INR', key: 'rzp_test_...' }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       get: {
@@ -482,7 +523,7 @@ const swaggerDocument = {
     '/api/v1/orders/verify-payment': {
       post: {
         tags: ['Orders'],
-        summary: 'Verify Razorpay HMAC-SHA256 signature, mark order PAID, decrement stock, and clear cart',
+        summary: 'Verify Razorpay HMAC-SHA256 signature, set paymentStatus PAID and orderStatus CONFIRMED, decrement stock, and clear cart',
         security: [{ cookieAuth: [] }],
         requestBody: {
           required: true,
@@ -490,8 +531,9 @@ const swaggerDocument = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature'],
+                required: ['orderId', 'razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature'],
                 properties: {
+                  orderId: { type: 'string', example: '651a...' },
                   razorpay_order_id: { type: 'string', example: 'order_9A33XABC' },
                   razorpay_payment_id: { type: 'string', example: 'pay_293847293' },
                   razorpay_signature: { type: 'string', example: 'a1b2c3d4e5f6...' }
@@ -878,11 +920,12 @@ const swaggerDocument = {
         security: [{ cookieAuth: [] }],
         parameters: [
           { name: 'code', in: 'query', required: true, schema: { type: 'string' }, description: 'Coupon code' },
-          { name: 'subtotal', in: 'query', required: true, schema: { type: 'number' }, description: 'Cart subtotal' }
+          { name: 'subtotal', in: 'query', required: false, schema: { type: 'number' }, description: 'Optional cart subtotal; derived from the authenticated user cart when omitted' }
         ],
         responses: {
           '200': { description: 'Coupon validated' },
-          '400': { description: 'Invalid or expired coupon' }
+          '400': { description: 'Coupon is expired, inactive, or fails another validation check' },
+          '404': { description: 'Coupon code not found' }
         }
       }
     },
@@ -1083,7 +1126,8 @@ const swaggerDocument = {
         ],
         responses: {
           '200': { description: 'Referral code validated' },
-          '400': { description: 'Invalid referral code' }
+          '400': { description: 'Referral code is blank or contains only whitespace' },
+          '404': { description: 'Referral code not found' }
         }
       }
     }
