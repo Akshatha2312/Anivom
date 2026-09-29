@@ -38,17 +38,6 @@ const authLimiter = rateLimit({
   },
 });
 
-const contactLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    status: 'fail',
-    message: 'Too many support messages sent from this IP, please try again after 15 minutes',
-  },
-});
-
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
@@ -109,7 +98,7 @@ app.use('/api/v1/colours', colourRoutes);
 app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/banners', bannerRoutes);
 app.use('/api/v1/wishlist', wishlistRoutes);
-app.use('/api/v1/contact', contactLimiter, contactRoutes);
+app.use('/api/v1/contact', contactRoutes);
 app.use('/api/v1/referrals', referralRoutes);
 
 app.use(errorMiddleware);

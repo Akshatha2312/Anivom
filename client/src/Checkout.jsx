@@ -1,13 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './Checkout.css'
 import { API_BASE_URL } from './config'
 import formatINRAmount from './formatINRAmount'
+
+const getCheckoutItemImage = (product, colour) => {
+  const byColour = product?.garmentImages?.byColour
+  const colourMap = byColour instanceof Map ? Object.fromEntries(byColour) : byColour
+  return colourMap?.[colour]?.front || product?.images?.[0] || null
+}
 
 function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueShopping, onLoginRedirect, onNavigateToOrders }) {
   const [addresses, setAddresses] = useState([])
   const [selectedAddressId, setSelectedAddressId] = useState(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [summary, setSummary] = useState(null)
+  const [productDetailsById, setProductDetailsById] = useState({})
   const [loading, setLoading] = useState(true)
   const [paymentStatus, setPaymentStatus] = useState('IDLE')
   const [error, setError] = useState(null)
@@ -18,6 +25,41 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
   const [appliedCoupon, setAppliedCoupon] = useState(null)
   const [couponError, setCouponError] = useState(null)
   const [validatingCoupon, setValidatingCoupon] = useState(false)
+  const productDetailsRequests = useRef(new Map())
+
+  const fetchCheckoutProductDetails = async (items) => {
+    const productIds = [...new Set(
+      items
+        .map((item) => item.product?._id || item.product)
+        .filter(Boolean)
+        .map(String)
+    )]
+    const productEntries = await Promise.all(productIds.map(async (productId) => {
+      let productRequest = productDetailsRequests.current.get(productId)
+      if (!productRequest) {
+        productRequest = fetch(`${API_BASE_URL}/api/v1/products/${productId}`)
+          .then(async (res) => {
+            if (!res.ok) return null
+            const data = await res.json()
+            return data.data?.product || null
+          })
+          .catch(() => null)
+        productDetailsRequests.current.set(productId, productRequest)
+      }
+
+      const product = await productRequest
+      if (!product) {
+        productDetailsRequests.current.delete(productId)
+        return null
+      }
+      return [productId, product]
+    }))
+
+    setProductDetailsById((prev) => ({
+      ...prev,
+      ...Object.fromEntries(productEntries.filter(Boolean)),
+    }))
+  }
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) {
@@ -100,7 +142,9 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
 
       const data = await res.json()
       if (res.ok) {
-        setSummary(data.data.summary)
+        const nextSummary = data.data.summary
+        setSummary(nextSummary)
+        await fetchCheckoutProductDetails(nextSummary.items || [])
       } else {
         setError(data.message || 'Unable to generate checkout summary.')
       }
@@ -528,11 +572,22 @@ function Checkout({ user, buyNowItem, onClearBuyNow, onReturnToCart, onContinueS
             <div>
               {items.map((item) => {
                 const product = item.product || {}
-                const image = product.images && product.images.length > 0 ? product.images[0] : null
+                const productDetails = productDetailsById[product._id] || product
+                const image = getCheckoutItemImage(productDetails, item.colour)
                 return (
                   <div key={item._id} className="anivom-checkout-item-mini">
                     {image ? (
-                      <img src={image} alt={product.name} className="anivom-checkout-item-img" />
+                      <img
+                        src={image}
+                        alt={product.name}
+                        className="anivom-checkout-item-img"
+                        onError={(event) => {
+                          const fallback = productDetails.images?.[0] || product.images?.[0]
+                          if (fallback && event.currentTarget.src !== fallback) {
+                            event.currentTarget.src = fallback
+                          }
+                        }}
+                      />
                     ) : (
                       <div className="anivom-checkout-item-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#888' }}>ANIVOM</div>
                     )}

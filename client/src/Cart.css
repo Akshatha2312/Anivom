@@ -138,6 +138,27 @@
   color: #111111;
 }
 
+.anivom-cart-product-link {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.anivom-cart-product-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.anivom-cart-product-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .anivom-badge-customized {
   display: inline-flex;
   align-items: center;

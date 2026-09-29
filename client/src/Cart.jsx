@@ -3,11 +3,43 @@ import './Cart.css'
 import { API_BASE_URL } from './config'
 import formatINRAmount from './formatINRAmount'
 
+const getCartItemImage = (product, colour) => {
+  const byColour = product?.garmentImages?.byColour
+  const colourMap = byColour instanceof Map ? Object.fromEntries(byColour) : byColour
+  return colourMap?.[colour]?.front || product?.images?.[0] || null
+}
+
 function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, onCartUpdated, onSelectProduct }) {
   const [cart, setCart] = useState(null)
+  const [productDetailsById, setProductDetailsById] = useState({})
   const [loading, setLoading] = useState(true)
   const [updatingItemId, setUpdatingItemId] = useState(null)
   const [error, setError] = useState(null)
+
+  const fetchCartProductDetails = async (items) => {
+    const productIds = [...new Set(
+      items
+        .map((item) => item.product?._id || item.product)
+        .filter(Boolean)
+        .map(String)
+    )]
+    const productEntries = await Promise.all(productIds.map(async (productId) => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/products/${productId}`)
+        if (!res.ok) return null
+        const data = await res.json()
+        const product = data.data?.product
+        return product ? [productId, product] : null
+      } catch {
+        return null
+      }
+    }))
+
+    setProductDetailsById((prev) => ({
+      ...prev,
+      ...Object.fromEntries(productEntries.filter(Boolean)),
+    }))
+  }
 
   const fetchCart = async () => {
     if (!user) {
@@ -22,7 +54,9 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
       })
       if (res.ok) {
         const data = await res.json()
-        setCart(data.data.cart)
+        const nextCart = data.data.cart
+        setCart(nextCart)
+        await fetchCartProductDetails(nextCart.items || [])
       } else {
         const data = await res.json()
         setError(data.message || 'Failed to retrieve shopping cart.')
@@ -217,7 +251,8 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
         <div className="anivom-cart-items-list">
           {items.map((item) => {
             const product = item.product || {}
-            const image = product.images && product.images.length > 0 ? product.images[0] : null
+            const productDetails = productDetailsById[product._id] || product
+            const image = getCartItemImage(productDetails, item.colour)
             const itemPrice = product.basePrice || 0
             const itemTotal = itemPrice * item.quantity
             const isUpdating = updatingItemId === item._id
@@ -226,7 +261,17 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
               <div key={item._id} className="anivom-cart-item-card" style={{ opacity: isUpdating ? 0.6 : 1 }}>
                 <div className="anivom-cart-item-img-wrap">
                   {image ? (
-                    <img src={image} alt={product.name || 'Product'} className="anivom-cart-item-img" />
+                    <img
+                      src={image}
+                      alt={product.name || 'Product'}
+                      className="anivom-cart-item-img"
+                      onError={(event) => {
+                        const fallback = productDetails.images?.[0] || product.images?.[0]
+                        if (fallback && event.currentTarget.src !== fallback) {
+                          event.currentTarget.src = fallback
+                        }
+                      }}
+                    />
                   ) : (
                     <span className="anivom-cart-item-no-img">ANIVOM</span>
                   )}
@@ -234,7 +279,20 @@ function Cart({ user, onContinueShopping, onLoginRedirect, onProceedToCheckout, 
 
                 <div className="anivom-cart-item-details">
                   <div className="anivom-cart-item-header">
-                    <h3 className="anivom-cart-item-name">{product.name || 'ANIVOM Garment'}</h3>
+                    <h3 className="anivom-cart-item-name">
+                      {onSelectProduct ? (
+                        <button
+                          type="button"
+                          className="anivom-cart-product-link"
+                          aria-label={`View ${product.name || 'product'} details`}
+                          onClick={() => onSelectProduct(productDetails, { initialColor: item.colour })}
+                        >
+                          {product.name || 'ANIVOM Garment'}
+                        </button>
+                      ) : (
+                        product.name || 'ANIVOM Garment'
+                      )}
+                    </h3>
                     {item.customized && (
                       <span className="anivom-badge-customized">Customized</span>
                     )}

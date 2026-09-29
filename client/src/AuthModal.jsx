@@ -104,7 +104,7 @@ function AuthModal({ user, mode: initialMode = 'login', onClose, onAuthSuccess, 
         text: mode === 'login' ? 'signin_with' : 'signup_with',
         shape: 'rectangular',
         logo_alignment: 'left',
-        width: '100%',
+        width: 320,
       })
     }
   }

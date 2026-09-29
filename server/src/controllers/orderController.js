@@ -11,14 +11,24 @@ const Coupon = require('../models/Coupon');
 const { validateCouponForSubtotal } = require('./couponController');
 const { roundMoney } = require('../utils/money');
 
-const getRazorpayInstance = () => {
-  const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_mockkeyid';
-  const key_secret = process.env.RAZORPAY_KEY_SECRET || 'rzp_test_mockkeysecret';
-  return new Razorpay({ key_id, key_secret });
+const getRazorpayCredentials = () => {
+  const key_id = process.env.RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+  if (!key_id || !key_secret || key_id.includes('your_razorpay_key_id') || key_secret.includes('your_razorpay_key_secret')) {
+    return null;
+  }
+  return { key_id, key_secret };
 };
+
+const getRazorpayInstance = (credentials) => new Razorpay(credentials);
 
 const createOrder = async (req, res, next) => {
   try {
+    const razorpayCredentials = getRazorpayCredentials();
+    if (!razorpayCredentials) {
+      return res.status(500).json({ success: false, message: 'Payment gateway is not configured.' });
+    }
+
     const { addressId, couponCode, buyNowItem } = req.body;
     if (!addressId) {
       return res.status(400).json({ success: false, message: 'Shipping address ID is required.' });
@@ -187,6 +197,8 @@ const createOrder = async (req, res, next) => {
       label: address.label || '',
     };
 
+    const razorpay = getRazorpayInstance(razorpayCredentials);
+
     const newOrder = await Order.create({
       user: req.user._id,
       items: validatedItems,
@@ -200,7 +212,6 @@ const createOrder = async (req, res, next) => {
       orderStatus: 'PLACED',
     });
 
-    const razorpay = getRazorpayInstance();
     const options = {
       amount: Math.round(roundMoney(totalAmount) * 100),
       currency: 'INR',
@@ -215,19 +226,11 @@ const createOrder = async (req, res, next) => {
     try {
       rzpOrder = await razorpay.orders.create(options);
     } catch (err) {
-      if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('your_razorpay_key_id')) {
-        rzpOrder = {
-          id: 'order_mock_' + Date.now(),
-          amount: options.amount,
-          currency: options.currency,
-        };
-      } else {
-        await Order.findByIdAndDelete(newOrder._id);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to create payment order with gateway.',
-        });
-      }
+      await Order.findByIdAndDelete(newOrder._id);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to create payment order with gateway.',
+      });
     }
 
     newOrder.razorpayOrderId = rzpOrder.id;
@@ -242,7 +245,7 @@ const createOrder = async (req, res, next) => {
           id: rzpOrder.id,
           amount: rzpOrder.amount,
           currency: rzpOrder.currency,
-          key: process.env.RAZORPAY_KEY_ID || 'rzp_test_mockkeyid',
+          key: razorpayCredentials.key_id,
         },
       },
     });
@@ -257,6 +260,11 @@ const verifyPayment = async (req, res) => {
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
       return res.status(400).json({ success: false, message: 'Missing payment verification details.' });
+    }
+
+    const razorpayCredentials = getRazorpayCredentials();
+    if (!razorpayCredentials) {
+      return res.status(500).json({ success: false, message: 'Payment gateway is not configured.' });
     }
 
     const order = await Order.findOne({ _id: orderId, user: req.user._id });
@@ -276,9 +284,8 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Razorpay order ID mismatch.' });
     }
 
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || 'rzp_test_mockkeysecret';
     const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto.createHmac('sha256', key_secret).update(body.toString()).digest('hex');
+    const expectedSignature = crypto.createHmac('sha256', razorpayCredentials.key_secret).update(body.toString()).digest('hex');
 
     if (expectedSignature !== razorpay_signature) {
       order.paymentStatus = 'FAILED';
@@ -287,46 +294,92 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid payment signature verification failed.' });
     }
 
-    for (const item of order.items) {
-      const updateResult = await Product.updateOne(
-        {
-          _id: item.product,
-        },
-        {
-          $inc: { 'variants.$[elem].stock': -item.quantity },
-        },
-        {
-          arrayFilters: [
-            {
-              'elem.size': item.size,
-              'elem.colour': item.colour,
-              'elem.stock': { $gte: item.quantity },
-            },
-          ],
-        }
-      );
+    const session = await mongoose.startSession();
+    let committedOrder;
+    let alreadyPaid = false;
+    try {
+      await session.withTransaction(async () => {
+        alreadyPaid = false;
+        committedOrder = null;
+        const transactionOrder = await Order.findOne({ _id: order._id, user: req.user._id }).session(session);
 
-      if (updateResult.modifiedCount === 0) {
-        order.paymentStatus = 'FAILED';
-        order.orderStatus = 'FAILED';
-        await order.save();
-        return res.status(400).json({
-          success: false,
-          message: `Stock reservation failed for item: ${item.name} (${item.size} / ${item.colour}). Insufficient remaining stock.`,
-        });
+        if (transactionOrder.paymentStatus === 'PAID') {
+          alreadyPaid = true;
+          committedOrder = transactionOrder;
+          return;
+        }
+
+        for (const item of transactionOrder.items) {
+          const updateResult = await Product.updateOne(
+            {
+              _id: item.product,
+            },
+            {
+              $inc: { 'variants.$[elem].stock': -item.quantity },
+            },
+            {
+              arrayFilters: [
+                {
+                  'elem.size': item.size,
+                  'elem.colour': item.colour,
+                  'elem.stock': { $gte: item.quantity },
+                },
+              ],
+              session,
+            }
+          );
+
+          if (updateResult.modifiedCount === 0) {
+            const error = new Error(`Stock reservation failed for item: ${item.name} (${item.size} / ${item.colour}). Insufficient remaining stock.`);
+            error.code = 'INSUFFICIENT_STOCK';
+            throw error;
+          }
+        }
+
+        transactionOrder.paymentStatus = 'PAID';
+        transactionOrder.orderStatus = 'CONFIRMED';
+        transactionOrder.razorpayPaymentId = razorpay_payment_id;
+        transactionOrder.razorpaySignature = razorpay_signature;
+        await transactionOrder.save({ session });
+        committedOrder = transactionOrder;
+      });
+    } catch (error) {
+      if (error.code !== 'INSUFFICIENT_STOCK') {
+        throw error;
       }
+
+      const failedOrder = await Order.findOneAndUpdate(
+        { _id: order._id, paymentStatus: { $ne: 'PAID' } },
+        { $set: { paymentStatus: 'FAILED', orderStatus: 'FAILED' } },
+        { new: true }
+      );
+      if (!failedOrder) {
+        const latestOrder = await Order.findOne({ _id: order._id, user: req.user._id });
+        if (latestOrder && latestOrder.paymentStatus === 'PAID') {
+          return res.status(200).json({
+            success: true,
+            message: 'Payment already verified.',
+            data: { order: latestOrder },
+          });
+        }
+      }
+      return res.status(400).json({ success: false, message: error.message });
+    } finally {
+      await session.endSession();
     }
 
-    order.paymentStatus = 'PAID';
-    order.orderStatus = 'CONFIRMED';
-    order.razorpayPaymentId = razorpay_payment_id;
-    order.razorpaySignature = razorpay_signature;
-    await order.save();
+    if (alreadyPaid) {
+      return res.status(200).json({
+        success: true,
+        message: 'Payment already verified.',
+        data: { order: committedOrder },
+      });
+    }
 
-    if (order.couponSnapshot && order.couponSnapshot.couponId) {
+    if (committedOrder.couponSnapshot && committedOrder.couponSnapshot.couponId) {
       await Coupon.updateOne(
         {
-          _id: order.couponSnapshot.couponId,
+          _id: committedOrder.couponSnapshot.couponId,
           $or: [
             { usageLimit: 0 },
             { $expr: { $lt: ['$usedCount', '$usageLimit'] } },
@@ -336,14 +389,14 @@ const verifyPayment = async (req, res) => {
       );
     }
 
-    if (!order.isBuyNow) {
+    if (!committedOrder.isBuyNow) {
       await Cart.findOneAndUpdate({ user: req.user._id }, { $set: { items: [] } });
     }
 
     res.status(200).json({
       success: true,
       message: 'Payment verified and order confirmed successfully.',
-      data: { order },
+      data: { order: committedOrder },
     });
   } catch (error) {
     next(error);
@@ -737,6 +790,12 @@ const cancelCustomerOrder = async (req, res, next) => {
         return res.status(400).json({ success: false, message: 'Payment reference missing for paid order.' });
       }
 
+      const razorpayCredentials = getRazorpayCredentials();
+      if (!razorpayCredentials) {
+        return res.status(500).json({ success: false, message: 'Payment gateway is not configured.' });
+      }
+      const razorpay = getRazorpayInstance(razorpayCredentials);
+
       const lockOrder = await Order.findOneAndUpdate(
         { _id: id, refundStatus: { $nin: ['PENDING', 'REFUNDED'] } },
         { $set: { refundStatus: 'PENDING' } },
@@ -750,25 +809,17 @@ const cancelCustomerOrder = async (req, res, next) => {
         });
       }
 
-      const razorpay = getRazorpayInstance();
       const refundAmountPaise = Math.round(roundMoney(order.totalAmount) * 100);
 
       let rzpRefund;
       try {
-        if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('your_razorpay_key_id')) {
-          rzpRefund = {
-            id: 'rfnd_mock_' + Date.now(),
-            amount: refundAmountPaise,
-          };
-        } else {
-          rzpRefund = await razorpay.payments.refund(order.razorpayPaymentId, {
-            amount: refundAmountPaise,
-            notes: {
-              orderId: order._id.toString(),
-              reason: 'Customer Cancellation',
-            },
-          });
-        }
+        rzpRefund = await razorpay.payments.refund(order.razorpayPaymentId, {
+          amount: refundAmountPaise,
+          notes: {
+            orderId: order._id.toString(),
+            reason: 'Customer Cancellation',
+          },
+        });
       } catch (err) {
         await Order.updateOne({ _id: id }, { $set: { refundStatus: 'FAILED' } });
         return res.status(500).json({
@@ -948,6 +999,12 @@ const processAdminRefund = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Missing Razorpay payment reference ID.' });
     }
 
+    const razorpayCredentials = getRazorpayCredentials();
+    if (!razorpayCredentials) {
+      return res.status(500).json({ success: false, message: 'Payment gateway is not configured.' });
+    }
+    const razorpay = getRazorpayInstance(razorpayCredentials);
+
     const lockOrder = await Order.findOneAndUpdate(
       { _id: id, refundStatus: { $nin: ['PENDING', 'REFUNDED'] } },
       { $set: { refundStatus: 'PENDING' } },
@@ -961,25 +1018,17 @@ const processAdminRefund = async (req, res, next) => {
       });
     }
 
-    const razorpay = getRazorpayInstance();
     const refundAmountPaise = Math.round(roundMoney(order.totalAmount) * 100);
 
     let rzpRefund;
     try {
-      if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('your_razorpay_key_id')) {
-        rzpRefund = {
-          id: 'rfnd_mock_' + Date.now(),
-          amount: refundAmountPaise,
-        };
-      } else {
-        rzpRefund = await razorpay.payments.refund(order.razorpayPaymentId, {
-          amount: refundAmountPaise,
-          notes: {
-            orderId: order._id.toString(),
-            reason: 'Admin Approved Refund',
-          },
-        });
-      }
+      rzpRefund = await razorpay.payments.refund(order.razorpayPaymentId, {
+        amount: refundAmountPaise,
+        notes: {
+          orderId: order._id.toString(),
+          reason: 'Admin Approved Refund',
+        },
+      });
     } catch (err) {
       await Order.updateOne({ _id: id }, { $set: { refundStatus: 'FAILED' } });
       return res.status(500).json({

@@ -811,7 +811,7 @@ function App() {
           <Cart
             user={user}
             onContinueShopping={() => setView('catalog')}
-            onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
+            onLoginRedirect={() => { setView('auth'); setMode('login'); }}
             onProceedToCheckout={() => {
               setBuyNowItem(null)
               setView('checkout')
@@ -834,7 +834,7 @@ function App() {
               setBuyNowItem(null)
               setView('cart')
             }}
-            onLoginRedirect={() => { setView('catalog'); setMode('login'); }}
+            onLoginRedirect={() => { setView('auth'); setMode('login'); }}
             onNavigateToOrders={openOrders}
           />
         )}
