@@ -2,6 +2,262 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
 import StatusBadge from './StatusBadge';
 
+const FALLBACK_PREVIEW_CANVAS = { width: 420, height: 520 };
+const CUSTOMIZATION_VIEWS = ['front', 'back', 'left', 'right'];
+const garmentColourMap = {
+  black: '#292929', white: '#F7F5EF', red: '#9B3434', blue: '#42617F',
+  green: '#4E6A52', yellow: '#C5A947', orange: '#BB683A', pink: '#D39AAB',
+  purple: '#71617D', maroon: '#7A1F3D', navy: '#34465F', 'navy blue': '#34465F',
+  grey: '#858585', gray: '#858585', brown: '#705B4B', beige: '#D7CCB5',
+  cream: '#EAE3D4', teal: '#4E7B78', mustard: '#B9983C', olive: '#73784B',
+  'olive green': '#73784B', 'sky blue': '#82AFC2', wine: '#783D50', 'soft pink': '#D39AAB',
+};
+
+const getGarmentColour = (colour) => garmentColourMap[String(colour || '').toLowerCase()] || '#D8D5CE';
+
+const getSnapshotCanvas = (snapshot) => {
+  const width = Number(snapshot?.canvas?.width);
+  const height = Number(snapshot?.canvas?.height);
+  if (Number.isFinite(width) && width >= 1 && Number.isFinite(height) && height >= 1) {
+    return { width, height };
+  }
+  return FALLBACK_PREVIEW_CANVAS;
+};
+
+const getPrintArea = (canvas) => ({
+  x: canvas.width * 0.26,
+  y: canvas.height * 0.24,
+  width: canvas.width * 0.48,
+  height: canvas.height * 0.52,
+});
+
+const getLayerScale = (scale) => {
+  const value = typeof scale === 'number' ? scale : Number(scale?.x ?? 1);
+  return Number.isFinite(value) ? value : 1;
+};
+
+const formatLayerValue = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toFixed(2) : 'N/A';
+};
+
+const CustomizationLayerPreview = ({ layer, printArea }) => {
+  const [imageUnavailable, setImageUnavailable] = useState(false);
+  const positionX = Number(layer.position?.x ?? 0);
+  const positionY = Number(layer.position?.y ?? 0);
+  const rotation = Number(layer.rotation) || 0;
+  const scale = getLayerScale(layer.scale);
+  const layerStyle = {
+    position: 'absolute',
+    left: `${Number.isFinite(positionX) ? positionX : 0}px`,
+    top: `${Number.isFinite(positionY) ? positionY : 0}px`,
+    transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
+    transformOrigin: '50% 50%',
+    zIndex: Number(layer.order) || 0,
+  };
+  const viewportStyle = {
+    position: 'relative',
+    width: `${printArea.width}px`,
+    height: `${printArea.height}px`,
+    overflow: 'visible',
+  };
+  const renderInPrintArea = (content, className) => (
+    <foreignObject
+      x={printArea.x}
+      y={printArea.y}
+      width={printArea.width}
+      height={printArea.height}
+      overflow="visible"
+    >
+      <div xmlns="http://www.w3.org/1999/xhtml" className="order-customization-layer-viewport" style={viewportStyle}>
+        <div className={`order-customization-layer ${className}`} style={layerStyle}>
+          {content}
+        </div>
+      </div>
+    </foreignObject>
+  );
+
+  if (layer.type === 'uploaded_image') {
+    const imageUrl = layer.image?.url;
+    const image = imageUrl && !imageUnavailable ? (
+      <img
+        src={imageUrl}
+        alt="Customer uploaded artwork"
+        className="order-customization-uploaded-image"
+        onError={() => setImageUnavailable(true)}
+      />
+    ) : (
+      <span className="order-customization-image-unavailable">Image unavailable</span>
+    );
+    return renderInPrintArea(image, 'order-customization-image-layer');
+  }
+
+  if (layer.type === 'text') {
+    const text = layer.text || {};
+    return renderInPrintArea(
+      <span
+        className="order-customization-text-layer"
+        style={{
+          fontFamily: text.fontFamily || 'Arial',
+          fontSize: `${Number(text.fontSize) || 16}px`,
+          color: text.color || '#000000',
+          fontWeight: text.fontWeight || 'normal',
+          fontStyle: text.fontStyle || 'normal',
+          textAlign: text.textAlign || 'left',
+          display: 'inline-block',
+        }}
+      >
+        {text.content || ''}
+      </span>,
+      'order-customization-text-layer-wrap'
+    );
+  }
+
+  if (layer.type === 'predefined_design') {
+    const design = layer.design || {};
+    const designUrl = design.svg
+      ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(design.svg)}`
+      : design.url;
+    const artwork = designUrl && !imageUnavailable ? (
+      <img
+        src={designUrl}
+        alt={design.name || design.designId || 'Predefined artwork'}
+        className="order-customization-design-image"
+        onError={() => setImageUnavailable(true)}
+      />
+    ) : (
+      <span className="order-customization-artwork-reference">Artwork: {design.designId || 'unavailable'}</span>
+    );
+    return renderInPrintArea(artwork, 'order-customization-design-layer');
+  }
+
+  return null;
+};
+
+const CustomizationLayerDetails = ({ layer, index }) => {
+  const layerOrder = Number(layer.order) || index + 1;
+  const position = layer.position || {};
+  const typeLabel = layer.type === 'text'
+    ? 'Text'
+    : layer.type === 'uploaded_image'
+      ? 'Uploaded image'
+      : layer.type === 'predefined_design'
+        ? 'Predefined artwork'
+        : 'Unknown layer';
+
+  return (
+    <article className="order-customization-layer-detail">
+      <div className="order-customization-layer-detail-heading">
+        <span className="layer-tag">LAYER {layerOrder}</span>
+        <strong>{typeLabel}</strong>
+        <span>{(layer.view || 'front').toUpperCase()}</span>
+      </div>
+      <dl>
+        <div><dt>Position</dt><dd>X {formatLayerValue(position.x)} · Y {formatLayerValue(position.y)}</dd></div>
+        <div><dt>Scale</dt><dd>Uniform {formatLayerValue(getLayerScale(layer.scale))}× (Studio uses scale.x)</dd></div>
+        <div><dt>Rotation</dt><dd>{formatLayerValue(layer.rotation ?? 0)}°</dd></div>
+        {layer.type === 'text' && (
+          <>
+            <div className="order-customization-text-content"><dt>Text</dt><dd>{layer.text?.content || '—'}</dd></div>
+            <div><dt>Font</dt><dd>{layer.text?.fontFamily || 'Arial'} · {layer.text?.fontSize ?? 16}px</dd></div>
+            <div><dt>Style</dt><dd>{layer.text?.fontWeight || 'normal'} · {layer.text?.fontStyle || 'normal'} · {layer.text?.textAlign || 'left'}</dd></div>
+            <div><dt>Colour</dt><dd><span className="order-customization-color-swatch" style={{ backgroundColor: layer.text?.color || '#000000' }} />{layer.text?.color || '#000000'}</dd></div>
+          </>
+        )}
+        {layer.type === 'uploaded_image' && (
+          <div><dt>Image</dt><dd>{layer.image?.url ? 'Stored source shown in preview' : 'No image URL in snapshot'}</dd></div>
+        )}
+        {layer.type === 'predefined_design' && (
+          <div><dt>Artwork</dt><dd>{layer.design?.name || layer.design?.designId || 'No artwork reference'}</dd></div>
+        )}
+      </dl>
+    </article>
+  );
+};
+
+const CustomizationViewPreview = ({ item, view, layers, canvas, printArea }) => {
+  const orderedLayers = [...layers].sort((first, second) => (Number(first.order) || 0) - (Number(second.order) || 0));
+  const viewLabel = view.toUpperCase();
+
+  return (
+    <section className="order-customization-view-card" aria-label={`${viewLabel} customization preview`}>
+      <header className="order-customization-view-header">
+        <h5>{viewLabel} VIEW</h5>
+        <span>{orderedLayers.length} {orderedLayers.length === 1 ? 'LAYER' : 'LAYERS'} · ORDERED FRONT TO BACK</span>
+      </header>
+      <div className="order-customization-canvas-wrap">
+        <svg
+          className="order-customization-canvas"
+          viewBox={`0 0 ${canvas.width} ${canvas.height}`}
+          role="img"
+          aria-label={`${item.name || 'Garment'} ${viewLabel.toLowerCase()} production preview`}
+        >
+          <path
+            d="M 30 15 Q 50 25 70 15 L 85 30 L 75 40 L 70 35 L 70 85 L 30 85 L 30 35 L 25 40 L 15 30 Z"
+            transform={`translate(${(canvas.width - canvas.width * 0.65) / 2 + (canvas.width * 0.65 - Math.min(canvas.width * 0.65, canvas.height * 0.65)) / 2} ${(canvas.height - canvas.height * 0.65) / 2 + (canvas.height * 0.65 - Math.min(canvas.width * 0.65, canvas.height * 0.65)) / 2}) scale(${Math.min(canvas.width * 0.65, canvas.height * 0.65) / 100})`}
+            fill={getGarmentColour(item.colour)}
+            stroke="#77736D"
+            strokeWidth="1.2"
+            vectorEffect="non-scaling-stroke"
+          />
+          <rect
+            x={printArea.x}
+            y={printArea.y}
+            width={printArea.width}
+            height={printArea.height}
+            fill="none"
+            stroke="#7A1F3D"
+            strokeOpacity="0.45"
+            strokeDasharray="5 4"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
+          {orderedLayers.map((layer, index) => (
+            <CustomizationLayerPreview key={layer._id || `${view}-${index}`} layer={layer} printArea={printArea} />
+          ))}
+        </svg>
+      </div>
+      <div className="order-customization-layer-details">
+        {orderedLayers.map((layer, index) => (
+          <CustomizationLayerDetails key={layer._id || `${view}-detail-${index}`} layer={layer} index={index} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const OrderCustomizationPreview = ({ item, itemIndex }) => {
+  const layers = Array.isArray(item.customizationSnapshot?.layers) ? item.customizationSnapshot.layers : null;
+  const canvas = getSnapshotCanvas(item.customizationSnapshot);
+  const printArea = getPrintArea(canvas);
+  const views = layers
+    ? CUSTOMIZATION_VIEWS.map((view) => ({ view, layers: layers.filter((layer) => (layer.view || 'front') === view) })).filter((entry) => entry.layers.length > 0)
+    : [];
+
+  return (
+    <section className="order-customization-preview" aria-label={`Production preview for ${item.name || `item ${itemIndex + 1}`}`}>
+      <div className="order-customization-preview-heading">
+        <div>
+          <span className="custom-badge">PRODUCTION PREVIEW</span>
+          <h4>{item.name || `Customized item ${itemIndex + 1}`}</h4>
+        </div>
+        <span>{item.size || '—'} · {item.colour || '—'}</span>
+      </div>
+      {!layers ? (
+        <p className="order-customization-preview-empty">No customization layer snapshot is available for this item.</p>
+      ) : views.length === 0 ? (
+        <p className="order-customization-preview-empty">The saved customization has no layers to preview.</p>
+      ) : (
+        <div className="order-customization-view-grid">
+          {views.map(({ view, layers: viewLayers }) => (
+            <CustomizationViewPreview key={`${item._id || itemIndex}-${view}`} item={item} view={view} layers={viewLayers} canvas={canvas} printArea={printArea} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+};
+
 const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -476,24 +732,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                           {item.customized ? (
                             <div className="customization-snapshot-cell">
                               <span className="custom-badge">BESPOKE STUDIO CREATION</span>
-                              {item.customizationSnapshot && item.customizationSnapshot.layers ? (
-                                <div className="snapshot-layers-list">
-                                  {item.customizationSnapshot.layers.map((l, lIdx) => (
-                                    <div key={lIdx} className="snapshot-layer-chip">
-                                      <span className="layer-tag">{(l.view || 'front').toUpperCase()}</span>
-                                      <span>
-                                        {l.type === 'text'
-                                          ? `Text: "${l.text?.content || ''}"`
-                                          : l.type === 'predefined_design'
-                                          ? `Artwork: ${l.design?.name || ''}`
-                                          : 'Uploaded Image'}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <span className="snapshot-note">Studio customization configuration attached.</span>
-                              )}
+                              <OrderCustomizationPreview item={item} itemIndex={idx} />
                             </div>
                           ) : (
                             <span className="standard-item-note">Standard Base Garment</span>

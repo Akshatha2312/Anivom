@@ -2,9 +2,25 @@ const mongoose = require('mongoose');
 const Customization = require('../models/Customization');
 const Product = require('../models/Product');
 
+const isValidCanvas = (canvas) => canvas === undefined || canvas === null || (
+  typeof canvas === 'object' &&
+  !Array.isArray(canvas) &&
+  Number.isFinite(canvas.width) &&
+  canvas.width >= 1 &&
+  Number.isFinite(canvas.height) &&
+  canvas.height >= 1
+);
+
 const createCustomization = async (req, res, next) => {
   try {
-    const { product: productId, size, colour, layers, status } = req.body;
+    const { product: productId, size, colour, canvas, layers, status } = req.body;
+
+    if (!isValidCanvas(canvas)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Canvas width and height must be positive finite numbers.',
+      });
+    }
 
     if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({
@@ -82,6 +98,7 @@ const createCustomization = async (req, res, next) => {
       product: productId,
       size,
       colour,
+      canvas,
       layers,
       status: status || 'draft',
     });
@@ -173,7 +190,14 @@ const updateCustomization = async (req, res, next) => {
       });
     }
 
-    const allowedFields = ['size', 'colour', 'layers', 'status'];
+    if (Object.prototype.hasOwnProperty.call(req.body, 'canvas') && !isValidCanvas(req.body.canvas)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Canvas width and height must be positive finite numbers.',
+      });
+    }
+
+    const allowedFields = ['size', 'colour', 'canvas', 'layers', 'status'];
     const updates = {};
 
     if (req.body.status) {

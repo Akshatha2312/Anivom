@@ -56,7 +56,38 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
   const [libraryDesigns, setLibraryDesigns] = useState(cachedStudioDesigns || PREDEFINED_DESIGNS);
 
   const printAreaRef = useRef(null);
+  const canvasDimensionsRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const getStudioCanvasDimensions = () => {
+    const canvasElement = printAreaRef.current?.parentElement;
+    if (canvasElement) {
+      const { width, height } = canvasElement.getBoundingClientRect();
+      if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+        canvasDimensionsRef.current = { width, height };
+      }
+    }
+    const dimensions = canvasDimensionsRef.current;
+    return dimensions?.width > 0 && dimensions?.height > 0 ? dimensions : null;
+  };
+
+  useEffect(() => {
+    if (isPreviewMode) return undefined;
+    const canvasElement = printAreaRef.current?.parentElement;
+    if (!canvasElement) return undefined;
+
+    const updateDimensions = () => getStudioCanvasDimensions();
+    updateDimensions();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateDimensions);
+      return () => window.removeEventListener('resize', updateDimensions);
+    }
+
+    const observer = new ResizeObserver(updateDimensions);
+    observer.observe(canvasElement);
+    return () => observer.disconnect();
+  }, [activeProduct, isPreviewMode]);
 
   useEffect(() => {
     try {
@@ -791,10 +822,16 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
       throw new Error('Please select a colour.');
     }
 
+    const canvas = getStudioCanvasDimensions();
+    if (!canvas) {
+      throw new Error('Unable to determine the Studio canvas dimensions. Return to the editor and try again.');
+    }
+
     const payload = {
       product: activeProduct._id,
       size: selectedSize,
       colour: selectedColour,
+      canvas,
       layers,
       status: 'saved',
     };

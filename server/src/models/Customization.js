@@ -1,5 +1,21 @@
 const mongoose = require('mongoose');
 
+const canvasSchema = new mongoose.Schema(
+  {
+    width: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    height: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+  },
+  { _id: false }
+);
+
 const layerSchema = new mongoose.Schema(
   {
     type: {
@@ -121,6 +137,10 @@ const customizationSchema = new mongoose.Schema(
     colour: {
       type: String,
       required: true,
+    },
+    canvas: {
+      type: canvasSchema,
+      default: undefined,
     },
     layers: [layerSchema],
     status: {
