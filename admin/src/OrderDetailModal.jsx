@@ -38,6 +38,17 @@ const getLayerScale = (scale) => {
 
 const isUploadedImageLayer = (layer) => layer.type === 'uploaded_image' || layer.type === 'image';
 
+const getProductId = (product) => {
+  if (typeof product === 'string') return product;
+  return product?._id || product?.id || null;
+};
+
+const getGarmentViewImage = (garmentImages, colour, view) => {
+  const byColour = garmentImages?.byColour;
+  const colourImages = byColour instanceof Map ? byColour.get(colour) : byColour?.[colour];
+  return colourImages?.[view] || garmentImages?.[view] || null;
+};
+
 const formatLayerValue = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number.toFixed(2) : 'N/A';
@@ -209,9 +220,11 @@ const UploadedArtworkCard = ({ layer, index }) => {
   );
 };
 
-const CustomizationViewPreview = ({ item, view, layers, canvas, printArea }) => {
+const CustomizationViewPreview = ({ item, view, layers, canvas, printArea, garmentImages }) => {
   const orderedLayers = [...layers].sort((first, second) => (Number(first.order) || 0) - (Number(second.order) || 0));
   const viewLabel = view.toUpperCase();
+  const garmentImage = getGarmentViewImage(garmentImages, item.colour, view);
+  const [garmentImageUnavailable, setGarmentImageUnavailable] = useState(false);
 
   return (
     <section className="order-customization-view-card" aria-label={`${viewLabel} customization preview`}>
@@ -226,14 +239,26 @@ const CustomizationViewPreview = ({ item, view, layers, canvas, printArea }) => 
           role="img"
           aria-label={`${item.name || 'Garment'} ${viewLabel.toLowerCase()} production preview`}
         >
-          <path
-            d="M 30 15 Q 50 25 70 15 L 85 30 L 75 40 L 70 35 L 70 85 L 30 85 L 30 35 L 25 40 L 15 30 Z"
-            transform={`translate(${(canvas.width - canvas.width * 0.65) / 2 + (canvas.width * 0.65 - Math.min(canvas.width * 0.65, canvas.height * 0.65)) / 2} ${(canvas.height - canvas.height * 0.65) / 2 + (canvas.height * 0.65 - Math.min(canvas.width * 0.65, canvas.height * 0.65)) / 2}) scale(${Math.min(canvas.width * 0.65, canvas.height * 0.65) / 100})`}
-            fill={getGarmentColour(item.colour)}
-            stroke="#77736D"
-            strokeWidth="1.2"
-            vectorEffect="non-scaling-stroke"
-          />
+          {garmentImage && !garmentImageUnavailable ? (
+            <image
+              href={garmentImage}
+              x="0"
+              y="0"
+              width={canvas.width}
+              height={canvas.height}
+              preserveAspectRatio="xMidYMid meet"
+              onError={() => setGarmentImageUnavailable(true)}
+            />
+          ) : (
+            <path
+              d="M 30 15 Q 50 25 70 15 L 85 30 L 75 40 L 70 35 L 70 85 L 30 85 L 30 35 L 25 40 L 15 30 Z"
+              transform={`translate(${(canvas.width - canvas.width * 0.65) / 2 + (canvas.width * 0.65 - Math.min(canvas.width * 0.65, canvas.height * 0.65)) / 2} ${(canvas.height - canvas.height * 0.65) / 2 + (canvas.height * 0.65 - Math.min(canvas.width * 0.65, canvas.height * 0.65)) / 2}) scale(${Math.min(canvas.width * 0.65, canvas.height * 0.65) / 100})`}
+              fill={getGarmentColour(item.colour)}
+              stroke="#77736D"
+              strokeWidth="1.2"
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
           <rect
             x={printArea.x}
             y={printArea.y}
@@ -260,7 +285,7 @@ const CustomizationViewPreview = ({ item, view, layers, canvas, printArea }) => 
   );
 };
 
-const OrderCustomizationPreview = ({ item, itemIndex }) => {
+const OrderCustomizationPreview = ({ item, itemIndex, garmentImages }) => {
   const layers = Array.isArray(item.customizationSnapshot?.layers) ? item.customizationSnapshot.layers : null;
   const canvas = getSnapshotCanvas(item.customizationSnapshot);
   const printArea = getPrintArea(canvas);
@@ -290,7 +315,7 @@ const OrderCustomizationPreview = ({ item, itemIndex }) => {
       ) : (
         <div className="order-customization-view-grid">
           {views.map(({ view, layers: viewLayers }) => (
-            <CustomizationViewPreview key={`${item._id || itemIndex}-${view}`} item={item} view={view} layers={viewLayers} canvas={canvas} printArea={printArea} />
+            <CustomizationViewPreview key={`${item._id || itemIndex}-${view}`} item={item} view={view} layers={viewLayers} canvas={canvas} printArea={printArea} garmentImages={garmentImages} />
           ))}
         </div>
       )}
@@ -315,6 +340,7 @@ const OrderCustomizationPreview = ({ item, itemIndex }) => {
 
 const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
   const [order, setOrder] = useState(null);
+  const [productGarmentImages, setProductGarmentImages] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -340,6 +366,25 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
         throw new Error(data.message || 'Failed to load order details.');
       }
       const ord = data.data?.order;
+      const productIds = [...new Set(
+        (ord?.items || [])
+          .filter((item) => item.customized)
+          .map((item) => getProductId(item.product))
+          .filter(Boolean)
+      )];
+      const garmentImageEntries = await Promise.all(productIds.map(async (productId) => {
+        try {
+          const productRes = await fetch(`${API_BASE_URL}/api/v1/products/${productId}`, {
+            credentials: 'include',
+          });
+          if (!productRes.ok) return [productId, null];
+          const productData = await productRes.json();
+          return [productId, productData.data?.product?.garmentImages || null];
+        } catch {
+          return [productId, null];
+        }
+      }));
+      setProductGarmentImages(Object.fromEntries(garmentImageEntries));
       setOrder(ord);
 
       const allowedTransitions = {
@@ -807,7 +852,11 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                           <div className="customized-order-item-subtotal"><dt>Subtotal</dt><dd>&#8377;{item.subtotal ?? '—'}</dd></div>
                         </dl>
                       </section>
-                      <OrderCustomizationPreview item={item} itemIndex={idx} />
+                      <OrderCustomizationPreview
+                        item={item}
+                        itemIndex={idx}
+                        garmentImages={productGarmentImages[getProductId(item.product)]}
+                      />
                     </div>
                   </article>
                 ))}
