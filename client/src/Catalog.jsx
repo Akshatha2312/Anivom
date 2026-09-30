@@ -4,6 +4,8 @@ import { API_BASE_URL } from './config'
 import AuthModal from './AuthModal'
 import formatINRAmount from './formatINRAmount'
 
+const PRODUCTS_PER_PAGE = 10
+
 function CatalogProductCard({ product, initialColour, index = 0, user, openStudio, onCartUpdated, onSelectProduct, wishlistIds = [], onWishlistToggle, onBuyNow, onRequireAuth }) {
   const availableColours = useMemo(() => {
     return product && product.variants && product.variants.length > 0
@@ -243,6 +245,23 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
           <div className="anivom-card-price">&#8377;{formatINRAmount(product.basePrice)}</div>
 
           <div className="anivom-card-variant-section">
+            <div className="anivom-colour-group">
+              <span className="anivom-variant-label">COLOUR</span>
+              <div className="anivom-colour-options">
+                {availableColours.map((colour) => (
+                  <button
+                    key={colour}
+                    type="button"
+                    className={`anivom-colour-option ${selectedColour === colour ? 'active' : ''}`}
+                    aria-label={`Select ${colour} colour`}
+                    aria-pressed={selectedColour === colour}
+                    onClick={() => setSelectedColour(colour)}
+                  >
+                    {colour}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="anivom-size-group">
               <span className="anivom-variant-label">SIZE</span>
               <div className="anivom-sizes-wrap">
@@ -294,11 +313,10 @@ function CatalogProductCard({ product, initialColour, index = 0, user, openStudi
 let cachedDbCategories = null
 let cachedDbSizes = null
 let cachedDbColours = null
-let cachedAllProducts = null
 
 function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, onAuthSuccess, initialCategory = 'All', wishlistIds: propWishlistIds, onWishlistToggle: propWishlistToggle }) {
   const [products, setProducts] = useState([])
-  const [allCatalogProducts, setAllCatalogProducts] = useState(cachedAllProducts || [])
+  const [suggestionProducts, setSuggestionProducts] = useState([])
   const [internalWishlistIds, setInternalWishlistIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -391,6 +409,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
 
   const [_dbCategories, setDbCategories] = useState(cachedDbCategories || [])
   const [dbSizes, setDbSizes] = useState(cachedDbSizes || [])
+  const [dbColours, setDbColours] = useState(cachedDbColours || [])
 
   useEffect(() => {
     if (!cachedDbCategories) {
@@ -419,13 +438,14 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
         .catch(() => { })
     }
 
-    if (!cachedAllProducts) {
-      fetch(`${API_BASE_URL}/api/v1/products?limit=100`)
+    if (!cachedDbColours) {
+      fetch(`${API_BASE_URL}/api/v1/colours`)
         .then((res) => res.json())
         .then((data) => {
-          if (data.data?.products && data.data.products.length > 0) {
-            cachedAllProducts = data.data.products
-            setAllCatalogProducts(data.data.products)
+          if (data.data?.colours && data.data.colours.length > 0) {
+            const list = data.data.colours.map((colour) => colour.name)
+            cachedDbColours = list
+            setDbColours(list)
           }
         })
         .catch(() => { })
@@ -448,13 +468,8 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
 
   // Derive colours & sizes dynamically from active catalog product variants
   const derivedColours = useMemo(() => {
-    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
-    const colorSet = new Set()
-    productPool.forEach((p) => {
-      // Respect category filter if selected when deriving available colours
-      if (activeCategory !== 'All' && p.category && p.category.toLowerCase() !== activeCategory.toLowerCase()) {
-        return
-      }
+    const colorSet = new Set(dbColours)
+    products.forEach((p) => {
       if (p.variants && Array.isArray(p.variants)) {
         p.variants.forEach((v) => {
           if (v.stock > 0 && v.colour) {
@@ -467,16 +482,12 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
       }
     })
     return Array.from(colorSet).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-  }, [allCatalogProducts, products, activeCategory])
+  }, [dbColours, products])
 
   const derivedSizes = useMemo(() => {
-    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
     const standardOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
-    const sizeSet = new Set()
-    productPool.forEach((p) => {
-      if (activeCategory !== 'All' && p.category && p.category.toLowerCase() !== activeCategory.toLowerCase()) {
-        return
-      }
+    const sizeSet = new Set(dbSizes)
+    products.forEach((p) => {
       if (p.variants && Array.isArray(p.variants)) {
         p.variants.forEach((v) => {
           if (v.stock > 0 && v.size) {
@@ -498,7 +509,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
       return a.localeCompare(b)
     })
     return foundSizes
-  }, [allCatalogProducts, products, activeCategory])
+  }, [dbSizes, products])
 
   const sizes = ['All', ...derivedSizes]
   const colours = ['All', ...derivedColours]
@@ -523,6 +534,31 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
     return null
   }
 
+  useEffect(() => {
+    const query = search.trim()
+    if (!query) {
+      return undefined
+    }
+
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ search: query, limit: '6' })
+        if (activeCategory !== 'All') params.append('category', activeCategory)
+        const res = await fetch(`${API_BASE_URL}/api/v1/products?${params.toString()}`, { signal: controller.signal })
+        const data = await res.json()
+        if (res.ok) setSuggestionProducts(data.data?.products || [])
+      } catch (err) {
+        if (err.name !== 'AbortError') setSuggestionProducts([])
+      }
+    }, 180)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [search, activeCategory])
+
   const suggestions = useMemo(() => {
     const query = search.trim().toLowerCase()
     if (!query) return []
@@ -530,7 +566,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
     const results = []
     const seenNames = new Set()
     const normalize = (str) => (str || '').toString().trim().toLowerCase().replace(/\s+/g, ' ')
-    const productPool = allCatalogProducts.length > 0 ? allCatalogProducts : products
+    const productPool = suggestionProducts
 
     const allCategoryNames = Array.from(
       new Set([
@@ -592,7 +628,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
     })
 
     return results.slice(0, 6)
-  }, [search, categories, _dbCategories, allCatalogProducts, products])
+  }, [search, categories, _dbCategories, suggestionProducts])
 
   const handleSelectSuggestion = (item) => {
     setShowSuggestions(false)
@@ -624,7 +660,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
       if (maxPrice !== '') params.append('maxPrice', maxPrice)
       if (sortOption) params.append('sort', sortOption)
       params.append('page', page)
-      params.append('limit', 12)
+      params.append('limit', PRODUCTS_PER_PAGE)
 
       const res = await fetch(`${API_BASE_URL}/api/v1/products?${params.toString()}`)
       const data = await res.json()
@@ -632,8 +668,9 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
       if (res.ok) {
         setProducts(data.data.products || [])
         if (data.pagination) {
-          setTotalPages(data.pagination.totalPages || 1)
-          setTotalProducts(data.pagination.totalProducts || 0)
+          setPage(data.pagination.currentPage ?? page)
+          setTotalPages(data.pagination.totalPages ?? 1)
+          setTotalProducts(data.pagination.totalProducts ?? 0)
         }
       } else {
         setError(data.message || 'Failed to load catalog products.')
@@ -695,48 +732,29 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
   }
 
   const catalogCards = useMemo(() => {
-    const list = []
-    const normSelected = selectedColour ? selectedColour.trim().toLowerCase() : 'all'
-
-    products.forEach((product) => {
-      let variantColours = product.variants && product.variants.length > 0
-        ? Array.from(
-            new Set(
-              product.variants
-                .filter((v) => v.stock > 0 && v.colour)
-                .map((v) => String(v.colour).trim())
-                .filter((col) => col && !col.toLowerCase().includes('-test'))
-            )
-          )
-        : []
-
-      if (normSelected !== 'all') {
-        variantColours = variantColours.filter((c) => c.toLowerCase() === normSelected)
-      }
-
-      if (variantColours.length > 0) {
-        variantColours.forEach((col) => {
-          list.push({
-            cardKey: `${product._id}-${col}`,
-            product,
-            initialColour: col,
-          })
-        })
-      } else if (normSelected === 'all') {
-        list.push({
-          cardKey: product._id,
-          product,
-          initialColour: '',
-        })
-      }
-    })
-    return list
+    return products.map((product) => ({
+      cardKey: product._id,
+      product,
+      initialColour: selectedColour === 'All' ? '' : selectedColour,
+    }))
   }, [products, selectedColour])
 
   const hasActiveFilters = selectedSize !== 'All' || selectedColour !== 'All' || minPrice !== '' || maxPrice !== ''
 
-  const startItemNum = totalProducts > 0 ? (page - 1) * 12 + 1 : 0
-  const endItemNum = Math.min(page * 12, totalProducts)
+  const startItemNum = totalProducts > 0 ? (page - 1) * PRODUCTS_PER_PAGE + 1 : 0
+  const endItemNum = Math.min(page * PRODUCTS_PER_PAGE, totalProducts)
+  const pageNumbers = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1)
+
+    const pages = [1]
+    if (page > 3) pages.push(null)
+    for (let pageNumber = Math.max(2, page - 1); pageNumber <= Math.min(totalPages - 1, page + 1); pageNumber += 1) {
+      pages.push(pageNumber)
+    }
+    if (page < totalPages - 2) pages.push(null)
+    pages.push(totalPages)
+    return pages
+  }, [page, totalPages])
 
   return (
     <div className="anivom-catalog-root">
@@ -757,6 +775,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
+                setSuggestionProducts([])
                 setShowSuggestions(true)
               }}
               onFocus={() => setShowSuggestions(true)}
@@ -964,14 +983,33 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
             </div>
 
             {totalPages > 1 && (
-              <div className="anivom-pagination-bar">
+              <nav className="anivom-pagination-bar" aria-label="Catalog pagination">
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                   className="anivom-pagination-btn"
+                  aria-label="Previous catalog page"
                 >
                   &larr; Previous
                 </button>
+
+                <div className="anivom-pagination-pages">
+                  {pageNumbers.map((pageNumber, index) => pageNumber === null ? (
+                    <span key={`ellipsis-${index}`} className="anivom-pagination-ellipsis" aria-hidden="true">...</span>
+                  ) : (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      onClick={() => setPage(pageNumber)}
+                      className={`anivom-pagination-page ${page === pageNumber ? 'active' : ''}`}
+                      aria-label={`Go to page ${pageNumber}`}
+                      aria-current={page === pageNumber ? 'page' : undefined}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
+                </div>
+
                 <span className="anivom-pagination-info">
                   Showing <strong>{startItemNum}–{endItemNum}</strong> of <strong>{totalProducts}</strong> Products
                 </span>
@@ -979,10 +1017,11 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
                   disabled={page >= totalPages}
                   onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
                   className="anivom-pagination-btn"
+                  aria-label="Next catalog page"
                 >
                   Next &rarr;
                 </button>
-              </div>
+              </nav>
             )}
           </>
         )}

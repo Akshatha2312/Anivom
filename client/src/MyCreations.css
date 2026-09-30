@@ -340,6 +340,33 @@
 }
 
 /* Media Queries */
+@media (min-width: 1025px) {
+  .anivom-creations-container {
+    padding-top: 18px;
+    padding-bottom: 24px;
+  }
+
+  .anivom-creations-header {
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+  }
+
+  .anivom-creations-grid {
+    gap: 18px;
+  }
+
+  .anivom-creation-preview-frame {
+    height: clamp(136px, 20vh, 168px);
+    max-height: none;
+    aspect-ratio: auto;
+  }
+
+  .anivom-creation-card-body {
+    padding: 14px;
+    gap: 8px;
+  }
+}
+
 @media (max-width: 1024px) {
   .anivom-creations-grid {
     grid-template-columns: repeat(2, 1fr);
