@@ -870,6 +870,10 @@
   max-width: 900px;
 }
 
+.admin-modal-content.order-detail-modal {
+  max-width: 1240px;
+}
+
 .admin-modal-header {
   display: flex;
   justify-content: space-between;
@@ -1089,13 +1093,93 @@
 }
 
 .order-customization-preview {
-  width: min(100%, 720px);
-  min-width: 260px;
-  margin-top: 10px;
-  padding: 10px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 0;
+  padding: 12px;
   background: #FFFDF8;
   border: 1px solid rgba(17, 17, 17, 0.12);
   color: #222222;
+}
+
+.customized-order-items {
+  display: grid;
+  gap: 12px;
+}
+
+.customized-order-item-card {
+  padding: 12px;
+  background: #FFFDF8;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+}
+
+.customization-snapshot-cell {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(0, 1.8fr);
+  align-items: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.customized-order-item-summary {
+  min-width: 0;
+  padding: 14px;
+  background: #F7F2E8;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.customized-order-item-summary h4 {
+  margin: 10px 0 18px;
+  color: #111111;
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
+  overflow-wrap: anywhere;
+}
+
+.customized-order-item-summary h5,
+.order-uploaded-artwork > h5 {
+  margin: 0 0 10px;
+  color: #7A1F3D;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.customized-order-item-summary dl {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.customized-order-item-summary dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+  font-size: 0.78rem;
+}
+
+.customized-order-item-summary dt {
+  color: #666666;
+}
+
+.customized-order-item-summary dd {
+  margin: 0;
+  color: #111111;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.customized-order-item-summary .customized-order-item-subtotal {
+  border-bottom: 0;
+  color: #7A1F3D;
+  font-size: 0.86rem;
+}
+
+.customized-order-item-subtotal dd {
+  color: #7A1F3D;
 }
 
 .order-customization-preview-heading,
@@ -1120,7 +1204,7 @@
 
 .order-customization-view-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 10px;
 }
 
@@ -1160,7 +1244,7 @@
 .order-customization-canvas {
   display: block;
   width: 100%;
-  max-width: 280px;
+  max-width: 340px;
   height: auto;
   overflow: hidden;
   background-color: #ECE9E2;
@@ -1243,7 +1327,7 @@
 
 .order-customization-layer-detail dl {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr));
   gap: 4px 10px;
   margin: 7px 0 0;
   font-size: 0.68rem;
@@ -1279,6 +1363,176 @@
   margin: 8px 0 0;
   color: #666666;
   font-size: 0.75rem;
+}
+
+.order-uploaded-artwork {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(17, 17, 17, 0.15);
+}
+
+.order-uploaded-artwork-group + .order-uploaded-artwork-group {
+  margin-top: 12px;
+}
+
+.order-uploaded-artwork-group h6 {
+  margin: 0 0 7px;
+  color: #333333;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+.order-uploaded-artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 8px;
+}
+
+.order-uploaded-artwork-card {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.72fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px;
+  background: #F7F2E8;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.order-uploaded-artwork-image {
+  display: flex;
+  min-width: 0;
+  min-height: 118px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #FFFDF8;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+}
+
+.order-uploaded-artwork-image img {
+  display: block;
+  width: 100%;
+  height: 118px;
+  object-fit: contain;
+}
+
+.order-uploaded-artwork-image span {
+  padding: 8px;
+  color: #666666;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.order-uploaded-artwork-info {
+  min-width: 0;
+}
+
+.order-uploaded-artwork-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #7A1F3D;
+  font-size: 0.67rem;
+}
+
+.order-uploaded-artwork-info dl {
+  display: grid;
+  gap: 5px;
+  margin: 9px 0;
+  font-size: 0.68rem;
+}
+
+.order-uploaded-artwork-info dl > div {
+  min-width: 0;
+}
+
+.order-uploaded-artwork-info dt {
+  color: #666666;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.order-uploaded-artwork-info dd {
+  margin: 1px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.order-uploaded-artwork-link {
+  display: inline-block;
+  padding: 6px 8px;
+  background: #7A1F3D;
+  border: 1px solid #7A1F3D;
+  color: #FFFDF8;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.order-uploaded-artwork-link:hover {
+  background: #96284d;
+  border-color: #96284d;
+}
+
+@media (max-width: 760px) {
+  .admin-modal-overlay:has(.order-detail-modal) {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .admin-modal-content.order-detail-modal {
+    max-height: calc(100vh - 24px);
+    padding: 20px;
+  }
+
+  .order-detail-modal .admin-modal-header {
+    position: sticky;
+    top: -20px;
+    z-index: 3;
+    margin: -20px 0 20px;
+    padding: 20px 0 12px;
+    background: #FFFDF8;
+  }
+
+  .customization-snapshot-cell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .customized-order-item-summary dl {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    column-gap: 16px;
+  }
+
+  .order-customization-view-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-modal-content.order-detail-modal {
+    padding: 14px;
+  }
+
+  .order-detail-modal .admin-modal-header {
+    top: -14px;
+    margin-top: -14px;
+    padding-top: 14px;
+  }
+
+  .customized-order-item-card {
+    padding: 8px;
+  }
+
+  .order-uploaded-artwork-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .order-uploaded-artwork-image,
+  .order-uploaded-artwork-image img {
+    min-height: 150px;
+    height: 150px;
+  }
 }
 
 @media (max-width: 640px) {

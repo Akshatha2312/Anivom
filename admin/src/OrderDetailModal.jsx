@@ -36,6 +36,8 @@ const getLayerScale = (scale) => {
   return Number.isFinite(value) ? value : 1;
 };
 
+const isUploadedImageLayer = (layer) => layer.type === 'uploaded_image' || layer.type === 'image';
+
 const formatLayerValue = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number.toFixed(2) : 'N/A';
@@ -77,7 +79,7 @@ const CustomizationLayerPreview = ({ layer, printArea }) => {
     </foreignObject>
   );
 
-  if (layer.type === 'uploaded_image') {
+  if (isUploadedImageLayer(layer)) {
     const imageUrl = layer.image?.url;
     const image = imageUrl && !imageUnavailable ? (
       <img
@@ -139,7 +141,7 @@ const CustomizationLayerDetails = ({ layer, index }) => {
   const position = layer.position || {};
   const typeLabel = layer.type === 'text'
     ? 'Text'
-    : layer.type === 'uploaded_image'
+    : isUploadedImageLayer(layer)
       ? 'Uploaded image'
       : layer.type === 'predefined_design'
         ? 'Predefined artwork'
@@ -154,7 +156,7 @@ const CustomizationLayerDetails = ({ layer, index }) => {
       </div>
       <dl>
         <div><dt>Position</dt><dd>X {formatLayerValue(position.x)} · Y {formatLayerValue(position.y)}</dd></div>
-        <div><dt>Scale</dt><dd>Uniform {formatLayerValue(getLayerScale(layer.scale))}× (Studio uses scale.x)</dd></div>
+        <div><dt>Scale</dt><dd>Uniform {formatLayerValue(getLayerScale(layer.scale))}×</dd></div>
         <div><dt>Rotation</dt><dd>{formatLayerValue(layer.rotation ?? 0)}°</dd></div>
         {layer.type === 'text' && (
           <>
@@ -164,13 +166,45 @@ const CustomizationLayerDetails = ({ layer, index }) => {
             <div><dt>Colour</dt><dd><span className="order-customization-color-swatch" style={{ backgroundColor: layer.text?.color || '#000000' }} />{layer.text?.color || '#000000'}</dd></div>
           </>
         )}
-        {layer.type === 'uploaded_image' && (
-          <div><dt>Image</dt><dd>{layer.image?.url ? 'Stored source shown in preview' : 'No image URL in snapshot'}</dd></div>
-        )}
         {layer.type === 'predefined_design' && (
           <div><dt>Artwork</dt><dd>{layer.design?.name || layer.design?.designId || 'No artwork reference'}</dd></div>
         )}
       </dl>
+    </article>
+  );
+};
+
+const UploadedArtworkCard = ({ layer, index }) => {
+  const [imageUnavailable, setImageUnavailable] = useState(false);
+  const imageUrl = layer.image?.url;
+  const layerOrder = Number(layer.order) || index + 1;
+  const position = layer.position || {};
+
+  return (
+    <article className="order-uploaded-artwork-card">
+      <div className="order-uploaded-artwork-image">
+        {imageUrl && !imageUnavailable ? (
+          <img src={imageUrl} alt={`Uploaded artwork for layer ${layerOrder}`} onError={() => setImageUnavailable(true)} />
+        ) : (
+          <span>Image unavailable</span>
+        )}
+      </div>
+      <div className="order-uploaded-artwork-info">
+        <div className="order-uploaded-artwork-heading">
+          <strong>LAYER {layerOrder}</strong>
+          <span>{(layer.view || 'front').toUpperCase()}</span>
+        </div>
+        <dl>
+          <div><dt>Position</dt><dd>X {formatLayerValue(position.x)} · Y {formatLayerValue(position.y)}</dd></div>
+          <div><dt>Scale</dt><dd>{formatLayerValue(getLayerScale(layer.scale))}×</dd></div>
+          <div><dt>Rotation</dt><dd>{formatLayerValue(layer.rotation ?? 0)}°</dd></div>
+        </dl>
+        {imageUrl && (
+          <a className="order-uploaded-artwork-link" href={imageUrl} target="_blank" rel="noopener noreferrer">
+            View Full Image
+          </a>
+        )}
+      </div>
     </article>
   );
 };
@@ -233,6 +267,12 @@ const OrderCustomizationPreview = ({ item, itemIndex }) => {
   const views = layers
     ? CUSTOMIZATION_VIEWS.map((view) => ({ view, layers: layers.filter((layer) => (layer.view || 'front') === view) })).filter((entry) => entry.layers.length > 0)
     : [];
+  const artworkViews = layers
+    ? CUSTOMIZATION_VIEWS.map((view) => ({
+      view,
+      layers: layers.filter((layer) => (layer.view || 'front') === view && isUploadedImageLayer(layer) && layer.image?.url),
+    })).filter((entry) => entry.layers.length > 0)
+    : [];
 
   return (
     <section className="order-customization-preview" aria-label={`Production preview for ${item.name || `item ${itemIndex + 1}`}`}>
@@ -253,6 +293,21 @@ const OrderCustomizationPreview = ({ item, itemIndex }) => {
             <CustomizationViewPreview key={`${item._id || itemIndex}-${view}`} item={item} view={view} layers={viewLayers} canvas={canvas} printArea={printArea} />
           ))}
         </div>
+      )}
+      {artworkViews.length > 0 && (
+        <section className="order-uploaded-artwork" aria-label="Uploaded artwork">
+          <h5>UPLOADED ARTWORK</h5>
+          {artworkViews.map(({ view, layers: viewLayers }) => (
+            <div className="order-uploaded-artwork-group" key={`${item._id || itemIndex}-artwork-${view}`}>
+              <h6>{view.toUpperCase()} ARTWORK</h6>
+              <div className="order-uploaded-artwork-grid">
+                {viewLayers.map((layer, index) => (
+                  <UploadedArtworkCard key={layer._id || `${view}-artwork-${index}`} layer={layer} index={layers.indexOf(layer)} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
       )}
     </section>
   );
@@ -414,7 +469,7 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
 
   return (
     <div className="admin-modal-overlay" onClick={onClose}>
-      <div className="admin-modal-content large-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="admin-modal-content large-modal order-detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="admin-modal-header">
           <div>
             <h2>ORDER DOSSIER #{orderId.slice(-8).toUpperCase()}</h2>
@@ -706,42 +761,56 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
 
             <div className="order-items-section">
               <h3>ORDERED GARMENTS & CUSTOMIZATIONS ({order.items ? order.items.length : 0})</h3>
-              <div className="admin-table-wrapper">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>ITEM</th>
-                      <th>SIZE</th>
-                      <th>COLOUR</th>
-                      <th>QTY</th>
-                      <th>UNIT PRICE</th>
-                      <th>SUBTOTAL</th>
-                      <th>CUSTOMIZATION DETAILS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {order.items && order.items.map((item, idx) => (
-                      <tr key={idx}>
-                        <td><strong>{item.name}</strong></td>
-                        <td>{item.size}</td>
-                        <td>{item.colour}</td>
-                        <td>{item.quantity}</td>
-                        <td>&#8377;{item.unitPrice}</td>
-                        <td><strong>&#8377;{item.subtotal}</strong></td>
-                        <td>
-                          {item.customized ? (
-                            <div className="customization-snapshot-cell">
-                              <span className="custom-badge">BESPOKE STUDIO CREATION</span>
-                              <OrderCustomizationPreview item={item} itemIndex={idx} />
-                            </div>
-                          ) : (
-                            <span className="standard-item-note">Standard Base Garment</span>
-                          )}
-                        </td>
+              {order.items?.some((item) => !item.customized) && (
+                <div className="admin-table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ITEM</th>
+                        <th>SIZE</th>
+                        <th>COLOUR</th>
+                        <th>QTY</th>
+                        <th>UNIT PRICE</th>
+                        <th>SUBTOTAL</th>
+                        <th>CUSTOMIZATION DETAILS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {order.items.map((item, idx) => !item.customized && (
+                        <tr key={idx}>
+                          <td><strong>{item.name}</strong></td>
+                          <td>{item.size}</td>
+                          <td>{item.colour}</td>
+                          <td>{item.quantity}</td>
+                          <td>&#8377;{item.unitPrice}</td>
+                          <td><strong>&#8377;{item.subtotal}</strong></td>
+                          <td><span className="standard-item-note">Standard Base Garment</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <div className="customized-order-items">
+                {order.items?.map((item, idx) => item.customized && (
+                  <article className="customized-order-item-card" key={idx}>
+                    <div className="customization-snapshot-cell">
+                      <section className="customized-order-item-summary" aria-label="Ordered garment">
+                        <span className="custom-badge">BESPOKE STUDIO CREATION</span>
+                        <h4>{item.name || `Customized item ${idx + 1}`}</h4>
+                        <h5>ORDER ITEM</h5>
+                        <dl>
+                          <div><dt>Size</dt><dd>{item.size || '—'}</dd></div>
+                          <div><dt>Colour</dt><dd>{item.colour || '—'}</dd></div>
+                          <div><dt>Quantity</dt><dd>{item.quantity ?? '—'}</dd></div>
+                          <div><dt>Unit Price</dt><dd>&#8377;{item.unitPrice ?? '—'}</dd></div>
+                          <div className="customized-order-item-subtotal"><dt>Subtotal</dt><dd>&#8377;{item.subtotal ?? '—'}</dd></div>
+                        </dl>
+                      </section>
+                      <OrderCustomizationPreview item={item} itemIndex={idx} />
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
           </div>
