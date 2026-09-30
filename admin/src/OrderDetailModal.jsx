@@ -202,6 +202,14 @@ const OrderDetailModal = ({ orderId, onClose, onUpdated }) => {
                 </div>
               )}
               <div className="summary-block">
+                <span className="summary-block-label">SUBTOTAL</span>
+                <span className="summary-block-val">&#8377;{order.subtotal}</span>
+              </div>
+              <div className="summary-block">
+                <span className="summary-block-label">DISCOUNT</span>
+                <span className="summary-block-val">&#8377;{order.discountAmount}</span>
+              </div>
+              <div className="summary-block">
                 <span className="summary-block-label">TOTAL AMOUNT</span>
                 <span className="summary-block-val">&#8377;{order.totalAmount}</span>
               </div>

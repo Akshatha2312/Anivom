@@ -421,3 +421,29 @@
   color: #666666;
   margin: 2px 0 0 0;
 }
+
+@media (max-width: 340px) {
+  .anivom-auth-split-wrapper {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+  }
+
+  .anivom-auth-visual-side,
+  .anivom-auth-form-side,
+  .anivom-auth-brand-area,
+  .anivom-auth-form,
+  .anivom-google-auth-container {
+    min-width: 0;
+  }
+
+  .anivom-google-auth-container {
+    overflow: hidden;
+  }
+
+  .anivom-google-btn-wrapper {
+    width: 320px;
+    max-width: none;
+    transform: scale(0.75);
+    transform-origin: center;
+  }
+}
