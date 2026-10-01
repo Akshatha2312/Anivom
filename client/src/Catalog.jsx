@@ -323,6 +323,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
   const [showAuthModal, setShowAuthModal] = useState(false)
 
   const searchContainerRef = useRef(null)
+  const catalogRequestRef = useRef(0)
   const [showSuggestions, setShowSuggestions] = useState(false)
 
   const wishlistIds = Array.isArray(propWishlistIds) ? propWishlistIds : internalWishlistIds
@@ -404,8 +405,6 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
   const [tempMaxPrice, setTempMaxPrice] = useState('')
 
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalProducts, setTotalProducts] = useState(0)
 
   const [_dbCategories, setDbCategories] = useState(cachedDbCategories || [])
   const [dbSizes, setDbSizes] = useState(cachedDbSizes || [])
@@ -647,6 +646,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
   }
 
   const fetchProducts = useCallback(async () => {
+    const requestId = ++catalogRequestRef.current
     setLoading(true)
     setError(null)
 
@@ -659,28 +659,37 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
       if (minPrice !== '') params.append('minPrice', minPrice)
       if (maxPrice !== '') params.append('maxPrice', maxPrice)
       if (sortOption) params.append('sort', sortOption)
-      params.append('page', page)
-      params.append('limit', PRODUCTS_PER_PAGE)
+      params.append('limit', '100')
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/products?${params.toString()}`)
-      const data = await res.json()
+      const allProducts = []
+      let currentProductPage = 1
+      let rawProductPageCount = 1
 
-      if (res.ok) {
-        setProducts(data.data.products || [])
-        if (data.pagination) {
-          setPage(data.pagination.currentPage ?? page)
-          setTotalPages(data.pagination.totalPages ?? 1)
-          setTotalProducts(data.pagination.totalProducts ?? 0)
+      while (currentProductPage <= rawProductPageCount) {
+        params.set('page', String(currentProductPage))
+        const res = await fetch(`${API_BASE_URL}/api/v1/products?${params.toString()}`)
+        const data = await res.json()
+
+        if (requestId !== catalogRequestRef.current) return
+        if (!res.ok) {
+          setError(data.message || 'Failed to load catalog products.')
+          return
         }
-      } else {
-        setError(data.message || 'Failed to load catalog products.')
+
+        allProducts.push(...(data.data?.products || []))
+        rawProductPageCount = data.pagination?.totalPages || 1
+        currentProductPage += 1
       }
+
+      if (requestId === catalogRequestRef.current) setProducts(allProducts)
     } catch (err) {
-      setError('Network error connecting to ANIVOM catalog server.')
+      if (requestId === catalogRequestRef.current) {
+        setError('Network error connecting to ANIVOM catalog server.')
+      }
     } finally {
-      setLoading(false)
+      if (requestId === catalogRequestRef.current) setLoading(false)
     }
-  }, [searchQuery, activeCategory, selectedSize, selectedColour, minPrice, maxPrice, sortOption, page])
+  }, [searchQuery, activeCategory, selectedSize, selectedColour, minPrice, maxPrice, sortOption])
 
   useEffect(() => {
     fetchProducts()
@@ -732,17 +741,52 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
   }
 
   const catalogCards = useMemo(() => {
-    return products.map((product) => ({
-      cardKey: product._id,
-      product,
-      initialColour: selectedColour === 'All' ? '' : selectedColour,
-    }))
+    const list = []
+    const normSelected = selectedColour === 'All' ? 'all' : selectedColour.trim().toLowerCase()
+
+    products.forEach((product) => {
+      let variantColours = product.variants && product.variants.length > 0
+        ? Array.from(new Set(
+            product.variants
+              .filter((variant) => variant.stock > 0 && variant.colour)
+              .map((variant) => String(variant.colour).trim())
+              .filter((colour) => colour && !colour.toLowerCase().includes('-test'))
+          ))
+        : []
+
+      if (normSelected !== 'all') {
+        variantColours = variantColours.filter((colour) => colour.toLowerCase() === normSelected)
+      }
+
+      if (variantColours.length > 0) {
+        variantColours.forEach((colour) => {
+          list.push({
+            cardKey: `${product._id}-${colour}`,
+            product,
+            initialColour: colour,
+          })
+        })
+      } else if (normSelected === 'all') {
+        list.push({
+          cardKey: product._id,
+          product,
+          initialColour: '',
+        })
+      }
+    })
+
+    return list
   }, [products, selectedColour])
 
   const hasActiveFilters = selectedSize !== 'All' || selectedColour !== 'All' || minPrice !== '' || maxPrice !== ''
 
-  const startItemNum = totalProducts > 0 ? (page - 1) * PRODUCTS_PER_PAGE + 1 : 0
-  const endItemNum = Math.min(page * PRODUCTS_PER_PAGE, totalProducts)
+  const totalPages = Math.max(1, Math.ceil(catalogCards.length / PRODUCTS_PER_PAGE))
+  const paginatedCatalogCards = useMemo(() => {
+    const firstItemIndex = (page - 1) * PRODUCTS_PER_PAGE
+    return catalogCards.slice(firstItemIndex, firstItemIndex + PRODUCTS_PER_PAGE)
+  }, [catalogCards, page])
+  const startItemNum = catalogCards.length > 0 ? (page - 1) * PRODUCTS_PER_PAGE + 1 : 0
+  const endItemNum = Math.min(page * PRODUCTS_PER_PAGE, catalogCards.length)
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1)
 
@@ -764,7 +808,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
           <h1 className="anivom-brand-title">THE ANIVOM COLLECTION</h1>
           <p className="anivom-brand-tagline">Find your fit. Find your colour. Make it yours.</p>
           <div className="anivom-catalog-count-badge">
-            {catalogCards.length > 0 ? catalogCards.length : totalProducts} VARIANTS AVAILABLE
+            {catalogCards.length} VARIANTS AVAILABLE
           </div>
         </div>
 
@@ -964,7 +1008,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
         ) : (
           <>
             <div className="anivom-product-grid">
-              {catalogCards.map((item, idx) => (
+              {paginatedCatalogCards.map((item, idx) => (
                 <CatalogProductCard
                   key={item.cardKey}
                   index={idx}
@@ -1011,7 +1055,7 @@ function Catalog({ user, openStudio, onCartUpdated, onSelectProduct, onBuyNow, o
                 </div>
 
                 <span className="anivom-pagination-info">
-                  Showing <strong>{startItemNum}–{endItemNum}</strong> of <strong>{totalProducts}</strong> Products
+                  Showing <strong>{startItemNum}–{endItemNum}</strong> of <strong>{catalogCards.length}</strong> Variants
                 </span>
                 <button
                   disabled={page >= totalPages}
