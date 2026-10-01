@@ -249,6 +249,7 @@ function App() {
   const [cartCount, setCartCount] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [tickerIndex, setTickerIndex] = useState(0)
+  const tickerSequence = Array.from({ length: TICKER_MESSAGES.length * 2 }, (_, index) => TICKER_MESSAGES[(tickerIndex + index) % TICKER_MESSAGES.length])
 
   useEffect(() => {
     const defaultTitle = 'ANIVOM | Wear It Your Way.'
@@ -497,8 +498,15 @@ function App() {
       <header className="anivom-shell-header">
         <div className="anivom-ticker-bar" aria-label="Store announcement">
           <div className="anivom-ticker-track">
-            <span className="anivom-ticker-content">{TICKER_MESSAGES[tickerIndex]}</span>
-            <span className="anivom-ticker-content" aria-hidden="true">{TICKER_MESSAGES[tickerIndex]}</span>
+            {tickerSequence.map((message, index) => (
+              <span
+                key={`${message}-${index}`}
+                className="anivom-ticker-content"
+                aria-hidden={index >= TICKER_MESSAGES.length ? 'true' : undefined}
+              >
+                {message}
+              </span>
+            ))}
           </div>
         </div>
 
