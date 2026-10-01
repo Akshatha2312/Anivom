@@ -495,8 +495,11 @@ function App() {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#FFFDF8', display: 'flex', flexDirection: 'column' }}>
       <header className="anivom-shell-header">
-        <div className="anivom-ticker-bar">
-          <span className="anivom-ticker-content">{TICKER_MESSAGES[tickerIndex]}</span>
+        <div className="anivom-ticker-bar" aria-label="Store announcement">
+          <div className="anivom-ticker-track">
+            <span className="anivom-ticker-content">{TICKER_MESSAGES[tickerIndex]}</span>
+            <span className="anivom-ticker-content" aria-hidden="true">{TICKER_MESSAGES[tickerIndex]}</span>
+          </div>
         </div>
 
         <div className="anivom-nav-container">

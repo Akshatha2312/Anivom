@@ -22,20 +22,71 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   height: 32px;
-  padding: 0 16px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.anivom-ticker-track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  width: max-content;
+  min-width: 100%;
+  height: 100%;
+  will-change: transform;
+  animation: anivomTickerScroll 30s linear infinite;
+}
+
+.anivom-ticker-track:hover {
+  animation-play-state: paused;
+}
+
 .anivom-ticker-content {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
   line-height: 1;
+  color: #FFFDF8;
+  padding: 0 18px;
+  gap: 12px;
   transition: opacity 0.3s ease;
+}
+
+.anivom-ticker-content::before,
+.anivom-ticker-content::after {
+  content: '✦';
+  color: #E7D5A4;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.anivom-ticker-content::before {
+  margin-right: 2px;
+}
+
+.anivom-ticker-content::after {
+  margin-left: 2px;
+}
+
+@keyframes anivomTickerScroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anivom-ticker-track {
+    animation: none;
+    transform: none;
+  }
 }
 
 .anivom-shell-main {
