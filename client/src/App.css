@@ -59,7 +59,7 @@
 
 .anivom-ticker-content::before,
 .anivom-ticker-content::after {
-  content: '✦';
+  content: '◇';
   color: #E7D5A4;
   font-size: 9px;
   line-height: 1;
