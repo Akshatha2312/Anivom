@@ -255,7 +255,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
             </button>
             <div className="studio-brand-group">
               <span className="studio-badge">ANIVOM STUDIO ATELIER</span>
-              <span className="studio-tagline">Make it yours. Choose a piece and start creating.</span>
+              <span className="studio-tagline">Your canvas. Your expression.</span>
             </div>
             <button
               className="studio-back-btn"
@@ -270,7 +270,8 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
         <div className="studio-selector-hero">
           <div className="studio-selector-badge">BESPOKE STUDIO ATELIER</div>
           <h1 className="studio-selector-title">ANIVOM STUDIO</h1>
-          <p className="studio-selector-subtitle">Make it yours. Choose a piece and start creating.</p>
+          <p className="studio-selector-subtitle">Your canvas. Your expression.</p>
+          <p className="studio-selector-desc">Choose your silhouette and make it yours.</p>
         </div>
 
         <div className="studio-selector-container">
@@ -344,7 +345,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                       {sizes.length > 0 && (
                         <div className="studio-product-tags">
                           <span className="studio-tag-label">SIZES:</span>
-                          {sizes.slice(0, 6).map((sz) => (
+                          {sizes.map((sz) => (
                             <span key={sz} className="studio-pill">{sz}</span>
                           ))}
                         </div>
@@ -353,7 +354,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                       {colors.length > 0 && (
                         <div className="studio-product-tags">
                           <span className="studio-tag-label">COLOURS:</span>
-                          {colors.slice(0, 5).map((c) => (
+                          {colors.map((c) => (
                             <span key={c} className="studio-pill studio-pill-color">{c}</span>
                           ))}
                         </div>
@@ -366,7 +367,7 @@ const Studio = ({ product, user, initialCustomization, onBack, onCartUpdated, on
                           setSelectedStudioProduct(prod);
                         }}
                       >
-                        START DESIGNING
+                        DESIGN THIS PIECE &rarr;
                       </button>
                     </div>
                   </div>
