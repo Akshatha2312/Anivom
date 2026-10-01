@@ -301,6 +301,31 @@
   background-color: #7A1F3D;
 }
 
+.anivom-auth-loading {
+  width: 84px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid #7A1F3D;
+}
+
+.anivom-auth-loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 253, 248, 0.3);
+  border-top-color: #C6A15B;
+  border-radius: 50%;
+  animation: anivom-auth-spin 0.8s linear infinite;
+}
+
+@keyframes anivom-auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Mobile Toggle & Menu */
 .anivom-mobile-toggle {
   display: none;

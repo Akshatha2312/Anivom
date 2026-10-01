@@ -549,7 +549,9 @@ function App() {
             </button>
 
             {authLoading ? (
-              <span style={{ fontSize: '11px', color: '#999', letterSpacing: '0.05em' }}>...</span>
+              <span className="anivom-auth-loading" role="status" aria-label="Checking sign-in status">
+                <span className="anivom-auth-loading-spinner" aria-hidden="true" />
+              </span>
             ) : user ? (
               <div className="anivom-account-dropdown-wrapper">
                 <button
