@@ -6,7 +6,7 @@
   font-family: inherit;
   color: #111111;
   box-sizing: border-box;
-  min-height: calc(100vh - 220px);
+  min-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
 }
@@ -404,6 +404,7 @@
 
 @media (max-width: 600px) {
   .anivom-wishlist-container {
+    min-height: calc(100vh - 92px);
     padding: 20px 14px 60px 14px;
   }
 
