@@ -8,6 +8,15 @@
   box-sizing: border-box;
 }
 
+.anivom-shell-main:has(> .anivom-account-container) {
+  flex: 0 0 auto;
+  min-height: calc(100vh - 100px);
+}
+
+.anivom-shell-main:has(> .anivom-account-container) + .anivom-shell-footer {
+  margin-top: 0;
+}
+
 .anivom-account-header {
   display: flex;
   justify-content: space-between;
