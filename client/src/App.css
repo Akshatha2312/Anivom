@@ -33,16 +33,19 @@
 .anivom-ticker-track {
   display: flex;
   align-items: center;
+  flex: 0 0 max-content;
   white-space: nowrap;
   width: max-content;
-  min-width: 100%;
   height: 100%;
   will-change: transform;
-  animation: anivomTickerScroll 30s linear infinite;
+  animation: anivomTickerScroll 60s linear infinite;
 }
 
-.anivom-ticker-track:hover {
-  animation-play-state: paused;
+.anivom-ticker-sequence {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  height: 100%;
 }
 
 .anivom-ticker-content {

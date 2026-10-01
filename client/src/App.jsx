@@ -27,6 +27,7 @@ const TICKER_MESSAGES = [
   'NEW DROPS. YOUR STYLE.',
   'DESIGNED BY YOU. MADE FOR YOU.',
 ]
+const TICKER_SEQUENCE = [...TICKER_MESSAGES, ...TICKER_MESSAGES]
 
 const PATH_MAP = {
   '/': 'home',
@@ -248,8 +249,6 @@ function App() {
 
   const [cartCount, setCartCount] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [tickerIndex, setTickerIndex] = useState(0)
-  const tickerSequence = Array.from({ length: TICKER_MESSAGES.length * 2 }, (_, index) => TICKER_MESSAGES[(tickerIndex + index) % TICKER_MESSAGES.length])
 
   useEffect(() => {
     const defaultTitle = 'ANIVOM | Wear It Your Way.'
@@ -272,13 +271,6 @@ function App() {
       window.removeEventListener('blur', handleBlur)
       window.removeEventListener('focus', handleFocus)
     }
-  }, [])
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTickerIndex((prev) => (prev + 1) % TICKER_MESSAGES.length)
-    }, 4000)
-    return () => clearInterval(timer)
   }, [])
 
   const fetchCurrentUser = async () => {
@@ -498,14 +490,18 @@ function App() {
       <header className="anivom-shell-header">
         <div className="anivom-ticker-bar" aria-label="Store announcement">
           <div className="anivom-ticker-track">
-            {tickerSequence.map((message, index) => (
-              <span
-                key={`${message}-${index}`}
-                className="anivom-ticker-content"
-                aria-hidden={index >= TICKER_MESSAGES.length ? 'true' : undefined}
+            {[0, 1].map((sequenceIndex) => (
+              <div
+                key={sequenceIndex}
+                className="anivom-ticker-sequence"
+                aria-hidden={sequenceIndex === 1 ? 'true' : undefined}
               >
-                {message}
-              </span>
+                {TICKER_SEQUENCE.map((message, index) => (
+                  <span key={`${message}-${index}`} className="anivom-ticker-content">
+                    {message}
+                  </span>
+                ))}
+              </div>
             ))}
           </div>
         </div>
